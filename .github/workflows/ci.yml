@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]
+        node-version: [20.x, 22.x]
 
     steps:
       - name: Checkout code
@@ -36,7 +36,7 @@ jobs:
         run: pnpm run lint
 
       - name: Run tests with coverage
-        run: pnpm test -- --coverage --coverageReporters=text --coverageReporters=lcov
+        run: pnpm run test:coverage
 
       - name: Build project
         run: pnpm build

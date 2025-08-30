@@ -11,11 +11,12 @@
   ],
   "author": "miinhho",
   "scripts": {
-    "test": "jest",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "prepare": "husky install",
+    "test": "jest",
+    "test:coverage": "jest --coverage --coverageReporters=text --coverageReporters=lcov",
     "commit": "cz"
   },
   "peerDependencies": {
