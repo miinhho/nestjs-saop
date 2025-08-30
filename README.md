@@ -348,6 +348,9 @@ cd nestjs-saop
 # Install dependencies
 pnpm install
 
+# Initialize husky (sets up git hooks)
+pnpm run prepare
+
 # Run tests
 pnpm test
 
