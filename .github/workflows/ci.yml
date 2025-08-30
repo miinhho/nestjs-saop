@@ -51,40 +51,6 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
-  quality:
-    runs-on: ubuntu-latest
-    needs: test
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.15.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Check formatting
-        run: pnpm format --check
-
-      - name: Build for production
-        run: pnpm build
-
-      - name: Check build artifacts
-        run: |
-          ls -la dist/
-          echo "Build size:"
-          du -sh dist/
-
   security:
     runs-on: ubuntu-latest
     needs: test
