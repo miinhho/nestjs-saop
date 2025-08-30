@@ -2,7 +2,6 @@
 
 [![npm version](https://badge.fury.io/js/nestjs-saop.svg)](https://badge.fury.io/js/nestjs-saop)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Test Coverage](https://img.shields.io/badge/coverage-98.73%25-brightgreen)](https://github.com/miinhho/nestjs-saop)
 
 Spring S## Documentation
 
