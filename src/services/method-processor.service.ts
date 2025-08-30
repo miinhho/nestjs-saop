@@ -1,5 +1,5 @@
-import { SAOP_METADATA_KEY } from '@/interfaces/saop-decorator.interface';
 import { Injectable } from '@nestjs/common';
+import { SAOP_METADATA_KEY } from '../interfaces';
 
 /**
  * Processes class methods and finds SAOP decorators

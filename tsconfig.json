@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
-    "module": "ES2022",
-    "moduleResolution": "node",
     "target": "es6",
-    "lib": ["esnext"],
+    "module": "commonjs",
+    "moduleResolution": "node",
     "types": ["node", "jest"],
 
     "sourceMap": true,
@@ -11,9 +10,6 @@
     "declarationMap": true,
 
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    },
     "outDir": "dist",
 
     "noImplicitAny": true,
@@ -23,8 +19,6 @@
     "exactOptionalPropertyTypes": true,
 
     "strict": true,
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

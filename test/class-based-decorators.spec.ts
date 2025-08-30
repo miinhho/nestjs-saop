@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import 'reflect-metadata';
 import { SAOPDecorator } from '../src/decorators/saop-decorator-classes';
-import { AOP_TYPES, SAOP_METADATA_KEY } from '../src/interfaces/saop-decorator.interface';
+import { AOP_TYPES, SAOP_METADATA_KEY } from '../src/interfaces';
 import { SAOPModule } from '../src/saop.module';
 
 describe('SAOPDecorator Base Class', () => {
@@ -17,27 +16,71 @@ describe('SAOPDecorator Base Class', () => {
     await app.close();
   });
 
-  describe('SAOPDecorator.create static method', () => {
+  describe('SAOPDecorator static methods', () => {
     class ConcreteDecorator extends SAOPDecorator {}
 
-    it('should have create static method', () => {
-      expect(typeof ConcreteDecorator.create).toBe('function');
+    it('should have around static method', () => {
+      expect(typeof ConcreteDecorator.around).toBe('function');
     });
 
-    it('should create decorator function with create method', () => {
-      const decorator = ConcreteDecorator.create({ level: 'info' });
+    it('should have before static method', () => {
+      expect(typeof ConcreteDecorator.before).toBe('function');
+    });
+
+    it('should have after static method', () => {
+      expect(typeof ConcreteDecorator.after).toBe('function');
+    });
+
+    it('should have afterReturning static method', () => {
+      expect(typeof ConcreteDecorator.afterReturning).toBe('function');
+    });
+
+    it('should have afterThrowing static method', () => {
+      expect(typeof ConcreteDecorator.afterThrowing).toBe('function');
+    });
+
+    it('should create decorator function with around method', () => {
+      const decorator = ConcreteDecorator.around({ level: 'info' });
       expect(typeof decorator).toBe('function');
       expect(decorator.length).toBe(3); // target, propertyKey, descriptor
+    });
+
+    it('should create decorator function with before method', () => {
+      const decorator = ConcreteDecorator.before({ level: 'info' });
+      expect(typeof decorator).toBe('function');
+      expect(decorator.length).toBe(3);
+    });
+
+    it('should create decorator function with after method', () => {
+      const decorator = ConcreteDecorator.after({ level: 'info' });
+      expect(typeof decorator).toBe('function');
+      expect(decorator.length).toBe(3);
+    });
+
+    it('should create decorator function with afterReturning method', () => {
+      const decorator = ConcreteDecorator.afterReturning({ level: 'info' });
+      expect(typeof decorator).toBe('function');
+      expect(decorator.length).toBe(3);
+    });
+
+    it('should create decorator function with afterThrowing method', () => {
+      const decorator = ConcreteDecorator.afterThrowing({ level: 'info' });
+      expect(typeof decorator).toBe('function');
+      expect(decorator.length).toBe(3);
     });
 
     it('should create decorator function with empty options', () => {
-      const decorator = ConcreteDecorator.create();
+      const decorator = ConcreteDecorator.around();
       expect(typeof decorator).toBe('function');
-      expect(decorator.length).toBe(3); // target, propertyKey, descriptor
+      expect(decorator.length).toBe(3);
     });
+  });
 
-    it('should apply decorator and set metadata correctly', () => {
-      const decorator = ConcreteDecorator.create({ level: 'info' });
+  describe('SAOPDecorator metadata application', () => {
+    class ConcreteDecorator extends SAOPDecorator {}
+
+    it('should apply around decorator and set metadata correctly', () => {
+      const decorator = ConcreteDecorator.around({ level: 'info' });
 
       class TestClass {
         @decorator
@@ -53,13 +96,101 @@ describe('SAOPDecorator Base Class', () => {
       expect(metadata[0]).toEqual({
         type: AOP_TYPES.AROUND,
         options: { level: 'info' },
-        decoratorClass: 'ConcreteDecorator',
+        decoratorClass: 'SAOPDecorator',
       });
     });
 
+    it('should apply before decorator and set metadata correctly', () => {
+      const decorator = ConcreteDecorator.before({ level: 'info' });
+
+      class TestClass {
+        @decorator
+        testMethod() {
+          return 'test';
+        }
+      }
+
+      const metadata = Reflect.getMetadata(SAOP_METADATA_KEY, TestClass, 'testMethod');
+      expect(metadata).toBeDefined();
+      expect(Array.isArray(metadata)).toBe(true);
+      expect(metadata.length).toBe(1);
+      expect(metadata[0]).toEqual({
+        type: AOP_TYPES.BEFORE,
+        options: { level: 'info' },
+        decoratorClass: 'SAOPDecorator',
+      });
+    });
+
+    it('should apply after decorator and set metadata correctly', () => {
+      const decorator = ConcreteDecorator.after({ level: 'info' });
+
+      class TestClass {
+        @decorator
+        testMethod() {
+          return 'test';
+        }
+      }
+
+      const metadata = Reflect.getMetadata(SAOP_METADATA_KEY, TestClass, 'testMethod');
+      expect(metadata).toBeDefined();
+      expect(Array.isArray(metadata)).toBe(true);
+      expect(metadata.length).toBe(1);
+      expect(metadata[0]).toEqual({
+        type: AOP_TYPES.AFTER,
+        options: { level: 'info' },
+        decoratorClass: 'SAOPDecorator',
+      });
+    });
+
+    it('should apply afterReturning decorator and set metadata correctly', () => {
+      const decorator = ConcreteDecorator.afterReturning({ level: 'info' });
+
+      class TestClass {
+        @decorator
+        testMethod() {
+          return 'test';
+        }
+      }
+
+      const metadata = Reflect.getMetadata(SAOP_METADATA_KEY, TestClass, 'testMethod');
+      expect(metadata).toBeDefined();
+      expect(Array.isArray(metadata)).toBe(true);
+      expect(metadata.length).toBe(1);
+      expect(metadata[0]).toEqual({
+        type: AOP_TYPES.AFTER_RETURNING,
+        options: { level: 'info' },
+        decoratorClass: 'SAOPDecorator',
+      });
+    });
+
+    it('should apply afterThrowing decorator and set metadata correctly', () => {
+      const decorator = ConcreteDecorator.afterThrowing({ level: 'info' });
+
+      class TestClass {
+        @decorator
+        testMethod() {
+          return 'test';
+        }
+      }
+
+      const metadata = Reflect.getMetadata(SAOP_METADATA_KEY, TestClass, 'testMethod');
+      expect(metadata).toBeDefined();
+      expect(Array.isArray(metadata)).toBe(true);
+      expect(metadata.length).toBe(1);
+      expect(metadata[0]).toEqual({
+        type: AOP_TYPES.AFTER_THROWING,
+        options: { level: 'info' },
+        decoratorClass: 'SAOPDecorator',
+      });
+    });
+  });
+
+  describe('Multiple decorators on same method', () => {
+    class ConcreteDecorator extends SAOPDecorator {}
+
     it('should handle multiple decorators on same method', () => {
-      const decorator1 = ConcreteDecorator.create({ level: 'info' });
-      const decorator2 = ConcreteDecorator.create({ level: 'debug' });
+      const decorator1 = ConcreteDecorator.around({ level: 'info' });
+      const decorator2 = ConcreteDecorator.before({ level: 'debug' });
 
       class TestClass {
         @decorator1
@@ -74,14 +205,14 @@ describe('SAOPDecorator Base Class', () => {
       expect(Array.isArray(metadata)).toBe(true);
       expect(metadata.length).toBe(2);
       expect(metadata[0]).toEqual({
-        type: AOP_TYPES.AROUND,
+        type: AOP_TYPES.BEFORE,
         options: { level: 'debug' },
-        decoratorClass: 'ConcreteDecorator',
+        decoratorClass: 'SAOPDecorator',
       });
       expect(metadata[1]).toEqual({
         type: AOP_TYPES.AROUND,
         options: { level: 'info' },
-        decoratorClass: 'ConcreteDecorator',
+        decoratorClass: 'SAOPDecorator',
       });
     });
   });
@@ -138,12 +269,16 @@ describe('SAOPDecorator Base Class', () => {
       expect(typeof decorator.before).toBe('function');
     });
 
-    it('should have create method on custom decorator', () => {
-      expect(typeof TestDecorator.create).toBe('function');
+    it('should have static methods on custom decorator', () => {
+      expect(typeof TestDecorator.around).toBe('function');
+      expect(typeof TestDecorator.before).toBe('function');
+      expect(typeof TestDecorator.after).toBe('function');
+      expect(typeof TestDecorator.afterReturning).toBe('function');
+      expect(typeof TestDecorator.afterThrowing).toBe('function');
     });
 
     it('should create decorator function from custom class', () => {
-      const decorator = TestDecorator.create({ customOption: 'test' });
+      const decorator = TestDecorator.around({ customOption: 'test' });
       expect(typeof decorator).toBe('function');
       expect(decorator.length).toBe(3);
     });

@@ -1,6 +1,6 @@
-import type { ISAOPDecorator } from '@/interfaces/saop-decorator.interface';
-import { AOP_TYPES } from '@/interfaces/saop-decorator.interface';
 import { Injectable } from '@nestjs/common';
+import type { ISAOPDecorator } from '../interfaces';
+import { AOP_TYPES } from '../interfaces';
 
 /**
  * Applies SAOP decorators to methods
@@ -67,9 +67,6 @@ export class DecoratorApplier {
     decorator: any,
   ): void {
     switch (decorator.type) {
-      case AOP_TYPES.AROUND:
-        this.applyAround(saopDecorator, descriptor, originalMethod, decorator.options);
-        break;
       case AOP_TYPES.BEFORE:
         this.applyBefore(saopDecorator, descriptor, instance, originalMethod, decorator.options);
         break;
@@ -93,6 +90,9 @@ export class DecoratorApplier {
           originalMethod,
           decorator.options,
         );
+        break;
+      case AOP_TYPES.AROUND:
+        this.applyAround(saopDecorator, descriptor, originalMethod, decorator.options);
         break;
     }
   }

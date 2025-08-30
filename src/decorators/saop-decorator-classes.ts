@@ -1,10 +1,6 @@
-import type {
-  AOPContext,
-  ISAOPDecorator,
-  SAOPOptions,
-} from '@/interfaces/saop-decorator.interface';
-import { AOP_TYPES, SAOP_METADATA_KEY } from '@/interfaces/saop-decorator.interface';
 import { Injectable } from '@nestjs/common';
+import type { AOPContext, AOPType, ISAOPDecorator, SAOPOptions } from '../interfaces';
+import { AOP_TYPES, SAOP_METADATA_KEY } from '../interfaces';
 
 /**
  * Base class for SAOP decorators
@@ -14,32 +10,61 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export abstract class SAOPDecorator<T = unknown, E = unknown> implements ISAOPDecorator<T, E> {
   /**
-   * Static decorator method - similar to NestJS UseInterceptor() pattern
+   * Helper method to add decorator metadata
+   * @param type - AOP type
+   * @param options - Decorator options
+   * @param target - Target class
+   * @param propertyKey - Method name
+   */
+  private static addDecorator(
+    type: AOPType,
+    options: SAOPOptions,
+    target: any,
+    propertyKey: string,
+  ): void {
+    const decoratorClass = this.name;
+    const existingDecorators =
+      Reflect.getMetadata(SAOP_METADATA_KEY, target.constructor, propertyKey) || [];
+    existingDecorators.push({
+      type,
+      options,
+      decoratorClass,
+    });
+    Reflect.defineMetadata(SAOP_METADATA_KEY, existingDecorators, target.constructor, propertyKey);
+  }
+
+  /**
+   * Static decorator method for around
    * @param options - Decorator options
    * @returns Decorator function
-   * @example
-   * ```typescript
-   * ＠LoggingDecorator.create({ level: 'info' })
-   * async myMethod() { ... }
-   * ```
    */
-  static create(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
+  static around(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
     return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
-      const decoratorClass = this.name;
+      SAOPDecorator.addDecorator(AOP_TYPES.AROUND, options, target, propertyKey);
+    };
+  }
 
-      const existingDecorators =
-        Reflect.getMetadata(SAOP_METADATA_KEY, target.constructor, propertyKey) || [];
-      existingDecorators.push({
-        type: AOP_TYPES.AROUND,
-        options,
-        decoratorClass,
-      });
-      Reflect.defineMetadata(
-        SAOP_METADATA_KEY,
-        existingDecorators,
-        target.constructor,
-        propertyKey,
-      );
+  static before(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
+    return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
+      SAOPDecorator.addDecorator(AOP_TYPES.BEFORE, options, target, propertyKey);
+    };
+  }
+
+  static after(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
+    return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
+      SAOPDecorator.addDecorator(AOP_TYPES.AFTER, options, target, propertyKey);
+    };
+  }
+
+  static afterReturning(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
+    return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
+      SAOPDecorator.addDecorator(AOP_TYPES.AFTER_RETURNING, options, target, propertyKey);
+    };
+  }
+
+  static afterThrowing(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
+    return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
+      SAOPDecorator.addDecorator(AOP_TYPES.AFTER_THROWING, options, target, propertyKey);
     };
   }
 
