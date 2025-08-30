@@ -3,22 +3,12 @@
 [![npm version](https://badge.fury.io/js/nestjs-saop.svg)](https://badge.fury.io/js/nestjs-saop)
 [![codecov](https://codecov.io/github/miinhho/nestjs-saop/graph/badge.svg?token=XXUGSS0MWV)](https://codecov.io/github/miinhho/nestjs-saop)
 
-Spring AOP (Aspect Oriented Programming) in Nest.js
+Spring style AOP (Aspect Oriented Programming) in Nest.js
 
 ## Features
 
 - ✅ TypeScript support with full type safety
 - ✅ Zero runtime dependencies (except peer dependencies)
-
-## Documentation
-
-- 📖 [API Reference](./docs/api.md)
-- 💡 [Usage Examples](./docs/examples.md)
-- 📝 [Changelog](./docs/CHANGELOG.md)
-- 🔧 [Contributing Guide](./CONTRIBUTING.md)
-- ✅ Nest.js DiscoveryModule integration
-- ✅ Flexible and extensible architecture
-- ✅ Modern development workflow with husky, lint-staged, and commitizen
 
 ## Installation
 
@@ -134,20 +124,18 @@ export class ExampleController {
 }
 
 export class ExampleService {
-  @LoggingDecorator.create({ level: 'info', logArgs: true, logResult: true })
+  @LoggingDecorator.after({ level: 'info', logArgs: true, logResult: true })
   processData(data: any): string {
     return `Processed: ${data}`;
   }
 
-  @CachingDecorator.create({ ttl: 300000 }) // 5분 캐시
+  @CachingDecorator.afterReturn({ ttl: 300000 }) 
   async getUserById(id: string): Promise<User> {
-    // DB 조회 로직
     return await this.userRepository.findById(id);
   }
 
-  @PerformanceDecorator.create({ logPerformance: true, threshold: 1000 })
+  @PerformanceDecorator.around({ logPerformance: true, threshold: 1000 })
   async expensiveOperation(): Promise<any> {
-    // 시간이 오래 걸리는 작업
     await new Promise(resolve => setTimeout(resolve, 500));
     return { result: 'done' };
   }
@@ -168,43 +156,6 @@ export class ConditionalDecorator implements SAOPDecorator {
       return method.apply(this, args);
     };
   }
-}
-```
-
-## API Reference
-
-### ISAOPDecorator<T, E>
-
-Interface for implementing AOP logic with full TypeScript support.
-
-```ts
-interface ISAOPDecorator<T = unknown, E = unknown> {
-  around?(context: { method: Function; options: any }): (...args: any[]) => T;
-  before?(context: { method: Function; options: any }): (...args: any[]) => void;
-  after?(context: { method: Function; options: any }): (...args: any[]) => void;
-  afterReturning?(context: { method: Function; options: any; result: T }): (...args: any[]) => void;
-  afterThrowing?(context: { method: Function; options: any; error: E }): (...args: any[]) => void;
-}
-```
-
-### SAOPDecorator<T, E>
-
-Base class that automatically provides the `create()` method for Nest.js UseInterceptor() style usage.
-
-```ts
-abstract class SAOPDecorator<T = unknown, E = unknown> implements ISAOPDecorator<T, E> {
-  static create(options: SAOPOptions): MethodDecorator;
-  // ... AOP method implementations
-}
-```
-
-### SAOPOptions
-
-Type for decorator options (fully customizable).
-
-```ts
-interface SAOPOptions {
-  [key: string]: any;
 }
 ```
 
