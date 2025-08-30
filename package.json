@@ -54,14 +54,5 @@
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
-  },
-  "lint-staged": {
-    "*.{ts,js,json,md}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "*.{ts,js}": [
-      "eslint --fix"
-    ]
   }
 }
