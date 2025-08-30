@@ -1,0 +1,15 @@
+node_modules
+dist
+
+coverage
+
+.DS_Store
+
+.idea/
+.vscode
+settings.json
+
+.pnpm-debug.log
+.npmrc
+
+TODO.md

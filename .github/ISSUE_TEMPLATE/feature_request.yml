@@ -1,0 +1,25 @@
+---
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement
+labels: ["enhancement", "feature-request"]
+---
+
+## ✨ Feature Request
+
+### 📝 Summary
+<!-- A clear and concise description of the feature you'd like -->
+
+### 🎯 Problem Statement
+<!-- What problem does this feature solve? -->
+
+### 💡 Proposed Solution
+<!-- Describe your proposed solution -->
+
+### 🔄 Alternative Solutions
+<!-- Describe any alternative solutions you've considered -->
+
+### 📊 Use Case
+<!-- Provide a real-world use case for this feature -->
+
+### 📋 Additional Context
+<!-- Add any other context or screenshots about the feature request -->
