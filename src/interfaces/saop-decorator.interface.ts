@@ -1,4 +1,10 @@
-import { AOPContext, AOPMethod, AOPType } from './aop.interface';
+import {
+  AOPMethod,
+  AOPType,
+  ErrorAOPContext,
+  ResultAOPContext,
+  UnitAOPContext,
+} from './aop.interface';
 
 /**
  * SAOP metadata key
@@ -16,37 +22,35 @@ export interface ISAOPDecorator<T = unknown, E = unknown> {
    * @param context - Method and options context
    * @returns Wrapped method function
    */
-  around?(context: Pick<AOPContext<T, E>, 'method' | 'options'>): AOPMethod<T>;
+  around?(context: UnitAOPContext<T, E>): AOPMethod<T>;
 
   /**
    * Before decorator
    * @param context - Method and options context
    * @returns Callback function
    */
-  before?(context: Pick<AOPContext<T, E>, 'method' | 'options'>): AOPMethod<void>;
+  before?(context: UnitAOPContext<T, E>): AOPMethod<void>;
 
   /**
    * After decorator
    * @param context - Method and options context
    * @returns Callback function
    */
-  after?(context: Pick<AOPContext<T, E>, 'method' | 'options'>): AOPMethod<void>;
+  after?(context: UnitAOPContext<T, E>): AOPMethod<void>;
 
   /**
    * AfterReturning decorator
    * @param context - Method, options, and result context
    * @returns Callback function
    */
-  afterReturning?(
-    context: Pick<AOPContext<T, E>, 'method' | 'options' | 'result'>,
-  ): AOPMethod<void>;
+  afterReturning?(context: ResultAOPContext<T, E>): AOPMethod<void>;
 
   /**
    * AfterThrowing decorator
    * @param context - Method, options, and error context
    * @returns Callback function
    */
-  afterThrowing?(context: Pick<AOPContext<T, E>, 'method' | 'options' | 'error'>): AOPMethod<void>;
+  afterThrowing?(context: ErrorAOPContext<T, E>): AOPMethod<void>;
 }
 
 /**

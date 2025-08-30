@@ -44,7 +44,7 @@ import { SAOPDecorator } from 'nestjs-saop';
 
 @Injectable()
 export class LoggingDecorator extends SAOPDecorator {
-  around({ method, options }: { method: Function; options: any }): (...args: any[]) => string {
+  around({ method, options }) {
     return (...args: any[]) => {
       console.log('🔄 Around: Before method call', ...args);
       const result = method.apply(this, args);
@@ -53,41 +53,25 @@ export class LoggingDecorator extends SAOPDecorator {
     };
   }
 
-  before({ method, options }: { method: Function; options: any }): (...args: any[]) => void {
+  before({ method, options }) {
     return (...args: any[]) => {
       console.log('▶️ Before: Method called with', ...args);
     };
   }
 
-  after({ method, options }: { method: Function; options: any }): (...args: any[]) => void {
+  after({ method, options }) {
     return (...args: any[]) => {
       console.log('⏹️ After: Method completed');
     };
   }
 
-  afterReturning({
-    method,
-    options,
-    result,
-  }: {
-    method: Function;
-    options: any;
-    result: string;
-  }): (...args: any[]) => void {
+  afterReturning({ method, options, result }) {
     return (...args: any[]) => {
       console.log('✅ AfterReturning: Method returned', result);
     };
   }
 
-  afterThrowing({
-    method,
-    options,
-    error,
-  }: {
-    method: Function;
-    options: any;
-    error: Error;
-  }): (...args: any[]) => void {
+  afterThrowing({ method, options, error }): (...args: any[]) => void {
     return (...args: any[]) => {
       console.log('❌ AfterThrowing: Method threw', error.message);
     };
@@ -107,8 +91,6 @@ export class AppModule {}
 ```
 
 ### 4. Use AOP Decorators
-
-#### Class-based Decorators (Recommended - Nest.js UseInterceptor() style)
 
 ```ts
 import { LoggingDecorator, CachingDecorator, PerformanceDecorator } from 'example-path';

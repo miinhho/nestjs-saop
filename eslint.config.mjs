@@ -1,5 +1,11 @@
 import js from '@eslint/js';
+import tseslintParser from '@typescript-eslint/parser';
+import { dirname } from 'path';
 import tseslint from 'typescript-eslint';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default [
   js.configs.recommended,
@@ -23,6 +29,15 @@ export default [
       '*.config.js',
       '*.config.ts',
       'test/setup.ts',
+      'example/**',
     ],
+  },
+  {
+    languageOptions: {
+      parser: tseslintParser,
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+      },
+    },
   },
 ];

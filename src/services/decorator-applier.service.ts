@@ -107,11 +107,11 @@ export class DecoratorApplier {
   private applyAround(
     saopDecorator: ISAOPDecorator,
     descriptor: PropertyDescriptor,
-    originalMethod: Function,
+    _originalMethod: Function,
     options: any,
   ): void {
     if (saopDecorator.around) {
-      descriptor.value = saopDecorator.around({ method: originalMethod, options });
+      descriptor.value = saopDecorator.around({ method: descriptor.value, options });
     }
   }
 

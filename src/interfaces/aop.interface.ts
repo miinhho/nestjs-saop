@@ -37,3 +37,7 @@ export type AOPContext<T = unknown, E = unknown> = {
   /** Error thrown (afterThrowing only) */
   error?: E;
 };
+
+export type UnitAOPContext<T, E> = Pick<AOPContext<T, E>, 'method' | 'options'>;
+export type ResultAOPContext<T, E> = Pick<AOPContext<T, E>, 'method' | 'options' | 'result'>;
+export type ErrorAOPContext<T, E> = Pick<AOPContext<T, E>, 'method' | 'options' | 'error'>;

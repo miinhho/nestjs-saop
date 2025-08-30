@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import type { AOPContext, AOPType, ISAOPDecorator, SAOPOptions } from '../interfaces';
+import type {
+  AOPType,
+  ErrorAOPContext,
+  ISAOPDecorator,
+  ResultAOPContext,
+  SAOPOptions,
+  UnitAOPContext,
+} from '../interfaces';
 import { AOP_TYPES, SAOP_METADATA_KEY } from '../interfaces';
 
 /**
@@ -9,20 +16,19 @@ import { AOP_TYPES, SAOP_METADATA_KEY } from '../interfaces';
  */
 @Injectable()
 export abstract class SAOPDecorator<T = unknown, E = unknown> implements ISAOPDecorator<T, E> {
-  /**
-   * Helper method to add decorator metadata
-   * @param type - AOP type
-   * @param options - Decorator options
-   * @param target - Target class
-   * @param propertyKey - Method name
-   */
-  private static addDecorator(
-    type: AOPType,
-    options: SAOPOptions,
-    target: any,
-    propertyKey: string,
-  ): void {
-    const decoratorClass = this.name;
+  private static addDecorator({
+    decoratorClass,
+    target,
+    propertyKey,
+    options = {},
+    type,
+  }: {
+    decoratorClass: string;
+    target: any;
+    propertyKey: string;
+    options: SAOPOptions;
+    type: AOPType;
+  }): void {
     const existingDecorators =
       Reflect.getMetadata(SAOP_METADATA_KEY, target.constructor, propertyKey) || [];
     existingDecorators.push({
@@ -40,31 +46,66 @@ export abstract class SAOPDecorator<T = unknown, E = unknown> implements ISAOPDe
    */
   static around(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
     return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
-      SAOPDecorator.addDecorator(AOP_TYPES.AROUND, options, target, propertyKey);
+      const decoratorClass = this.name;
+      SAOPDecorator.addDecorator({
+        decoratorClass,
+        target,
+        propertyKey,
+        options,
+        type: AOP_TYPES.AROUND,
+      });
     };
   }
 
   static before(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
     return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
-      SAOPDecorator.addDecorator(AOP_TYPES.BEFORE, options, target, propertyKey);
+      const decoratorClass = this.name;
+      SAOPDecorator.addDecorator({
+        decoratorClass,
+        target,
+        propertyKey,
+        options,
+        type: AOP_TYPES.BEFORE,
+      });
     };
   }
 
   static after(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
     return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
-      SAOPDecorator.addDecorator(AOP_TYPES.AFTER, options, target, propertyKey);
+      const decoratorClass = this.name;
+      SAOPDecorator.addDecorator({
+        decoratorClass,
+        target,
+        propertyKey,
+        options,
+        type: AOP_TYPES.AFTER,
+      });
     };
   }
 
   static afterReturning(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
     return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
-      SAOPDecorator.addDecorator(AOP_TYPES.AFTER_RETURNING, options, target, propertyKey);
+      const decoratorClass = this.name;
+      SAOPDecorator.addDecorator({
+        decoratorClass,
+        target,
+        propertyKey,
+        options,
+        type: AOP_TYPES.AFTER_RETURNING,
+      });
     };
   }
 
   static afterThrowing(this: new () => SAOPDecorator, options: SAOPOptions = {}) {
     return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
-      SAOPDecorator.addDecorator(AOP_TYPES.AFTER_THROWING, options, target, propertyKey);
+      const decoratorClass = this.name;
+      SAOPDecorator.addDecorator({
+        decoratorClass,
+        target,
+        propertyKey,
+        options,
+        type: AOP_TYPES.AFTER_THROWING,
+      });
     };
   }
 
@@ -73,37 +114,33 @@ export abstract class SAOPDecorator<T = unknown, E = unknown> implements ISAOPDe
    * @param context - Method and options context
    * @returns Wrapped method function
    */
-  around?(context: Pick<AOPContext<T, E>, 'method' | 'options'>): (...args: any[]) => T;
+  around?(context: UnitAOPContext<T, E>): (...args: any[]) => T;
 
   /**
    * Before decorator (optional implementation)
    * @param context - Method and options context
    * @returns Callback function
    */
-  before?(context: Pick<AOPContext<T, E>, 'method' | 'options'>): (...args: any[]) => void;
+  before?(context: UnitAOPContext<T, E>): (...args: any[]) => void;
 
   /**
    * After decorator (optional implementation)
    * @param context - Method and options context
    * @returns Callback function
    */
-  after?(context: Pick<AOPContext<T, E>, 'method' | 'options'>): (...args: any[]) => void;
+  after?(context: UnitAOPContext<T, E>): (...args: any[]) => void;
 
   /**
    * AfterReturning decorator (optional implementation)
    * @param context - Method, options, and result context
    * @returns Callback function
    */
-  afterReturning?(
-    context: Pick<AOPContext<T, E>, 'method' | 'options' | 'result'>,
-  ): (...args: any[]) => void;
+  afterReturning?(context: ResultAOPContext<T, E>): (...args: any[]) => void;
 
   /**
    * AfterThrowing decorator (optional implementation)
    * @param context - Method, options, and error context
    * @returns Callback function
    */
-  afterThrowing?(
-    context: Pick<AOPContext<T, E>, 'method' | 'options' | 'error'>,
-  ): (...args: any[]) => void;
+  afterThrowing?(context: ErrorAOPContext<T, E>): (...args: any[]) => void;
 }
