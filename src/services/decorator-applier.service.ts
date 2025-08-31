@@ -1,13 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AOP_TYPES, type IAOPDecorator } from '../interfaces';
-
-type AOPDecoratorContext = {
-  aopDecorator: IAOPDecorator;
-  descriptor: PropertyDescriptor;
-  instance: any;
-  originalMethod: Function;
-  options: any;
-};
+import { AOP_TYPES, type AOPDecoratorContext, type IAOPDecorator } from '../interfaces';
 
 /**
  * Applies AOP decorators to methods
@@ -28,7 +20,7 @@ export class DecoratorApplier {
     decorators: any[],
     aopDecorators: IAOPDecorator[],
     originalMethod: Function,
-  ): void {
+  ) {
     const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(instance), methodName);
     if (!descriptor) return;
 
@@ -77,7 +69,7 @@ export class DecoratorApplier {
     decorator,
   }: Omit<AOPDecoratorContext, 'options'> & {
     decorator: any;
-  }): void {
+  }) {
     const decoratorContext = {
       aopDecorator,
       descriptor,
@@ -112,7 +104,7 @@ export class DecoratorApplier {
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
-  private applyAround({ aopDecorator, descriptor, options }: AOPDecoratorContext): void {
+  private applyAround({ aopDecorator, descriptor, options }: AOPDecoratorContext) {
     if (aopDecorator.around) {
       const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
@@ -135,7 +127,7 @@ export class DecoratorApplier {
     instance,
     originalMethod,
     options,
-  }: AOPDecoratorContext): void {
+  }: AOPDecoratorContext) {
     if (aopDecorator.before) {
       const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
@@ -159,7 +151,7 @@ export class DecoratorApplier {
     instance,
     originalMethod,
     options,
-  }: AOPDecoratorContext): void {
+  }: AOPDecoratorContext) {
     if (aopDecorator.after) {
       const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
@@ -184,7 +176,7 @@ export class DecoratorApplier {
     instance,
     originalMethod,
     options,
-  }: AOPDecoratorContext): void {
+  }: AOPDecoratorContext) {
     if (aopDecorator.afterReturning) {
       const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
@@ -209,7 +201,7 @@ export class DecoratorApplier {
     instance,
     originalMethod,
     options,
-  }: AOPDecoratorContext): void {
+  }: AOPDecoratorContext) {
     if (aopDecorator.afterThrowing) {
       const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {

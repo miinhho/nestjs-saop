@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AOPMethodWithDecorators } from '../interfaces';
 import { AOP_METADATA_KEY } from '../utils';
 
 /**
@@ -11,18 +12,16 @@ export class MethodProcessor {
    * @param wrapper - InstanceWrapper with instance and metatype
    * @returns Array of methods with AOP decorators
    */
-  processInstanceMethods(wrapper: any): Array<{ methodName: string; decorators: any[] }> {
+  processInstanceMethods(wrapper: any): AOPMethodWithDecorators[] {
     if (!wrapper.instance || !wrapper.metatype) {
       return [];
     }
 
     const prototype = this.getPrototype(wrapper.metatype);
-    if (!prototype) {
-      return [];
-    }
+    if (!prototype) return [];
 
     const methodNames = this.getMethodNames(prototype);
-    const methods: Array<{ methodName: string; decorators: any[] }> = [];
+    const methods: AOPMethodWithDecorators[] = [];
 
     for (const methodName of methodNames) {
       const decorators = this.getDecorators(wrapper.metatype, methodName);
@@ -39,7 +38,7 @@ export class MethodProcessor {
    * @param metatype - Class constructor
    * @returns Valid prototype or null
    */
-  private getPrototype(metatype: any) {
+  private getPrototype(metatype: any): object | null {
     try {
       const prototype = metatype.prototype;
       return prototype && typeof prototype === 'object' ? prototype : null;

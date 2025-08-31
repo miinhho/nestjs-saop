@@ -17,7 +17,7 @@ export const addMetadata = ({
   propertyKey: string | symbol;
   options: AOPOptions;
   type: AOPType;
-}): void => {
+}) => {
   const existingDecorators =
     Reflect.getMetadata(AOP_METADATA_KEY, target.constructor, propertyKey) || [];
   existingDecorators.push({

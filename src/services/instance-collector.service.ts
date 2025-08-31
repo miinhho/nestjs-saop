@@ -7,9 +7,6 @@ import { AOP_CLASS_METADATA_KEY } from '../decorators';
  */
 @Injectable()
 export class InstanceCollector {
-  /**
-   * @param discoveryService - NestJS DiscoveryService
-   */
   constructor(private readonly discoveryService: DiscoveryService) {}
 
   /**
@@ -49,7 +46,7 @@ export class InstanceCollector {
       return false;
     }
 
-    // Check for @ASpect decorator metadata
+    // Check for ＠Aspect decorator metadata
     return Reflect.hasMetadata(AOP_CLASS_METADATA_KEY, wrapper.instance.constructor);
   }
 }

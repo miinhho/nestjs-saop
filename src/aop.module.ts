@@ -39,7 +39,7 @@ export class AOPModule implements OnModuleInit {
   /**
    * Initialize AOP system
    */
-  private async initializeAOP(): Promise<void> {
+  private async initializeAOP() {
     const instances = this.instanceCollector.collectAllInstances();
 
     for (const wrapper of instances) {
@@ -51,7 +51,7 @@ export class AOPModule implements OnModuleInit {
    * Process single instance
    * @param wrapper - InstanceWrapper object
    */
-  private async processInstance(wrapper: any): Promise<void> {
+  private async processInstance(wrapper: any) {
     const methods = this.methodProcessor.processInstanceMethods(wrapper);
 
     if (methods.length === 0) {
@@ -77,7 +77,7 @@ export class AOPModule implements OnModuleInit {
     methodName: string,
     decorators: any[],
     aopDecorators: any[],
-  ): Promise<void> {
+  ) {
     const prototype = wrapper.metatype.prototype;
     const originalMethod = prototype[methodName];
 

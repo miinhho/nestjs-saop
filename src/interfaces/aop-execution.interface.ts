@@ -1,6 +1,12 @@
 import type { AOPOptions } from './aop-decorator.interface';
 import type { AOPMethod, ErrorAOPContext, ResultAOPContext, UnitAOPContext } from './aop.interface';
 
+/**
+ * Around AOP interface
+ *
+ * @template O - Options type
+ * @template T - Method return type
+ */
 export interface AroundAOP<O extends AOPOptions = AOPOptions, T = any> {
   /**
    * Around decorator
@@ -10,6 +16,11 @@ export interface AroundAOP<O extends AOPOptions = AOPOptions, T = any> {
   around(context: UnitAOPContext<O>): AOPMethod<T>;
 }
 
+/**
+ * Before AOP interface
+ *
+ * @template O - Options type
+ */
 export interface BeforeAOP<O extends AOPOptions = AOPOptions> {
   /**
    * Before decorator
@@ -19,6 +30,11 @@ export interface BeforeAOP<O extends AOPOptions = AOPOptions> {
   before(context: UnitAOPContext<O>): AOPMethod<void>;
 }
 
+/**
+ * After AOP interface
+ *
+ * @template O - Options type
+ */
 export interface AfterAOP<O extends AOPOptions = AOPOptions> {
   /**
    * After decorator
@@ -28,6 +44,12 @@ export interface AfterAOP<O extends AOPOptions = AOPOptions> {
   after(context: UnitAOPContext<O>): AOPMethod<void>;
 }
 
+/**
+ * AfterReturning AOP interface
+ *
+ * @template O - Options type
+ * @template T - Method return type
+ */
 export interface AfterReturningAOP<O extends AOPOptions = AOPOptions, T = any> {
   /**
    * AfterReturning decorator
@@ -37,6 +59,12 @@ export interface AfterReturningAOP<O extends AOPOptions = AOPOptions, T = any> {
   afterReturning(context: ResultAOPContext<O, T>): AOPMethod<void>;
 }
 
+/**
+ * AfterThrowing AOP interface
+ *
+ * @template O - Options type
+ * @template E - Error type
+ */
 export interface AfterThrowingAOP<O extends AOPOptions = AOPOptions, E = unknown> {
   /**
    * AfterThrowing decorator

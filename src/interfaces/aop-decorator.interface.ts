@@ -21,7 +21,18 @@ export interface IAOPDecorator<O extends AOPOptions = AOPOptions, T = any, E = u
     Partial<AfterThrowingAOP<O, E>> {}
 
 /**
+ * AOP options
+ */
+export interface AOPOptions {
+  /** Any option key-value pairs */
+  [key: string]: any;
+}
+
+/**
  * AOP decorator metadata
+ * @property `type` - Decorator type
+ * @property `options` - Decorator options
+ * @property `decoratorClass` - Decorator class name
  */
 export interface AOPDecoratorMetadata {
   /** Decorator type */
@@ -33,9 +44,27 @@ export interface AOPDecoratorMetadata {
 }
 
 /**
- * AOP options
+ * AOP decorator application context
+ * @property `aopDecorator` - AOP decorator instance
+ * @property `descriptor` - Method property descriptor
+ * @property `instance` - Target instance
+ * @property `originalMethod` - Original method function
+ * @property `options` - Decorator options
  */
-export interface AOPOptions {
-  /** Any option key-value pairs */
-  [key: string]: any;
+export type AOPDecoratorContext = {
+  aopDecorator: IAOPDecorator;
+  descriptor: PropertyDescriptor;
+  instance: any;
+  originalMethod: Function;
+  options: any;
+};
+
+/**
+ * AOP method with decorators
+ */
+export interface AOPMethodWithDecorators {
+  /** Method name */
+  methodName: string;
+  /** Array of decorator metadata */
+  decorators: any[];
 }

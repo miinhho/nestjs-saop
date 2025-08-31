@@ -12,9 +12,10 @@ import { addMetadata } from '../utils';
 
 /**
  * Base abstract class for AOP decorators
+ *
  * @template O - Options type
- * @template T - Method return type
- * @template E - Error type
+ * @template T - Method return type (default: `any`)
+ * @template E - Error type (default: `unknown`)
  */
 @Injectable()
 export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E = unknown>
@@ -23,7 +24,6 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
   /**
    * Static decorator method for around
    * @param options - Decorator options
-   * @returns Decorator function
    */
   static around<O extends AOPOptions = AOPOptions>(
     this: new () => AOPDecorator<O>,
@@ -44,7 +44,6 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
   /**
    * Static decorator method for before
    * @param options - Decorator options
-   * @returns Decorator function
    */
   static before<O extends AOPOptions = AOPOptions>(
     this: new () => AOPDecorator<O>,
@@ -65,7 +64,6 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
   /**
    * Static decorator method for after
    * @param options - Decorator options
-   * @returns Decorator function
    */
   static after<O extends AOPOptions = AOPOptions>(
     this: new () => AOPDecorator<O>,
@@ -86,7 +84,6 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
   /**
    * Static decorator method for afterReturning
    * @param options - Decorator options
-   * @returns Decorator function
    */
   static afterReturning<O extends AOPOptions = AOPOptions>(
     this: new () => AOPDecorator<O>,
@@ -107,7 +104,6 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
   /**
    * Static decorator method for afterThrowing
    * @param options - Decorator options
-   * @returns Decorator function
    */
   static afterThrowing<O extends AOPOptions = AOPOptions>(
     this: new () => AOPDecorator<O>,
