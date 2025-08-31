@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
-import { AOP_CLASS_METADATA_KEY } from '../interfaces';
+import { AOP_CLASS_METADATA_KEY } from '../decorators';
 
 /**
  * Collects instances and AOP decorators from NestJS application

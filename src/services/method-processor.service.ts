@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AOP_METADATA_KEY } from '../interfaces';
+import { AOP_METADATA_KEY } from '../utils';
 
 /**
  * Processes class methods and finds AOP decorators

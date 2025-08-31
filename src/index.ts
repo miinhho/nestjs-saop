@@ -1,5 +1,19 @@
-export * from './decorators';
+export { AOPDecorator, Aspect } from './decorators';
 
-export * from './interfaces';
+export type {
+  AfterAOP,
+  AfterReturningAOP,
+  AfterThrowingAOP,
+  AOPContext,
+  AOPMethod,
+  AOPOptions,
+  AOPType,
+  AroundAOP,
+  BeforeAOP,
+  ErrorAOPContext,
+  IAOPDecorator,
+  ResultAOPContext,
+  UnitAOPContext,
+} from './interfaces';
 
-export * from './aop.module';
+export { AOPModule } from './aop.module';

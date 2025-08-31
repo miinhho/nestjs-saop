@@ -1,5 +1,9 @@
 import type { AOPOptions, AOPType } from '../interfaces';
-import { AOP_METADATA_KEY } from '../interfaces';
+
+/**
+ * AOP metadata key
+ */
+export const AOP_METADATA_KEY = Symbol('saop:decorators');
 
 export const addMetadata = ({
   decoratorClass,

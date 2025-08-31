@@ -1,5 +1,9 @@
 import { applyDecorators, Injectable, SetMetadata } from '@nestjs/common';
-import { AOP_CLASS_METADATA_KEY } from '../interfaces';
+
+/**
+ * AOP class metadata key for @Aspect decorator
+ */
+export const AOP_CLASS_METADATA_KEY = Symbol('saop:class');
 
 /**
  * Class decorator to mark a class as AOP decorator

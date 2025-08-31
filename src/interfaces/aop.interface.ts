@@ -1,4 +1,4 @@
-import { AOPOptions } from './aop-decorator.interface';
+import type { AOPOptions } from './aop-decorator.interface';
 
 /**
  * AOP decorator types
@@ -38,6 +38,12 @@ export type AOPContext<O = AOPOptions, T = unknown, E = unknown> = {
   error?: E;
 };
 
-export type UnitAOPContext<O, T, E> = Pick<AOPContext<O, T, E>, 'method' | 'options'>;
-export type ResultAOPContext<O, T, E> = Pick<AOPContext<O, T, E>, 'method' | 'options' | 'result'>;
-export type ErrorAOPContext<O, T, E> = Pick<AOPContext<O, T, E>, 'method' | 'options' | 'error'>;
+export type UnitAOPContext<O = AOPOptions> = Pick<AOPContext<O>, 'method' | 'options'>;
+export type ResultAOPContext<O = AOPOptions, T = any> = Pick<
+  AOPContext<O, T>,
+  'method' | 'options' | 'result'
+>;
+export type ErrorAOPContext<O = AOPOptions, E = unknown> = Pick<
+  AOPContext<O, unknown, E>,
+  'method' | 'options' | 'error'
+>;

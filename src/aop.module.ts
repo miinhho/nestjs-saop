@@ -1,7 +1,3 @@
-/**
- * aop main module
- */
-
 import { Module, type DynamicModule, type OnModuleInit } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 import { DecoratorApplier } from './services/decorator-applier.service';
@@ -15,11 +11,6 @@ import { MethodProcessor } from './services/method-processor.service';
   providers: [InstanceCollector, MethodProcessor, DecoratorApplier],
 })
 export class AOPModule implements OnModuleInit {
-  /**
-   * @param instanceCollector - Instance collector service
-   * @param methodProcessor - Method processor service
-   * @param decoratorApplier - Decorator applier service
-   */
   constructor(
     private readonly instanceCollector: InstanceCollector,
     private readonly methodProcessor: MethodProcessor,

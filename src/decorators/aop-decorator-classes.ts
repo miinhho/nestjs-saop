@@ -11,13 +11,13 @@ import { AOP_TYPES } from '../interfaces';
 import { addMetadata } from '../utils';
 
 /**
- * Base class for AOP decorators
+ * Base abstract class for AOP decorators
  * @template O - Options type
  * @template T - Method return type
  * @template E - Error type
  */
 @Injectable()
-export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = unknown, E = unknown>
+export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E = unknown>
   implements IAOPDecorator<O, T, E>
 {
   /**
@@ -26,7 +26,7 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = unknow
    * @returns Decorator function
    */
   static around<O extends AOPOptions = AOPOptions>(
-    this: new () => AOPDecorator<O, unknown, unknown>,
+    this: new () => AOPDecorator<O>,
     options: O = {} as O,
   ): MethodDecorator {
     return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
@@ -47,7 +47,7 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = unknow
    * @returns Decorator function
    */
   static before<O extends AOPOptions = AOPOptions>(
-    this: new () => AOPDecorator<O, unknown, unknown>,
+    this: new () => AOPDecorator<O>,
     options: O = {} as O,
   ): MethodDecorator {
     return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
@@ -68,7 +68,7 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = unknow
    * @returns Decorator function
    */
   static after<O extends AOPOptions = AOPOptions>(
-    this: new () => AOPDecorator<O, unknown, unknown>,
+    this: new () => AOPDecorator<O>,
     options: O = {} as O,
   ): MethodDecorator {
     return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
@@ -89,7 +89,7 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = unknow
    * @returns Decorator function
    */
   static afterReturning<O extends AOPOptions = AOPOptions>(
-    this: new () => AOPDecorator<O, unknown, unknown>,
+    this: new () => AOPDecorator<O>,
     options: O = {} as O,
   ): MethodDecorator {
     return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
@@ -110,7 +110,7 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = unknow
    * @returns Decorator function
    */
   static afterThrowing<O extends AOPOptions = AOPOptions>(
-    this: new () => AOPDecorator<O, unknown, unknown>,
+    this: new () => AOPDecorator<O>,
     options: O = {} as O,
   ): MethodDecorator {
     return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
@@ -130,33 +130,33 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = unknow
    * @param context - Method and options context
    * @returns Wrapped method function
    */
-  around?(context: UnitAOPContext<O, T, E>): AOPMethod<T>;
+  around?(context: UnitAOPContext<O>): AOPMethod<T>;
 
   /**
    * Before decorator (optional implementation)
    * @param context - Method and options context
    * @returns Callback function
    */
-  before?(context: UnitAOPContext<O, T, E>): AOPMethod<void>;
+  before?(context: UnitAOPContext<O>): AOPMethod<void>;
 
   /**
    * After decorator (optional implementation)
    * @param context - Method and options context
    * @returns Callback function
    */
-  after?(context: UnitAOPContext<O, T, E>): AOPMethod<void>;
+  after?(context: UnitAOPContext<O>): AOPMethod<void>;
 
   /**
    * AfterReturning decorator (optional implementation)
    * @param context - Method, options, and result context
    * @returns Callback function
    */
-  afterReturning?(context: ResultAOPContext<O, T, E>): AOPMethod<void>;
+  afterReturning?(context: ResultAOPContext<O, T>): AOPMethod<void>;
 
   /**
    * AfterThrowing decorator (optional implementation)
    * @param context - Method, options, and error context
    * @returns Callback function
    */
-  afterThrowing?(context: ErrorAOPContext<O, T, E>): AOPMethod<void>;
+  afterThrowing?(context: ErrorAOPContext<O, E>): AOPMethod<void>;
 }

@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { AOP_TYPES, type IAOPDecorator } from '../interfaces';
 
+type AOPDecoratorContext = {
+  aopDecorator: IAOPDecorator;
+  descriptor: PropertyDescriptor;
+  instance: any;
+  originalMethod: Function;
+  options: any;
+};
+
 /**
  * Applies AOP decorators to methods
  */
@@ -22,9 +30,7 @@ export class DecoratorApplier {
     originalMethod: Function,
   ): void {
     const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(instance), methodName);
-    if (!descriptor) {
-      return;
-    }
+    if (!descriptor) return;
 
     for (const decorator of decorators) {
       if (!decorator.decoratorClass) {
@@ -38,7 +44,13 @@ export class DecoratorApplier {
         d => d.constructor.name === decorator.decoratorClass,
       );
       if (targetDecorator) {
-        this.applySingleDecorator(targetDecorator, descriptor, instance, originalMethod, decorator);
+        this.applySingleDecorator({
+          aopDecorator: targetDecorator,
+          descriptor,
+          instance,
+          originalMethod,
+          decorator,
+        });
       } else {
         console.warn(
           `[nestjs-aop]: No matching decorator instance found for ${decorator.decoratorClass} on method ${methodName}`,
@@ -57,40 +69,37 @@ export class DecoratorApplier {
    * @param originalMethod - Original method
    * @param decorator - Decorator metadata
    */
-  private applySingleDecorator(
-    aopDecorator: IAOPDecorator,
-    descriptor: PropertyDescriptor,
-    instance: any,
-    originalMethod: Function,
-    decorator: any,
-  ): void {
+  private applySingleDecorator({
+    aopDecorator,
+    descriptor,
+    instance,
+    originalMethod,
+    decorator,
+  }: Omit<AOPDecoratorContext, 'options'> & {
+    decorator: any;
+  }): void {
+    const decoratorContext = {
+      aopDecorator,
+      descriptor,
+      instance,
+      originalMethod,
+      options: decorator.options,
+    };
     switch (decorator.type) {
       case AOP_TYPES.BEFORE:
-        this.applyBefore(aopDecorator, descriptor, instance, originalMethod, decorator.options);
+        this.applyBefore(decoratorContext);
         break;
       case AOP_TYPES.AFTER:
-        this.applyAfter(aopDecorator, descriptor, instance, originalMethod, decorator.options);
+        this.applyAfter(decoratorContext);
         break;
       case AOP_TYPES.AFTER_RETURNING:
-        this.applyAfterReturning(
-          aopDecorator,
-          descriptor,
-          instance,
-          originalMethod,
-          decorator.options,
-        );
+        this.applyAfterReturning(decoratorContext);
         break;
       case AOP_TYPES.AFTER_THROWING:
-        this.applyAfterThrowing(
-          aopDecorator,
-          descriptor,
-          instance,
-          originalMethod,
-          decorator.options,
-        );
+        this.applyAfterThrowing(decoratorContext);
         break;
       case AOP_TYPES.AROUND:
-        this.applyAround(aopDecorator, descriptor, instance, originalMethod, decorator.options);
+        this.applyAround(decoratorContext);
         break;
     }
   }
@@ -103,13 +112,7 @@ export class DecoratorApplier {
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
-  private applyAround(
-    aopDecorator: IAOPDecorator,
-    descriptor: PropertyDescriptor,
-    instance: any,
-    originalMethod: Function,
-    options: any,
-  ): void {
+  private applyAround({ aopDecorator, descriptor, options }: AOPDecoratorContext): void {
     if (aopDecorator.around) {
       const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
@@ -126,13 +129,13 @@ export class DecoratorApplier {
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
-  private applyBefore(
-    aopDecorator: IAOPDecorator,
-    descriptor: PropertyDescriptor,
-    instance: any,
-    originalMethod: Function,
-    options: any,
-  ): void {
+  private applyBefore({
+    aopDecorator,
+    descriptor,
+    instance,
+    originalMethod,
+    options,
+  }: AOPDecoratorContext): void {
     if (aopDecorator.before) {
       const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
@@ -150,13 +153,13 @@ export class DecoratorApplier {
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
-  private applyAfter(
-    aopDecorator: IAOPDecorator,
-    descriptor: PropertyDescriptor,
-    instance: any,
-    originalMethod: Function,
-    options: any,
-  ): void {
+  private applyAfter({
+    aopDecorator,
+    descriptor,
+    instance,
+    originalMethod,
+    options,
+  }: AOPDecoratorContext): void {
     if (aopDecorator.after) {
       const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
@@ -175,13 +178,13 @@ export class DecoratorApplier {
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
-  private applyAfterReturning(
-    aopDecorator: IAOPDecorator,
-    descriptor: PropertyDescriptor,
-    instance: any,
-    originalMethod: Function,
-    options: any,
-  ): void {
+  private applyAfterReturning({
+    aopDecorator,
+    descriptor,
+    instance,
+    originalMethod,
+    options,
+  }: AOPDecoratorContext): void {
     if (aopDecorator.afterReturning) {
       const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
@@ -200,13 +203,13 @@ export class DecoratorApplier {
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
-  private applyAfterThrowing(
-    aopDecorator: IAOPDecorator,
-    descriptor: PropertyDescriptor,
-    instance: any,
-    originalMethod: Function,
-    options: any,
-  ): void {
+  private applyAfterThrowing({
+    aopDecorator,
+    descriptor,
+    instance,
+    originalMethod,
+    options,
+  }: AOPDecoratorContext): void {
     if (aopDecorator.afterThrowing) {
       const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {

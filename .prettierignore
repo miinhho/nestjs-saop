@@ -3,4 +3,7 @@ coverage/
 
 **.md
 **.yml
+**.yaml
 **.json
+
+eslint.config.mjs
