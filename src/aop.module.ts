@@ -1,5 +1,5 @@
 /**
- * SAOP main module
+ * aop main module
  */
 
 import { Module, type DynamicModule, type OnModuleInit } from '@nestjs/common';
@@ -9,12 +9,12 @@ import { InstanceCollector } from './services/instance-collector.service';
 import { MethodProcessor } from './services/method-processor.service';
 
 /**
- * Main SAOP module
+ * Main aop module
  */
 @Module({
   providers: [InstanceCollector, MethodProcessor, DecoratorApplier],
 })
-export class SAOPModule implements OnModuleInit {
+export class AOPModule implements OnModuleInit {
   /**
    * @param instanceCollector - Instance collector service
    * @param methodProcessor - Method processor service
@@ -27,12 +27,12 @@ export class SAOPModule implements OnModuleInit {
   ) {}
 
   /**
-   * Configure SAOP module as global
+   * Configure aop module as global
    * @returns Dynamic module configuration
    */
   static forRoot(): DynamicModule {
     return {
-      module: SAOPModule,
+      module: AOPModule,
       imports: [DiscoveryModule],
       global: true,
     };
@@ -67,10 +67,10 @@ export class SAOPModule implements OnModuleInit {
       return;
     }
 
-    const saopDecorators = this.instanceCollector.collectSAOPDecorators();
+    const aopDecorators = this.instanceCollector.collectAOPDecorators();
 
     for (const { methodName, decorators } of methods) {
-      await this.processMethod(wrapper, methodName, decorators, saopDecorators);
+      await this.processMethod(wrapper, methodName, decorators, aopDecorators);
     }
   }
 
@@ -79,13 +79,13 @@ export class SAOPModule implements OnModuleInit {
    * @param wrapper - InstanceWrapper object
    * @param methodName - Method name to process
    * @param decorators - Decorators to apply
-   * @param saopDecorators - SAOP decorator instances
+   * @param aopDecorators - aop decorator instances
    */
   private async processMethod(
     wrapper: any,
     methodName: string,
     decorators: any[],
-    saopDecorators: any[],
+    aopDecorators: any[],
   ): Promise<void> {
     const prototype = wrapper.metatype.prototype;
     const originalMethod = prototype[methodName];
@@ -94,7 +94,7 @@ export class SAOPModule implements OnModuleInit {
       wrapper.instance,
       methodName,
       decorators,
-      saopDecorators,
+      aopDecorators,
       originalMethod,
     );
   }

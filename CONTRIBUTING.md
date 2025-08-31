@@ -60,24 +60,6 @@ We welcome contributions to the nestjs-saop project! This document provides guid
 - Use meaningful variable and function names
 - Add JSDoc comments for public APIs
 
-## Project Structure
-
-```
-src/
-├── decorators/          # AOP decorator implementations
-├── interfaces/          # TypeScript interfaces and types
-├── services/           # Core AOP services
-│   ├── instance-collector.service.ts
-│   ├── method-processor.service.ts
-│   └── decorator-applier.service.ts
-├── saop.module.ts      # Main module
-└── index.ts           # Public exports
-
-test/
-├── app/               # Test application setup
-└── *.spec.ts         # Unit and integration tests
-```
-
 ## Documentation
 
 - Add JSDoc comments for new public APIs

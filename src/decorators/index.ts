@@ -1,1 +1,2 @@
-export * from './saop-decorator-classes';
+export * from './aop-decorator-classes';
+export * from './aspect';

@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import type { ISAOPDecorator } from '../interfaces';
-import { AOP_TYPES } from '../interfaces';
+import { AOP_TYPES, type IAOPDecorator } from '../interfaces';
 
 /**
- * Applies SAOP decorators to methods
+ * Applies AOP decorators to methods
  */
 @Injectable()
 export class DecoratorApplier {
@@ -12,14 +11,14 @@ export class DecoratorApplier {
    * @param instance - Target instance
    * @param methodName - Method name
    * @param decorators - Decorator metadata array
-   * @param saopDecorators - SAOP decorator instances
+   * @param aopDecorators - AOP decorator instances
    * @param originalMethod - Original method function
    */
   applyDecorators(
     instance: any,
     methodName: string,
     decorators: any[],
-    saopDecorators: ISAOPDecorator[],
+    aopDecorators: IAOPDecorator[],
     originalMethod: Function,
   ): void {
     const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(instance), methodName);
@@ -28,23 +27,22 @@ export class DecoratorApplier {
     }
 
     for (const decorator of decorators) {
-      if (decorator.decoratorClass) {
-        const targetDecorator = saopDecorators.find(
-          d => d.constructor.name === decorator.decoratorClass,
+      if (!decorator.decoratorClass) {
+        console.warn(
+          `[nestjs-aop]: Decorator without decoratorClass found for method ${methodName}. Skipping.`,
         );
-        if (targetDecorator) {
-          this.applySingleDecorator(
-            targetDecorator,
-            descriptor,
-            instance,
-            originalMethod,
-            decorator,
-          );
-        }
+        continue;
+      }
+
+      const targetDecorator = aopDecorators.find(
+        d => d.constructor.name === decorator.decoratorClass,
+      );
+      if (targetDecorator) {
+        this.applySingleDecorator(targetDecorator, descriptor, instance, originalMethod, decorator);
       } else {
-        for (const saopDecorator of saopDecorators) {
-          this.applySingleDecorator(saopDecorator, descriptor, instance, originalMethod, decorator);
-        }
+        console.warn(
+          `[nestjs-aop]: No matching decorator instance found for ${decorator.decoratorClass} on method ${methodName}`,
+        );
       }
     }
 
@@ -53,14 +51,14 @@ export class DecoratorApplier {
 
   /**
    * Apply single decorator
-   * @param saopDecorator - SAOP decorator instance
+   * @param aopDecorator - AOP decorator instance
    * @param descriptor - Method descriptor
    * @param instance - Target instance
    * @param originalMethod - Original method
    * @param decorator - Decorator metadata
    */
   private applySingleDecorator(
-    saopDecorator: ISAOPDecorator,
+    aopDecorator: IAOPDecorator,
     descriptor: PropertyDescriptor,
     instance: any,
     originalMethod: Function,
@@ -68,14 +66,14 @@ export class DecoratorApplier {
   ): void {
     switch (decorator.type) {
       case AOP_TYPES.BEFORE:
-        this.applyBefore(saopDecorator, descriptor, instance, originalMethod, decorator.options);
+        this.applyBefore(aopDecorator, descriptor, instance, originalMethod, decorator.options);
         break;
       case AOP_TYPES.AFTER:
-        this.applyAfter(saopDecorator, descriptor, instance, originalMethod, decorator.options);
+        this.applyAfter(aopDecorator, descriptor, instance, originalMethod, decorator.options);
         break;
       case AOP_TYPES.AFTER_RETURNING:
         this.applyAfterReturning(
-          saopDecorator,
+          aopDecorator,
           descriptor,
           instance,
           originalMethod,
@@ -84,7 +82,7 @@ export class DecoratorApplier {
         break;
       case AOP_TYPES.AFTER_THROWING:
         this.applyAfterThrowing(
-          saopDecorator,
+          aopDecorator,
           descriptor,
           instance,
           originalMethod,
@@ -92,73 +90,78 @@ export class DecoratorApplier {
         );
         break;
       case AOP_TYPES.AROUND:
-        this.applyAround(saopDecorator, descriptor, originalMethod, decorator.options);
+        this.applyAround(aopDecorator, descriptor, instance, originalMethod, decorator.options);
         break;
     }
   }
 
   /**
    * Apply around decorator
-   * @param saopDecorator - SAOP decorator
+   * @param aopDecorator - AOP decorator
    * @param descriptor - Method descriptor
+   * @param instance - Target instance
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
   private applyAround(
-    saopDecorator: ISAOPDecorator,
+    aopDecorator: IAOPDecorator,
     descriptor: PropertyDescriptor,
-    _originalMethod: Function,
+    instance: any,
+    originalMethod: Function,
     options: any,
   ): void {
-    if (saopDecorator.around) {
-      descriptor.value = saopDecorator.around({ method: descriptor.value, options });
+    if (aopDecorator.around) {
+      const currentMethod = descriptor.value;
+      descriptor.value = (...args: any[]) => {
+        return aopDecorator.around!({ method: currentMethod, options })(...args);
+      };
     }
   }
 
   /**
    * Apply before decorator
-   * @param saopDecorator - SAOP decorator
+   * @param aopDecorator - AOP decorator
    * @param descriptor - Method descriptor
    * @param instance - Target instance
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
   private applyBefore(
-    saopDecorator: ISAOPDecorator,
+    aopDecorator: IAOPDecorator,
     descriptor: PropertyDescriptor,
     instance: any,
     originalMethod: Function,
     options: any,
   ): void {
-    if (saopDecorator.before) {
-      const original = descriptor.value;
+    if (aopDecorator.before) {
+      const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
-        saopDecorator.before!({ method: originalMethod, options })(...args);
-        return original.apply(instance, args);
+        aopDecorator.before!({ method: originalMethod, options })(...args);
+        return currentMethod.apply(instance, args);
       };
     }
   }
 
   /**
    * Apply after decorator
-   * @param saopDecorator - SAOP decorator
+   * @param aopDecorator - AOP decorator
    * @param descriptor - Method descriptor
    * @param instance - Target instance
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
   private applyAfter(
-    saopDecorator: ISAOPDecorator,
+    aopDecorator: IAOPDecorator,
     descriptor: PropertyDescriptor,
     instance: any,
     originalMethod: Function,
     options: any,
   ): void {
-    if (saopDecorator.after) {
-      const original = descriptor.value;
+    if (aopDecorator.after) {
+      const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
-        const result = original.apply(instance, args);
-        saopDecorator.after!({ method: originalMethod, options })(...args);
+        const result = currentMethod.apply(instance, args);
+        aopDecorator.after!({ method: originalMethod, options })(...args);
         return result;
       };
     }
@@ -166,24 +169,24 @@ export class DecoratorApplier {
 
   /**
    * Apply afterReturning decorator
-   * @param saopDecorator - SAOP decorator
+   * @param aopDecorator - AOP decorator
    * @param descriptor - Method descriptor
    * @param instance - Target instance
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
   private applyAfterReturning(
-    saopDecorator: ISAOPDecorator,
+    aopDecorator: IAOPDecorator,
     descriptor: PropertyDescriptor,
     instance: any,
     originalMethod: Function,
     options: any,
   ): void {
-    if (saopDecorator.afterReturning) {
-      const original = descriptor.value;
+    if (aopDecorator.afterReturning) {
+      const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
-        const result = original.apply(instance, args);
-        saopDecorator.afterReturning!({ method: originalMethod, options, result })(...args);
+        const result = currentMethod.apply(instance, args);
+        aopDecorator.afterReturning!({ method: originalMethod, options, result })(...args);
         return result;
       };
     }
@@ -191,26 +194,26 @@ export class DecoratorApplier {
 
   /**
    * Apply afterThrowing decorator
-   * @param saopDecorator - SAOP decorator
+   * @param aopDecorator - AOP decorator
    * @param descriptor - Method descriptor
    * @param instance - Target instance
    * @param originalMethod - Original method
    * @param options - Decorator options
    */
   private applyAfterThrowing(
-    saopDecorator: ISAOPDecorator,
+    aopDecorator: IAOPDecorator,
     descriptor: PropertyDescriptor,
     instance: any,
     originalMethod: Function,
     options: any,
   ): void {
-    if (saopDecorator.afterThrowing) {
-      const original = descriptor.value;
+    if (aopDecorator.afterThrowing) {
+      const currentMethod = descriptor.value;
       descriptor.value = (...args: any[]) => {
         try {
-          return original.apply(instance, args);
+          return currentMethod.apply(instance, args);
         } catch (error) {
-          saopDecorator.afterThrowing!({ method: originalMethod, options, error })(...args);
+          aopDecorator.afterThrowing!({ method: originalMethod, options, error })(...args);
           throw error;
         }
       };

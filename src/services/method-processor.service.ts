@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { SAOP_METADATA_KEY } from '../interfaces';
+import { AOP_METADATA_KEY } from '../interfaces';
 
 /**
- * Processes class methods and finds SAOP decorators
+ * Processes class methods and finds AOP decorators
  */
 @Injectable()
 export class MethodProcessor {
   /**
-   * Process instance methods and find SAOP decorators
+   * Process instance methods and find AOP decorators
    * @param wrapper - InstanceWrapper with instance and metatype
-   * @returns Array of methods with SAOP decorators
+   * @returns Array of methods with AOP decorators
    */
   processInstanceMethods(wrapper: any): Array<{ methodName: string; decorators: any[] }> {
     if (!wrapper.instance || !wrapper.metatype) {
@@ -83,6 +83,6 @@ export class MethodProcessor {
    * @returns Array of decorator metadata
    */
   private getDecorators(metatype: any, methodName: string): any[] | undefined {
-    return Reflect.getMetadata(SAOP_METADATA_KEY, metatype, methodName);
+    return Reflect.getMetadata(AOP_METADATA_KEY, metatype, methodName);
   }
 }

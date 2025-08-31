@@ -3,12 +3,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
-import { SAOPDecorator } from 'nestjs-saop';
+import { AOPDecorator, Aspect } from 'nestjs-saop';
 
-@Injectable()
-export class LoggingAOP extends SAOPDecorator<string, Error> {
-  around({ method }): (...args: any[]) => string {
+export type LoggingOptions = {
+  logLevel?: 'info' | 'debug' | 'error';
+};
+
+@Aspect()
+export class LoggingAOP extends AOPDecorator<LoggingOptions> {
+  around({ method }) {
     return (...args: any[]) => {
       console.log('Around: Before method call', ...args);
       const result = method.apply(this, args);

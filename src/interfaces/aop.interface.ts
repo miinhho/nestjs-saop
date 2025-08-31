@@ -1,4 +1,4 @@
-import { SAOPOptions } from './saop-decorator.interface';
+import { AOPOptions } from './aop-decorator.interface';
 
 /**
  * AOP decorator types
@@ -27,17 +27,17 @@ export type AOPMethod<T = unknown> = (...args: any[]) => T;
  * @template T - Method return type
  * @template E - Error type
  */
-export type AOPContext<T = unknown, E = unknown> = {
+export type AOPContext<O = AOPOptions, T = unknown, E = unknown> = {
   /** Original method function */
   method: Function;
   /** Decorator options */
-  options: SAOPOptions;
+  options: O;
   /** Method execution result (afterReturning only) */
   result?: T;
   /** Error thrown (afterThrowing only) */
   error?: E;
 };
 
-export type UnitAOPContext<T, E> = Pick<AOPContext<T, E>, 'method' | 'options'>;
-export type ResultAOPContext<T, E> = Pick<AOPContext<T, E>, 'method' | 'options' | 'result'>;
-export type ErrorAOPContext<T, E> = Pick<AOPContext<T, E>, 'method' | 'options' | 'error'>;
+export type UnitAOPContext<O, T, E> = Pick<AOPContext<O, T, E>, 'method' | 'options'>;
+export type ResultAOPContext<O, T, E> = Pick<AOPContext<O, T, E>, 'method' | 'options' | 'result'>;
+export type ErrorAOPContext<O, T, E> = Pick<AOPContext<O, T, E>, 'method' | 'options' | 'error'>;

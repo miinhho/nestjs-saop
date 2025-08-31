@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { LoggingAOP } from './logging.aop';
+import { LoggingAOP, LoggingOptions } from './logging.aop';
 
 @Injectable()
 export class AppService {
-  @LoggingAOP.around()
+  @LoggingAOP.around<LoggingOptions>({
+    logLevel: 'info',
+  })
   @LoggingAOP.before()
   @LoggingAOP.afterReturning()
   @LoggingAOP.after()
-  getHello(): string {
-    return 'Hello World!';
+  getHello(name: string): string {
+    return `Hello ${name}!`;
   }
 
   @LoggingAOP.afterThrowing()

@@ -1,2 +1,2 @@
+export * from './aop-decorator.interface';
 export * from './aop.interface';
-export * from './saop-decorator.interface';

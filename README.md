@@ -25,15 +25,15 @@ pnpm add nestjs-saop
 
 ## Quick Start
 
-### 1. Import SAOPModule
+### 1. Import AOPModule
 
 ```ts
-import { SAOPModule } from 'nestjs-saop';
+import { AOPModule } from 'nestjs-saop';
 
 @Module({
   imports: [
     // ... other modules
-    SAOPModule.forRoot(),
+    AOPModule.forRoot(),
   ],
 })
 export class AppModule {}
@@ -42,11 +42,10 @@ export class AppModule {}
 ### 2. Create AOP Decorator Implementation
 
 ```ts
-import { Injectable } from '@nestjs/common';
-import { SAOPDecorator } from 'nestjs-saop';
+import { AOPDecorator, Aspect } from 'nestjs-saop';
 
-@Injectable()
-export class LoggingDecorator extends SAOPDecorator {
+@Aspect()
+export class LoggingDecorator extends AOPDecorator {
   around({ method, options }) {
     return (...args: any[]) => {
       console.log('🔄 Around: Before method call', ...args);
@@ -130,8 +129,8 @@ export class ExampleService {
 ### Conditional AOP
 
 ```ts
-@Injectable()
-export class ConditionalDecorator implements SAOPDecorator {
+@Aspect()
+export class ConditionalDecorator implements AOPDecorator {
   around({ method, options }) {
     return (...args: any[]) => {
       if (options.enabled) {

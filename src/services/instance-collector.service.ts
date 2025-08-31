@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
+import { AOP_CLASS_METADATA_KEY } from '../interfaces';
 
 /**
- * Collects instances and SAOP decorators from NestJS application
+ * Collects instances and AOP decorators from NestJS application
  */
 @Injectable()
 export class InstanceCollector {
@@ -22,15 +23,15 @@ export class InstanceCollector {
   }
 
   /**
-   * Collect SAOP decorator instances from providers
-   * @returns Array of SAOP decorator instances
+   * Collect AOP decorator instances from providers
+   * @returns Array of AOP decorator instances
    */
-  collectSAOPDecorators() {
+  collectAOPDecorators() {
     const providers = this.discoveryService.getProviders();
     const decorators: any[] = [];
 
     for (const wrapper of providers) {
-      if (this.isSAOPDecorator(wrapper)) {
+      if (this.isAOPDecorator(wrapper)) {
         decorators.push(wrapper.instance);
       }
     }
@@ -39,21 +40,16 @@ export class InstanceCollector {
   }
 
   /**
-   * Check if wrapper contains SAOP decorator
+   * Check if wrapper contains AOP decorator
    * @param wrapper - InstanceWrapper object
-   * @returns True if wrapper contains SAOP decorator
+   * @returns True if wrapper contains AOP decorator
    */
-  private isSAOPDecorator(wrapper: any): boolean {
+  private isAOPDecorator(wrapper: any): boolean {
     if (!wrapper.instance || typeof wrapper.instance !== 'object') {
       return false;
     }
 
-    return (
-      'around' in wrapper.instance ||
-      'before' in wrapper.instance ||
-      'after' in wrapper.instance ||
-      'afterReturning' in wrapper.instance ||
-      'afterThrowing' in wrapper.instance
-    );
+    // Check for @ASpect decorator metadata
+    return Reflect.hasMetadata(AOP_CLASS_METADATA_KEY, wrapper.instance.constructor);
   }
 }

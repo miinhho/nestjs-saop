@@ -7,68 +7,74 @@ import {
 } from './aop.interface';
 
 /**
- * SAOP metadata key
+ * AOP metadata key
  */
-export const SAOP_METADATA_KEY = Symbol('saop:decorators');
+export const AOP_METADATA_KEY = Symbol('saop:decorators');
+
+/**
+ * AOP class metadata key for @Aspect decorator
+ */
+export const AOP_CLASS_METADATA_KEY = Symbol('saop:class');
 
 /**
  * SAOP decorator interface
+ * @template O - Options type
  * @template T - Method return type
  * @template E - Error type
  */
-export interface ISAOPDecorator<T = unknown, E = unknown> {
+export interface IAOPDecorator<O extends AOPOptions = AOPOptions, T = unknown, E = unknown> {
   /**
    * Around decorator
    * @param context - Method and options context
    * @returns Wrapped method function
    */
-  around?(context: UnitAOPContext<T, E>): AOPMethod<T>;
+  around?(context: UnitAOPContext<O, T, E>): AOPMethod<T>;
 
   /**
    * Before decorator
    * @param context - Method and options context
    * @returns Callback function
    */
-  before?(context: UnitAOPContext<T, E>): AOPMethod<void>;
+  before?(context: UnitAOPContext<O, T, E>): AOPMethod<void>;
 
   /**
    * After decorator
    * @param context - Method and options context
    * @returns Callback function
    */
-  after?(context: UnitAOPContext<T, E>): AOPMethod<void>;
+  after?(context: UnitAOPContext<O, T, E>): AOPMethod<void>;
 
   /**
    * AfterReturning decorator
    * @param context - Method, options, and result context
    * @returns Callback function
    */
-  afterReturning?(context: ResultAOPContext<T, E>): AOPMethod<void>;
+  afterReturning?(context: ResultAOPContext<O, T, E>): AOPMethod<void>;
 
   /**
    * AfterThrowing decorator
    * @param context - Method, options, and error context
    * @returns Callback function
    */
-  afterThrowing?(context: ErrorAOPContext<T, E>): AOPMethod<void>;
+  afterThrowing?(context: ErrorAOPContext<O, T, E>): AOPMethod<void>;
 }
 
 /**
- * SAOP decorator metadata
+ * AOP decorator metadata
  */
-export interface SAOPDecoratorMetadata {
+export interface AOPDecoratorMetadata {
   /** Decorator type */
   type: AOPType;
   /** Decorator options */
-  options: SAOPOptions;
-  /** Decorator class name (for class-based decorators) */
+  options: AOPOptions;
+  /** Decorator class name */
   decoratorClass?: string;
 }
 
 /**
- * SAOP options
+ * AOP options
  */
-export interface SAOPOptions {
+export interface AOPOptions {
   /** Any option key-value pairs */
   [key: string]: any;
 }

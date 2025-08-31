@@ -1,0 +1,162 @@
+import { Injectable } from '@nestjs/common';
+import type {
+  AOPMethod,
+  AOPOptions,
+  ErrorAOPContext,
+  IAOPDecorator,
+  ResultAOPContext,
+  UnitAOPContext,
+} from '../interfaces';
+import { AOP_TYPES } from '../interfaces';
+import { addMetadata } from '../utils';
+
+/**
+ * Base class for AOP decorators
+ * @template O - Options type
+ * @template T - Method return type
+ * @template E - Error type
+ */
+@Injectable()
+export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = unknown, E = unknown>
+  implements IAOPDecorator<O, T, E>
+{
+  /**
+   * Static decorator method for around
+   * @param options - Decorator options
+   * @returns Decorator function
+   */
+  static around<O extends AOPOptions = AOPOptions>(
+    this: new () => AOPDecorator<O, unknown, unknown>,
+    options: O = {} as O,
+  ): MethodDecorator {
+    return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+      const decoratorClass = this.name;
+      addMetadata({
+        decoratorClass,
+        target,
+        propertyKey,
+        options,
+        type: AOP_TYPES.AROUND,
+      });
+    };
+  }
+
+  /**
+   * Static decorator method for before
+   * @param options - Decorator options
+   * @returns Decorator function
+   */
+  static before<O extends AOPOptions = AOPOptions>(
+    this: new () => AOPDecorator<O, unknown, unknown>,
+    options: O = {} as O,
+  ): MethodDecorator {
+    return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+      const decoratorClass = this.name;
+      addMetadata({
+        decoratorClass,
+        target,
+        propertyKey,
+        options,
+        type: AOP_TYPES.BEFORE,
+      });
+    };
+  }
+
+  /**
+   * Static decorator method for after
+   * @param options - Decorator options
+   * @returns Decorator function
+   */
+  static after<O extends AOPOptions = AOPOptions>(
+    this: new () => AOPDecorator<O, unknown, unknown>,
+    options: O = {} as O,
+  ): MethodDecorator {
+    return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+      const decoratorClass = this.name;
+      addMetadata({
+        decoratorClass,
+        target,
+        propertyKey,
+        options,
+        type: AOP_TYPES.AFTER,
+      });
+    };
+  }
+
+  /**
+   * Static decorator method for afterReturning
+   * @param options - Decorator options
+   * @returns Decorator function
+   */
+  static afterReturning<O extends AOPOptions = AOPOptions>(
+    this: new () => AOPDecorator<O, unknown, unknown>,
+    options: O = {} as O,
+  ): MethodDecorator {
+    return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+      const decoratorClass = this.name;
+      addMetadata({
+        decoratorClass,
+        target,
+        propertyKey,
+        options,
+        type: AOP_TYPES.AFTER_RETURNING,
+      });
+    };
+  }
+
+  /**
+   * Static decorator method for afterThrowing
+   * @param options - Decorator options
+   * @returns Decorator function
+   */
+  static afterThrowing<O extends AOPOptions = AOPOptions>(
+    this: new () => AOPDecorator<O, unknown, unknown>,
+    options: O = {} as O,
+  ): MethodDecorator {
+    return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+      const decoratorClass = this.name;
+      addMetadata({
+        decoratorClass,
+        target,
+        propertyKey,
+        options,
+        type: AOP_TYPES.AFTER_THROWING,
+      });
+    };
+  }
+
+  /**
+   * Around decorator (optional implementation)
+   * @param context - Method and options context
+   * @returns Wrapped method function
+   */
+  around?(context: UnitAOPContext<O, T, E>): AOPMethod<T>;
+
+  /**
+   * Before decorator (optional implementation)
+   * @param context - Method and options context
+   * @returns Callback function
+   */
+  before?(context: UnitAOPContext<O, T, E>): AOPMethod<void>;
+
+  /**
+   * After decorator (optional implementation)
+   * @param context - Method and options context
+   * @returns Callback function
+   */
+  after?(context: UnitAOPContext<O, T, E>): AOPMethod<void>;
+
+  /**
+   * AfterReturning decorator (optional implementation)
+   * @param context - Method, options, and result context
+   * @returns Callback function
+   */
+  afterReturning?(context: ResultAOPContext<O, T, E>): AOPMethod<void>;
+
+  /**
+   * AfterThrowing decorator (optional implementation)
+   * @param context - Method, options, and error context
+   * @returns Callback function
+   */
+  afterThrowing?(context: ErrorAOPContext<O, T, E>): AOPMethod<void>;
+}
