@@ -14,6 +14,7 @@ Spring style AOP (Aspect Oriented Programming) in Nest.js
 
 **Currently Under Development**
 -> Not published yet
+(Will be publish if test finished)
 
 ```bash
 npm install nestjs-saop
