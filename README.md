@@ -107,6 +107,7 @@ export class ExampleController {
   }
 }
 
+@Injectable()
 export class ExampleService {
   @LoggingDecorator.after({ level: 'info', logArgs: true, logResult: true })
   processData(data: any): string {
