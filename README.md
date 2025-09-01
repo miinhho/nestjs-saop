@@ -7,13 +7,34 @@ Spring style AOP (Aspect Oriented Programming) in Nest.js
 
 ## Features
 
-- ✅ TypeScript support with full type safety
+- ✅ **Complete AOP Advice Types**: Support for all 5 Spring-style AOP advice types
+  - **Around**: Complete control over method execution (before, during, and after)
+  - **Before**: Execute advice before method invocation
+  - **After**: Execute advice after method completion (regardless of success/failure)
+  - **AfterReturning**: Execute advice only when method completes successfully
+  - **AfterThrowing**: Execute advice only when method throws an exception
+
+- ✅ **Full TypeScript Support**: Complete type safety with generics and interfaces
+  - Strongly typed AOP contexts and options
+  - Generic support for method return types and error types
+  - IntelliSense support for all AOP operations
+
+- ✅ **NestJS Integration**: Seamless integration with NestJS module system
+  - `AOPModule.forRoot()` for global AOP configuration
+  - Automatic instance discovery using NestJS DiscoveryModule
+  - Compatible with all NestJS dependency injection patterns
+
+- ✅ **Flexible Configuration**: Highly configurable AOP options and contexts
+  - Custom options support through `AOPOptions` interface
+  - Conditional AOP execution based on runtime conditions
+  - Multiple decorators per method with different configurations
+
+- ✅ **Decorator Pattern Implementation**: Clean decorator-based API
+  - `@Aspect()` decorator for AOP class identification
+  - Static method decorators for easy application
+  - Interface-based AOP decorator contracts
 
 ## Installation
-
-**Currently Under Development**
--> Not published yet
-(Will be publish if test finished)
 
 ```bash
 npm install nestjs-saop
