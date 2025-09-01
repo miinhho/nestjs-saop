@@ -377,7 +377,8 @@ interface ApiResponse<T> {
 }
 
 @Aspect()
-export class ApiDecorator extends AOPDecorator<AOPOptions> {
+export class ApiDecorator extends AOPDecorator {
+  // `AOPOptions` here is the basic option type.
   afterReturning({ method, options, result }: ResultAOPContext<AOPOptions, ApiResponse<any>>) {
     return (...args: any[]) => {
       console.log(`✅ API call successful: ${method.name}`);
@@ -388,6 +389,7 @@ export class ApiDecorator extends AOPDecorator<AOPOptions> {
     };
   }
 
+  // `AOPOptions` here is the basic option type.
   afterThrowing({ method, options, error }: ErrorAOPContext<AOPOptions, Error>) {
     return (...args: any[]) => {
       console.error(`❌ API call failed: ${method.name}`, error.message);
