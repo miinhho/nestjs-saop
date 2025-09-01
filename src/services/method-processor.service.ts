@@ -5,6 +5,8 @@ import { AOP_METADATA_KEY } from '../utils';
 /**
  * Analyzes class instances to discover methods that have
  * AOP decorators applied.
+ *
+ * @internal
  */
 @Injectable()
 export class MethodProcessor {

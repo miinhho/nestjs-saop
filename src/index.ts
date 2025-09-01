@@ -7,7 +7,6 @@ export type {
   AOPContext,
   AOPMethod,
   AOPOptions,
-  AOPType,
   AroundAOP,
   BeforeAOP,
   ErrorAOPContext,

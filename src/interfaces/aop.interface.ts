@@ -31,8 +31,6 @@ export type AOPType = (typeof AOP_TYPES)[keyof typeof AOP_TYPES];
  * A method function that can be used in AOP contexts.
  *
  * @template T - The return type of the method (default: unknown)
- *
- * @internal
  */
 export type AOPMethod<T = unknown> = (...args: any[]) => T;
 
@@ -65,8 +63,6 @@ export type AOPContext<O = AOPOptions, T = any, E = unknown> = {
  * (`before`, `after`, `around` advice)
  *
  * @template O - Options type
- *
- * @internal
  */
 export type UnitAOPContext<O = AOPOptions> = Pick<AOPContext<O>, 'method' | 'options'>;
 
@@ -76,8 +72,6 @@ export type UnitAOPContext<O = AOPOptions> = Pick<AOPContext<O>, 'method' | 'opt
  *
  * @template O - Options type
  * @template T - Method return type (default: `any`)
- *
- * @internal
  */
 export type ResultAOPContext<O = AOPOptions, T = any> = Pick<
   AOPContext<O, T>,
@@ -90,8 +84,6 @@ export type ResultAOPContext<O = AOPOptions, T = any> = Pick<
  *
  * @template O - Options type
  * @template E - Error type (default: `unknown`)
- *
- * @internal
  */
 export type ErrorAOPContext<O = AOPOptions, E = unknown> = Pick<
   AOPContext<O, unknown, E>,

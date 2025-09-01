@@ -3,6 +3,7 @@ import type { AOPMethod, ErrorAOPContext, ResultAOPContext, UnitAOPContext } fro
 
 /**
  * Contract for around advice, which wraps the entire method execution.
+ *
  * Allows complete control over method invocation, including the ability to modify
  * parameters, skip execution, or alter the return value.
  *

@@ -8,6 +8,8 @@ import { AOP_TYPES, type AOPDecoratorContext, type IAOPDecorator } from '../inte
  * the corresponding advice to target methods at runtime.
  *
  * It handles the transformation of method descriptors to include AOP behavior.
+ *
+ * @internal
  */
 @Injectable()
 export class DecoratorApplier {

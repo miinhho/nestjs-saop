@@ -8,6 +8,8 @@ import type { IAOPDecorator } from '../interfaces';
  * and AOP decorator instances.
  *
  * It provides utilities to collect AOP-related components.
+ *
+ * @internal
  */
 @Injectable()
 export class InstanceCollector {

@@ -19,6 +19,7 @@ export const AOP_METADATA_KEY = Symbol('saop:decorators');
  * @param propertyKey - The name or symbol of the method being decorated
  * @param options - Configuration options passed to the decorator
  * @param type - The type of AOP advice (around, before, after, etc.)
+ *
  * @internal
  */
 export const addMetadata = ({
