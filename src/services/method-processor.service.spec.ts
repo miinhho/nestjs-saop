@@ -114,6 +114,19 @@ describe('MethodProcessor', () => {
 
       expect(result).toBeNull();
     });
+
+    it('should return null if accessing prototype throws error', () => {
+      const problematicMetatype = Object.create(null);
+      Object.defineProperty(problematicMetatype, 'prototype', {
+        get() {
+          throw new Error('Cannot access prototype');
+        },
+      });
+
+      const result = (service as any).getPrototype(problematicMetatype);
+
+      expect(result).toBeNull();
+    });
   });
 
   describe('getMethodNames', () => {
@@ -151,6 +164,34 @@ describe('MethodProcessor', () => {
         method1: () => {},
         property: 'value',
         method2: 'not a function',
+      };
+
+      const result = (service as any).getMethodNames(prototype);
+
+      expect(result).toEqual(['method1']);
+    });
+
+    it('should handle error when accessing Object.getOwnPropertyNames', () => {
+      const problematicPrototype = Object.create(null);
+      Object.defineProperty(problematicPrototype, 'constructor', {
+        get() {
+          throw new Error('Cannot access properties');
+        },
+      });
+
+      const result = (service as any).getMethodNames(problematicPrototype);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should handle error when checking property type', () => {
+      const prototype = {
+        method1: () => {},
+        problematicProperty: Object.defineProperty({}, 'value', {
+          get() {
+            throw new Error('Cannot access property');
+          },
+        }),
       };
 
       const result = (service as any).getMethodNames(prototype);

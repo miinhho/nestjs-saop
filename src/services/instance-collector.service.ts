@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { DiscoveryService } from '@nestjs/core';
+import { DiscoveryService } from '@nestjs/core';
 import { AOP_CLASS_METADATA_KEY } from '../decorators';
 import type { IAOPDecorator } from '../interfaces';
 
