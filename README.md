@@ -1,7 +1,9 @@
 # nestjs-saop
 
-[![npm version](https://badge.fury.io/js/nestjs-saop.svg)](https://badge.fury.io/js/nestjs-saop)
+[![npm version](https://img.shields.io/npm/v/nestjs-saop.svg)](https://www.npmjs.com/package/nestjs-saop)
 [![codecov](https://codecov.io/github/miinhho/nestjs-saop/graph/badge.svg?token=XXUGSS0MWV)](https://codecov.io/github/miinhho/nestjs-saop)
+![Github Workflow](https://github.com/miinhho/nestjs-saop/actions/workflows/ci.yml/badge.svg?branch=main)
+[![package license](https://img.shields.io/npm/l/nestjs-saop.svg)](https://www.npmjs.com/package/nestjs-saop)
 
 Spring style AOP (Aspect Oriented Programming) in Nest.js
 
