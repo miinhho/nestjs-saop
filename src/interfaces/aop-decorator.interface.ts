@@ -8,10 +8,12 @@ import type {
 import type { AOPType } from './aop.interface';
 
 /**
- * SAOP decorator interface
- * @template O - Options type
- * @template T - Method return type
- * @template E - Error type
+ * Base interface for all AOP decorators, providing optional implementations
+ * for various AOP advice types (around, before, after, etc.).
+ *
+ * @template O - Options type extending AOPOptions
+ * @template T - Method return type (default: any)
+ * @template E - Error type (default: unknown)
  */
 export interface IAOPDecorator<O extends AOPOptions = AOPOptions, T = any, E = unknown>
   extends Partial<AroundAOP<O, T>>,
@@ -21,18 +23,22 @@ export interface IAOPDecorator<O extends AOPOptions = AOPOptions, T = any, E = u
     Partial<AfterThrowingAOP<O, E>> {}
 
 /**
- * AOP options
+ * Options passed to AOP decorators.
+ *
+ * Allows any key-value pairs.
  */
 export interface AOPOptions {
-  /** Any option key-value pairs */
   [key: string]: any;
 }
 
 /**
- * AOP decorator metadata
- * @property `type` - Decorator type
- * @property `options` - Decorator options
- * @property `decoratorClass` - Decorator class name
+ * Information about an applied AOP decorator.
+ *
+ * @property `type` - The type of AOP decorator (e.g., around, before, after)
+ * @property `options` - Configuration options passed to the decorator
+ * @property `decoratorClass` - Optional name of the decorator class
+ *
+ * @internal
  */
 export interface AOPDecoratorMetadata {
   /** Decorator type */
@@ -44,12 +50,15 @@ export interface AOPDecoratorMetadata {
 }
 
 /**
- * AOP decorator application context
- * @property `aopDecorator` - AOP decorator instance
- * @property `descriptor` - Method property descriptor
- * @property `instance` - Target instance
- * @property `originalMethod` - Original method function
- * @property `options` - Decorator options
+ * Context information when applying AOP decorators to methods.
+ *
+ * @property `aopDecorator` - The AOP decorator instance being applied
+ * @property `descriptor` - The property descriptor of the target method
+ * @property `instance` - The instance of the class containing the target method
+ * @property `originalMethod` - The original method function before decoration
+ * @property `options` - The options passed to the decorator
+ *
+ * @internal
  */
 export type AOPDecoratorContext = {
   aopDecorator: IAOPDecorator;
@@ -60,7 +69,12 @@ export type AOPDecoratorContext = {
 };
 
 /**
- * AOP method with decorators
+ * Method that has AOP decorators applied to it,
+ *
+ * @property `methodName` - The name of the decorated method
+ * @property `decorators` - Array of metadata for each applied decorator
+ *
+ * @internal
  */
 export interface AOPMethodWithDecorators {
   /** Method name */

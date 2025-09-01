@@ -1,60 +1,83 @@
 import type { AOPOptions } from './aop-decorator.interface';
 
 /**
- * AOP decorator types
- * @property `AROUND` - Around decorator
- * @property `BEFORE` - Before decorator
- * @property `AFTER` - After decorator
- * @property `AFTER_RETURNING` - AfterReturning decorator
- * @property `AFTER_THROWING` - AfterThrowing decorator
+ * The available types of AOP decorators that can be applied to methods.
+ *
+ * Each type corresponds to a different pointcut in the method execution lifecycle.
+ *
+ * @property `AROUND`
+ * @property `BEFORE`
+ * @property `AFTER`
+ * @property `AFTER_RETURNING`
+ * @property `AFTER_THROWING`
+ *
+ * @internal
  */
 export const AOP_TYPES = {
-  AROUND: 'around',
-  BEFORE: 'before',
-  AFTER: 'after',
-  AFTER_RETURNING: 'afterReturning',
-  AFTER_THROWING: 'afterThrowing',
+  AROUND: 'saop:around',
+  BEFORE: 'saop:before',
+  AFTER: 'saop:after',
+  AFTER_RETURNING: 'saop:afterReturning',
+  AFTER_THROWING: 'saop:afterThrowing',
 } as const;
 
 /**
- * AOP decorator type
+ * All possible AOP decorator types.
+ * @internal
  */
 export type AOPType = (typeof AOP_TYPES)[keyof typeof AOP_TYPES];
 
 /**
- * AOP method type
- * @template T - Method return type
+ * A method function that can be used in AOP contexts.
+ *
+ * @template T - The return type of the method (default: unknown)
+ *
+ * @internal
  */
 export type AOPMethod<T = unknown> = (...args: any[]) => T;
 
 /**
- * AOP context type
+ * Context object passed to AOP decorators.
+ *
+ * Containing all information needed for method interception and advice execution.
  *
  * @template O - Options type
- * @template T - Method return type
- * @template E - Error type
+ * @template T - Method return type (default: `any`)
+ * @template E - Error type (default: `unknown`)
+ *
+ * @internal
  */
-export type AOPContext<O = AOPOptions, T = unknown, E = unknown> = {
-  /** Original method function */
+export type AOPContext<O = AOPOptions, T = any, E = unknown> = {
+  /** The original method function being intercepted */
   method: Function;
-  /** Decorator options */
+  /** Configuration options passed to the decorator */
   options: O;
-  /** Method execution result (afterReturning only) */
+  /** The result returned by the method (available in afterReturning) */
   result?: T;
-  /** Error thrown (afterThrowing only) */
+  /** The error thrown by the method (available in afterThrowing) */
   error?: E;
 };
 
 /**
- * AOP context type which includes method and options only
+ * Simplified context used for AOP advice that doesn't need access to
+ * method results or errors.
+ *
+ * (`before`, `after`, `around` advice)
+ *
  * @template O - Options type
+ *
+ * @internal
  */
 export type UnitAOPContext<O = AOPOptions> = Pick<AOPContext<O>, 'method' | 'options'>;
 
 /**
- * AOP context type which includes method, options and result
+ * Context used for `after-returning` advice, providing access to the
+ * method's return value along with the standard context information.
+ *
  * @template O - Options type
- * @template T - Method return type
+ * @template T - Method return type (default: `any`)
+ *
+ * @internal
  */
 export type ResultAOPContext<O = AOPOptions, T = any> = Pick<
   AOPContext<O, T>,
@@ -62,9 +85,13 @@ export type ResultAOPContext<O = AOPOptions, T = any> = Pick<
 >;
 
 /**
- * AOP context type which includes method, options and error
+ * Context used for `after-throwing` advice, providing access to the
+ * exception thrown by the method along with the standard context information.
+ *
  * @template O - Options type
- * @template E - Error type
+ * @template E - Error type (default: `unknown`)
+ *
+ * @internal
  */
 export type ErrorAOPContext<O = AOPOptions, E = unknown> = Pick<
   AOPContext<O, unknown, E>,

@@ -1,11 +1,12 @@
 import { Module, type DynamicModule, type OnModuleInit } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
-import { DecoratorApplier } from './services/decorator-applier.service';
-import { InstanceCollector } from './services/instance-collector.service';
-import { MethodProcessor } from './services/method-processor.service';
+import type { AOPMethodWithDecorators, IAOPDecorator } from './interfaces';
+import { DecoratorApplier, InstanceCollector, MethodProcessor } from './services';
 
 /**
- * Main aop module
+ * Main AOP module for NestJS
+ *
+ * It automatically discovers AOP decorators and applies them to target methods at runtime.
  */
 @Module({
   providers: [InstanceCollector, MethodProcessor, DecoratorApplier],
@@ -18,8 +19,9 @@ export class AOPModule implements OnModuleInit {
   ) {}
 
   /**
-   * Configure aop module as global
-   * @returns Dynamic module configuration
+   * Configure AOP module as global
+   *
+   * @returns Dynamic module configuration for global AOP support
    */
   static forRoot(): DynamicModule {
     return {
@@ -30,63 +32,75 @@ export class AOPModule implements OnModuleInit {
   }
 
   /**
-   * Module initialization
+   * Lifecycle hook called when the module is initialized.
+   *
+   * Triggers the AOP system setup process.
    */
-  async onModuleInit() {
-    await this.initializeAOP();
+  onModuleInit() {
+    this.initializeAOP();
   }
 
   /**
-   * Initialize AOP system
+   * Main initialization method that scans the application for instances
+   * and processes them to apply AOP decorators.
    */
-  private async initializeAOP() {
+  private initializeAOP() {
     const instances = this.instanceCollector.collectAllInstances();
 
     for (const wrapper of instances) {
-      await this.processInstance(wrapper);
+      this.processInstance(wrapper);
     }
   }
 
   /**
-   * Process single instance
-   * @param wrapper - InstanceWrapper object
+   * Processes a single instance wrapper to find and apply AOP decorators
+   * to its methods.
+   *
+   * If the instance has decorated methods, it collects
+   * the necessary AOP decorator instances and applies them.
+   *
+   * @param wrapper - InstanceWrapper object containing the instance to process
    */
-  private async processInstance(wrapper: any) {
+  private processInstance(wrapper: any) {
     const methods = this.methodProcessor.processInstanceMethods(wrapper);
-
-    if (methods.length === 0) {
-      return;
-    }
+    if (methods.length === 0) return;
 
     const aopDecorators = this.instanceCollector.collectAOPDecorators();
 
     for (const { methodName, decorators } of methods) {
-      await this.processMethod(wrapper, methodName, decorators, aopDecorators);
+      this.processMethod({ wrapper, methodName, decorators, aopDecorators });
     }
   }
 
   /**
-   * Process single method
-   * @param wrapper - InstanceWrapper object
-   * @param methodName - Method name to process
-   * @param decorators - Decorators to apply
-   * @param aopDecorators - aop decorator instances
+   * Applies AOP decorators to a specific method of an instance.
+   *
+   * Retrieves the original method,
+   * then apply all relevant AOP advice to the method.
+   *
+   * @param wrapper - InstanceWrapper object containing the instance
+   * @param methodName - Name of the method to process
+   * @param decorators - Array of decorators to apply to the method
+   * @param aopDecorators - Array of AOP decorator instances available for application
    */
-  private async processMethod(
-    wrapper: any,
-    methodName: string,
-    decorators: any[],
-    aopDecorators: any[],
-  ) {
+  private processMethod({
+    wrapper,
+    methodName,
+    decorators,
+    aopDecorators,
+  }: {
+    wrapper: any;
+    aopDecorators: IAOPDecorator[];
+  } & AOPMethodWithDecorators) {
     const prototype = wrapper.metatype.prototype;
     const originalMethod = prototype[methodName];
 
-    this.decoratorApplier.applyDecorators(
-      wrapper.instance,
+    this.decoratorApplier.applyDecorators({
+      instance: wrapper.instance,
       methodName,
       decorators,
       aopDecorators,
       originalMethod,
-    );
+    });
   }
 }

@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { AOPMethodWithDecorators } from '../interfaces';
+import type { AOPMethodWithDecorators } from '../interfaces';
 import { AOP_METADATA_KEY } from '../utils';
 
 /**
- * Processes class methods and finds AOP decorators
+ * Analyzes class instances to discover methods that have
+ * AOP decorators applied.
  */
 @Injectable()
 export class MethodProcessor {
   /**
-   * Process instance methods and find AOP decorators
-   * @param wrapper - InstanceWrapper with instance and metatype
-   * @returns Array of methods with AOP decorators
+   * Analyzes a class instance to find all methods that have AOP decorators
+   * applied.
+   *
+   * @param wrapper - InstanceWrapper containing the instance and metatype
+   * @returns Array of methods with their associated AOP decorators
    */
   processInstanceMethods(wrapper: any): AOPMethodWithDecorators[] {
     if (!wrapper.instance || !wrapper.metatype) {
@@ -34,9 +37,10 @@ export class MethodProcessor {
   }
 
   /**
-   * Get prototype safely
-   * @param metatype - Class constructor
-   * @returns Valid prototype or null
+   * Safely retrieves the prototype of a class constructor.
+   *
+   * @param metatype - The class constructor
+   * @returns The class prototype if valid, `null` otherwise
    */
   private getPrototype(metatype: any): object | null {
     try {
@@ -48,9 +52,11 @@ export class MethodProcessor {
   }
 
   /**
-   * Get method names from prototype
-   * @param prototype - Class prototype
-   * @returns Array of method names
+   * Extracts all method names from a class prototype, filtering out
+   * the constructor and non-function properties.
+   *
+   * @param prototype - The class prototype to analyze
+   * @returns Array of method names found in the prototype
    */
   private getMethodNames(prototype: any): string[] {
     if (!prototype || typeof prototype !== 'object') {
@@ -60,9 +66,7 @@ export class MethodProcessor {
     try {
       const propertyNames = Object.getOwnPropertyNames(prototype);
       return propertyNames.filter(name => {
-        if (name === 'constructor') {
-          return false;
-        }
+        if (name === 'constructor') return false;
 
         try {
           return typeof prototype[name] === 'function';
@@ -76,10 +80,11 @@ export class MethodProcessor {
   }
 
   /**
-   * Get decorators from metadata
-   * @param metatype - Class constructor
-   * @param methodName - Method name
-   * @returns Array of decorator metadata
+   * Retrieves AOP decorator metadata for a specific method.
+   *
+   * @param metatype - The class constructor
+   * @param methodName - The name of the method to check
+   * @returns Array of decorator metadata if found, `undefined` otherwise
    */
   private getDecorators(metatype: any, methodName: string): any[] | undefined {
     return Reflect.getMetadata(AOP_METADATA_KEY, metatype, methodName);

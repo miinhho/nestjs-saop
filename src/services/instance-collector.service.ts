@@ -1,17 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { DiscoveryService } from '@nestjs/core';
+import type { DiscoveryService } from '@nestjs/core';
 import { AOP_CLASS_METADATA_KEY } from '../decorators';
+import type { IAOPDecorator } from '../interfaces';
 
 /**
- * Collects instances and AOP decorators from NestJS application
+ * Scans the application for controllers, providers,
+ * and AOP decorator instances.
+ *
+ * It provides utilities to collect AOP-related components.
  */
 @Injectable()
 export class InstanceCollector {
   constructor(private readonly discoveryService: DiscoveryService) {}
 
   /**
-   * Collect all instances from controllers and providers
-   * @returns Array of controller and provider instances
+   * Gathers all controller and provider instances from the NestJS application.
+   *
+   * @returns Array of controller and provider instance wrappers
    */
   collectAllInstances() {
     const controllers = this.discoveryService.getControllers();
@@ -20,12 +25,14 @@ export class InstanceCollector {
   }
 
   /**
-   * Collect AOP decorator instances from providers
+   * Scans all providers in the application and identifies those that are
+   * AOP decorators (marked with ＠Aspect).
+   *
    * @returns Array of AOP decorator instances
    */
-  collectAOPDecorators() {
+  collectAOPDecorators(): IAOPDecorator[] {
     const providers = this.discoveryService.getProviders();
-    const decorators: any[] = [];
+    const decorators: IAOPDecorator[] = [];
 
     for (const wrapper of providers) {
       if (this.isAOPDecorator(wrapper)) {
@@ -37,9 +44,12 @@ export class InstanceCollector {
   }
 
   /**
-   * Check if wrapper contains AOP decorator
-   * @param wrapper - InstanceWrapper object
-   * @returns True if wrapper contains AOP decorator
+   * Determines whether a given instance wrapper contains an AOP decorator
+   * by checking for the presence of the ＠Aspect metadata key on the
+   * instance's constructor.
+   *
+   * @param wrapper - InstanceWrapper object from NestJS discovery
+   * @returns `true` if the wrapper contains an AOP decorator instance
    */
   private isAOPDecorator(wrapper: any): boolean {
     if (!wrapper.instance || typeof wrapper.instance !== 'object') {

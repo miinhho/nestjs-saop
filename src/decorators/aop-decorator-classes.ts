@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import type {
+  AfterAOP,
+  AfterReturningAOP,
+  AfterThrowingAOP,
   AOPMethod,
   AOPOptions,
+  AroundAOP,
+  BeforeAOP,
   ErrorAOPContext,
   IAOPDecorator,
   ResultAOPContext,
@@ -11,25 +16,68 @@ import { AOP_TYPES } from '../interfaces';
 import { addMetadata } from '../utils';
 
 /**
- * Base abstract class for AOP decorators
+ * Constructor signature for AOP decorator classes.
+ *
+ * @template O - Options type
+ *
+ * @internal
+ */
+type AOPDecoratorConstructor<O extends AOPOptions> = new () => AOPDecorator<O>;
+
+/**
+ * Provides the foundation for creating custom AOP decorators.
  *
  * @template O - Options type
  * @template T - Method return type (default: `any`)
  * @template E - Error type (default: `unknown`)
+ *
+ * @example
+ * ```typescript
+ * ＠Aspect()
+ * export class LoggingAOP extends AOPDecorator {
+ *   around({ method, options }: UnitAOPContext) {
+ *    return (...args: any[]) => {
+ *      console.log('Around: Before method call', ...args, options);
+ *      const result = method.apply(this, args);
+ *      console.log('Around: After method call', result);
+ *      return result;
+ *    };
+ *   }
+ *
+ *  // ... implement other advice methods as needed
+ *  // e.g. before, after, afterReturning, afterThrowing
+ * }
+ * ```
  */
 @Injectable()
 export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E = unknown>
   implements IAOPDecorator<O, T, E>
 {
   /**
-   * Static decorator method for around
-   * @param options - Decorator options
+   * Creates a method decorator that applies around advice to the target method.
+   *
+   * The around advice has full control over method execution and can modify
+   * parameters, conditionally execute the method, or return a different result.
+   *
+   * @template O - Options type
+   * @param options - Configuration options for the decorator
+   * @returns A method decorator function
+   *
+   * @example
+   * ```typescript
+   * ＠LoggingAOP.around<LoggingOptions>({
+   *   logLevel: 'info',
+   * })
+   * getHello(name: string): string {
+   *   return `Hello ${name}!`;
+   * }
+   * ```
    */
   static around<O extends AOPOptions = AOPOptions>(
-    this: new () => AOPDecorator<O>,
+    this: AOPDecoratorConstructor<O> & AroundAOP<O>,
     options: O = {} as O,
   ): MethodDecorator {
-    return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
       const decoratorClass = this.name;
       addMetadata({
         decoratorClass,
@@ -42,14 +90,29 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
   }
 
   /**
-   * Static decorator method for before
-   * @param options - Decorator options
+   * Creates a method decorator that applies before advice to the target method.
+   *
+   * The before advice executes before the method runs.
+   *
+   * @template O - Options type
+   * @param options - Configuration options for the decorator
+   * @returns A method decorator function
+   *
+   * @example
+   * ```typescript
+   * ＠LoggingAOP.before<LoggingOptions>({
+   *   logLevel: 'info',
+   * })
+   * getHello(name: string): string {
+   *   return `Hello ${name}!`;
+   * }
+   * ```
    */
   static before<O extends AOPOptions = AOPOptions>(
-    this: new () => AOPDecorator<O>,
+    this: AOPDecoratorConstructor<O> & BeforeAOP<O>,
     options: O = {} as O,
   ): MethodDecorator {
-    return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
       const decoratorClass = this.name;
       addMetadata({
         decoratorClass,
@@ -62,14 +125,30 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
   }
 
   /**
-   * Static decorator method for after
-   * @param options - Decorator options
+   * Creates a method decorator that applies after advice to the target method.
+   *
+   * The after advice executes after the method completes, regardless of whether
+   * it succeeded or threw an exception.
+   *
+   * @template O - Options type extending AOPOptions
+   * @param options - Configuration options for the decorator
+   * @returns A method decorator function
+   *
+   * @example
+   * ```typescript
+   * ＠LoggingAOP.after<LoggingOptions>({
+   *   logLevel: 'info',
+   * })
+   * getHello(name: string): string {
+   *   return `Hello ${name}!`;
+   * }
+   * ```
    */
   static after<O extends AOPOptions = AOPOptions>(
-    this: new () => AOPDecorator<O>,
+    this: AOPDecoratorConstructor<O> & AfterAOP<O>,
     options: O = {} as O,
   ): MethodDecorator {
-    return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
       const decoratorClass = this.name;
       addMetadata({
         decoratorClass,
@@ -82,14 +161,30 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
   }
 
   /**
-   * Static decorator method for afterReturning
-   * @param options - Decorator options
+   * Creates a method decorator that applies after-returning advice to the target method.
+   *
+   * The after-returning advice executes only when the method completes successfully
+   * and provides access to the return value for post-processing.
+   *
+   * @template O - Options type
+   * @param options - Configuration options for the decorator
+   * @returns A method decorator function
+   *
+   * @example
+   * ```typescript
+   * ＠LoggingAOP.afterReturning<LoggingOptions>({
+   *   logLevel: 'info',
+   * })
+   * getHello(name: string): string {
+   *   return `Hello ${name}!`;
+   * }
+   * ```
    */
   static afterReturning<O extends AOPOptions = AOPOptions>(
-    this: new () => AOPDecorator<O>,
+    this: AOPDecoratorConstructor<O> & AfterReturningAOP<O, any>,
     options: O = {} as O,
   ): MethodDecorator {
-    return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
       const decoratorClass = this.name;
       addMetadata({
         decoratorClass,
@@ -102,14 +197,30 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
   }
 
   /**
-   * Static decorator method for afterThrowing
-   * @param options - Decorator options
+   * Creates a method decorator that applies after-throwing advice to the target method.
+   *
+   * The after-throwing advice executes only when the method throws an exception
+   * and provides access to the error for logging, recovery, or re-throwing.
+   *
+   * @template O - Options type
+   * @param options - Configuration options for the decorator
+   * @returns A method decorator function
+   *
+   * @example
+   * ```typescript
+   * ＠LoggingAOP.afterThrowing<LoggingOptions>({
+   *   logLevel: 'error',
+   * })
+   * getError(): string {
+   *   throw new Error('This is a test error');
+   * }
+   * ```
    */
   static afterThrowing<O extends AOPOptions = AOPOptions>(
-    this: new () => AOPDecorator<O>,
+    this: AOPDecoratorConstructor<O> & AfterThrowingAOP<O, unknown>,
     options: O = {} as O,
   ): MethodDecorator {
-    return (target: any, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
       const decoratorClass = this.name;
       addMetadata({
         decoratorClass,
@@ -122,37 +233,56 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
   }
 
   /**
-   * Around decorator (optional implementation)
-   * @param context - Method and options context
-   * @returns Wrapped method function
+   * Around decorator method (optional implementation)
+   *
+   * Full control over execution.
+   *
+   * Can modify parameters, conditionally execute the original method, or return
+   * a different result.
+   *
+   * @param context - Context containing the original method and options
+   * @returns A wrapped method function that will be executed
    */
   around?(context: UnitAOPContext<O>): AOPMethod<T>;
 
   /**
-   * Before decorator (optional implementation)
-   * @param context - Method and options context
-   * @returns Callback function
+   * Before decorator method (optional implementation)
+   *
+   * Executed before the target method runs.
+   *
+   * @param context - Context containing the original method and options
+   * @returns A callback function executed before the method
    */
   before?(context: UnitAOPContext<O>): AOPMethod<void>;
 
   /**
-   * After decorator (optional implementation)
-   * @param context - Method and options context
-   * @returns Callback function
+   * After decorator method (optional implementation)
+   *
+   * Executed after the target method completes, whether successfully or with an error.
+   *
+   * @param context - Context containing the original method and options
+   * @returns A callback function executed after the method
    */
   after?(context: UnitAOPContext<O>): AOPMethod<void>;
 
   /**
-   * AfterReturning decorator (optional implementation)
-   * @param context - Method, options, and result context
-   * @returns Callback function
+   * AfterReturning decorator method (optional implementation)
+   *
+   * Executed after the target method returns successfully. Has access to
+   * the return value.
+   *
+   * @param context - Context containing the method, options, and result
+   * @returns A callback function executed after successful method completion
    */
   afterReturning?(context: ResultAOPContext<O, T>): AOPMethod<void>;
 
   /**
-   * AfterThrowing decorator (optional implementation)
-   * @param context - Method, options, and error context
-   * @returns Callback function
+   * AfterThrowing decorator method (optional implementation)
+   *
+   * Executed when the target method throws an exception.
+   *
+   * @param context - Context containing the method, options, and error
+   * @returns A callback function executed when an exception occurs
    */
   afterThrowing?(context: ErrorAOPContext<O, E>): AOPMethod<void>;
 }

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -18,9 +16,9 @@ export type LoggingOptions = {
 
 @Aspect()
 export class LoggingAOP extends AOPDecorator<LoggingOptions> {
-  around({ method }: UnitAOPContext<LoggingOptions>): AOPMethod {
+  around({ method, options }: UnitAOPContext<LoggingOptions>): AOPMethod {
     return (...args: any[]) => {
-      console.log('Around: Before method call', ...args);
+      console.log('Around: Before method call', ...args, options);
       const result = method.apply(this, args);
       console.log('Around: After method call', result);
       return result;

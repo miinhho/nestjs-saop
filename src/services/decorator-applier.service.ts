@@ -2,25 +2,38 @@ import { Injectable } from '@nestjs/common';
 import { AOP_TYPES, type AOPDecoratorContext, type IAOPDecorator } from '../interfaces';
 
 /**
- * Applies AOP decorators to methods
+ * Service for applying AOP decorators to methods
+ *
+ * This service is for taking AOP decorator metadata and applying
+ * the corresponding advice to target methods at runtime.
+ *
+ * It handles the transformation of method descriptors to include AOP behavior.
  */
 @Injectable()
 export class DecoratorApplier {
   /**
-   * Apply decorators to method
-   * @param instance - Target instance
-   * @param methodName - Method name
-   * @param decorators - Decorator metadata array
-   * @param aopDecorators - AOP decorator instances
-   * @param originalMethod - Original method function
+   * Processes an array of decorator metadata and applies each corresponding
+   * AOP advice to the target method.
+   *
+   * @param instance - The instance of the class containing the target method
+   * @param methodName - The name of the method to decorate
+   * @param decorators - Array of decorator metadata objects
+   * @param aopDecorators - Array of AOP decorator instances available for application
+   * @param originalMethod - The original method function before decoration
    */
-  applyDecorators(
-    instance: any,
-    methodName: string,
-    decorators: any[],
-    aopDecorators: IAOPDecorator[],
-    originalMethod: Function,
-  ) {
+  applyDecorators({
+    instance,
+    methodName,
+    decorators,
+    aopDecorators,
+    originalMethod,
+  }: {
+    instance: any;
+    methodName: string;
+    decorators: any[];
+    aopDecorators: IAOPDecorator[];
+    originalMethod: Function;
+  }) {
     const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(instance), methodName);
     if (!descriptor) return;
 
@@ -54,12 +67,16 @@ export class DecoratorApplier {
   }
 
   /**
-   * Apply single decorator
-   * @param aopDecorator - AOP decorator instance
-   * @param descriptor - Method descriptor
-   * @param instance - Target instance
-   * @param originalMethod - Original method
-   * @param decorator - Decorator metadata
+   * Applies a single AOP decorator to the method based on its type.
+   *
+   * This method routes the decorator application to the appropriate
+   * handler method for the specific AOP advice type.
+   *
+   * @param aopDecorator - The AOP decorator instance to apply
+   * @param descriptor - The property descriptor of the target method
+   * @param instance - The instance of the class containing the method
+   * @param originalMethod - The original method function
+   * @param decorator - The metadata for the decorator being applied
    */
   private applySingleDecorator({
     aopDecorator,
@@ -97,12 +114,12 @@ export class DecoratorApplier {
   }
 
   /**
-   * Apply around decorator
-   * @param aopDecorator - AOP decorator
-   * @param descriptor - Method descriptor
-   * @param instance - Target instance
-   * @param originalMethod - Original method
-   * @param options - Decorator options
+   * Applies around advice to the method, which completely wraps the
+   * method execution.
+   *
+   * @param aopDecorator - The AOP decorator instance with around advice
+   * @param descriptor - The property descriptor of the target method
+   * @param options - Configuration options for the decorator
    */
   private applyAround({ aopDecorator, descriptor, options }: AOPDecoratorContext) {
     if (aopDecorator.around) {
@@ -114,12 +131,14 @@ export class DecoratorApplier {
   }
 
   /**
-   * Apply before decorator
-   * @param aopDecorator - AOP decorator
-   * @param descriptor - Method descriptor
-   * @param instance - Target instance
-   * @param originalMethod - Original method
-   * @param options - Decorator options
+   * Applies before advice to the method, which executes before the
+   * original method.
+   *
+   * @param aopDecorator - The AOP decorator instance with before advice
+   * @param descriptor - The property descriptor of the target method
+   * @param instance - The instance of the class containing the method
+   * @param originalMethod - The original method function
+   * @param options - Configuration options for the decorator
    */
   private applyBefore({
     aopDecorator,
@@ -138,12 +157,14 @@ export class DecoratorApplier {
   }
 
   /**
-   * Apply after decorator
-   * @param aopDecorator - AOP decorator
-   * @param descriptor - Method descriptor
-   * @param instance - Target instance
-   * @param originalMethod - Original method
-   * @param options - Decorator options
+   * Applies after advice to the method, which executes after the
+   * original method completes, regardless of success or failure.
+   *
+   * @param aopDecorator - The AOP decorator instance with after advice
+   * @param descriptor - The property descriptor of the target method
+   * @param instance - The instance of the class containing the method
+   * @param originalMethod - The original method function
+   * @param options - Configuration options for the decorator
    */
   private applyAfter({
     aopDecorator,
@@ -163,12 +184,14 @@ export class DecoratorApplier {
   }
 
   /**
-   * Apply afterReturning decorator
-   * @param aopDecorator - AOP decorator
-   * @param descriptor - Method descriptor
-   * @param instance - Target instance
-   * @param originalMethod - Original method
-   * @param options - Decorator options
+   * Applies after-returning advice to the method, which executes only
+   * when the original method completes successfully.
+   *
+   * @param aopDecorator - The AOP decorator instance with after-returning advice
+   * @param descriptor - The property descriptor of the target method
+   * @param instance - The instance of the class containing the method
+   * @param originalMethod - The original method function
+   * @param options - Configuration options for the decorator
    */
   private applyAfterReturning({
     aopDecorator,
@@ -188,12 +211,14 @@ export class DecoratorApplier {
   }
 
   /**
-   * Apply afterThrowing decorator
-   * @param aopDecorator - AOP decorator
-   * @param descriptor - Method descriptor
-   * @param instance - Target instance
-   * @param originalMethod - Original method
-   * @param options - Decorator options
+   * Applies after-throwing advice to the method, which executes only
+   * when the original method throws an exception.
+   *
+   * @param aopDecorator - The AOP decorator instance with after-throwing advice
+   * @param descriptor - The property descriptor of the target method
+   * @param instance - The instance of the class containing the method
+   * @param originalMethod - The original method function
+   * @param options - Configuration options for the decorator
    */
   private applyAfterThrowing({
     aopDecorator,

@@ -6,8 +6,8 @@ We welcome contributions to the nestjs-saop project! This document provides guid
 
 ### Prerequisites
 
-- Node.js 18+
-- pnpm (recommended) or npm/yarn
+- Node.js 20+
+- pnpm
 - Git
 
 ### Initial Setup

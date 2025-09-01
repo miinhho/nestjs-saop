@@ -8,7 +8,6 @@ Spring style AOP (Aspect Oriented Programming) in Nest.js
 ## Features
 
 - ✅ TypeScript support with full type safety
-- ✅ Zero runtime dependencies (except peer dependencies)
 
 ## Installation
 
@@ -98,16 +97,6 @@ export class AppModule {}
 ```ts
 import { LoggingDecorator, CachingDecorator, PerformanceDecorator } from 'example-path';
 
-@Controller()
-export class ExampleController {
-  constructor(private readonly exampleService: ExampleService) {}
-
-  @Get('test')
-  testEndpoint() {
-    return this.exampleService.processData();
-  }
-}
-
 @Injectable()
 export class ExampleService {
   @LoggingDecorator.after({ level: 'info', logArgs: true, logResult: true })
@@ -143,40 +132,6 @@ export class ConditionalDecorator implements AOPDecorator {
     };
   }
 }
-```
-
-## Development
-
-### Prerequisites
-
-- Node.js 18+
-- npm, yarn, or pnpm
-- TypeScript 5.0+
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/miinhho/nestjs-saop.git
-cd nestjs-saop
-
-# Install dependencies
-pnpm install
-
-# Initialize husky (sets up git hooks)
-pnpm run prepare
-
-# Run tests
-pnpm test
-
-# Run linting
-pnpm lint
-
-# Format code
-pnpm format
-
-# Build
-pnpm build
 ```
 
 ## Contributing
