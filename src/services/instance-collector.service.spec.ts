@@ -16,6 +16,10 @@ describe('InstanceCollector', () => {
     service = new InstanceCollector(mockDiscoveryService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('collectAllInstances', () => {
     it('should collect all controllers and providers', () => {
       const mockControllers = [

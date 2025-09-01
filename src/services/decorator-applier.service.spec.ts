@@ -8,6 +8,10 @@ describe('DecoratorApplier', () => {
     service = new DecoratorApplier();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('applyDecorators', () => {
     it('should apply multiple decorators correctly', () => {
       class TestClass {
@@ -79,7 +83,6 @@ describe('DecoratorApplier', () => {
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Decorator without decoratorClass found'),
       );
-      consoleWarnSpy.mockRestore();
     });
 
     it('should warn if no matching decorator instance found', () => {
@@ -107,7 +110,6 @@ describe('DecoratorApplier', () => {
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('No matching decorator instance found'),
       );
-      consoleWarnSpy.mockRestore();
     });
 
     it('should handle empty decorators array', () => {

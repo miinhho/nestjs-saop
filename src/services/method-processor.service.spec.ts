@@ -8,6 +8,10 @@ describe('MethodProcessor', () => {
     service = new MethodProcessor();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('processInstanceMethods', () => {
     it('should process methods with AOP decorators', () => {
       class TestClass {
