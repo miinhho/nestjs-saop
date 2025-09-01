@@ -92,8 +92,8 @@ export class AOPModule implements OnModuleInit {
     wrapper: any;
     aopDecorators: IAOPDecorator[];
   } & AOPMethodWithDecorators) {
-    const prototype = wrapper.metatype.prototype;
-    const originalMethod = prototype[methodName];
+    const prototype = wrapper.metatype?.prototype;
+    const originalMethod = prototype ? prototype[methodName] : undefined;
 
     this.decoratorApplier.applyDecorators({
       instance: wrapper.instance,

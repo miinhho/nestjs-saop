@@ -8,7 +8,7 @@ import type { Config } from 'jest';
 const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['<rootDir>/test/*.spec.ts', '<rootDir>/test/*.e2e-spec.ts'],
+  testMatch: ['**/?(*.)+(spec|test|e2e-spec|e2e-test).?([mc])[jt]s?(x)'],
 
   // Stop running tests after `n` failures
   bail: 1,
@@ -22,6 +22,8 @@ const config: Config = {
   // An array of glob patterns indicating a set of files for which coverage information should be collected
   collectCoverageFrom: [
     'src/**/*.{ts,js}',
+    '!src/**/*.interface.ts',
+    '!src/**/*.index.ts',
     '!src/**/*.spec.ts',
     '!src/**/*.test.ts',
     '!src/**/*.d.ts',
