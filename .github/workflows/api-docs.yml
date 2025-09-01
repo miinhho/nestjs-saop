@@ -1,4 +1,6 @@
 name: API Documentation
+permissions: 
+  contents: write
 
 on:
   push:
@@ -8,9 +10,6 @@ on:
 jobs:
   generate-api-docs:
     runs-on: ubuntu-latest
-
-    permissions: 
-      contents: write
 
     steps:
       - name: Checkout code
