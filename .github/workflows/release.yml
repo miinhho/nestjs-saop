@@ -38,27 +38,3 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            ## Changes
-
-            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/docs/CHANGELOG.md) for details.
-
-            ## Installation
-
-            ```bash
-            npm install nestjs-saop@${{ github.ref_name }}
-            # or
-            yarn add nestjs-saop@${{ github.ref_name }}
-            # or
-            pnpm add nestjs-saop@${{ github.ref_name }}
-            ```
-          draft: false
-          prerelease: false
