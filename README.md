@@ -157,6 +157,14 @@ export class ConditionalDecorator implements AOPDecorator {
 
 ## Usage Guide
 
+### AOP execution cycle
+
+1. `🔄 Around`
+2. `▶️ Before`
+3. `⏹️ After`
+4. `✅ AfterReturning` or `❌ AfterThrowing`
+5. `🔄 Around`
+
 ### AOP Advice Types
 
 #### Around Advice
