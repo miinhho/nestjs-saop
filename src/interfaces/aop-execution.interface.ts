@@ -14,8 +14,7 @@ export interface AroundAOP<O extends AOPOptions = AOPOptions, T = any> {
   /**
    * Around decorator method
    *
-   * See `AOPDecorator.around`
-   * {@link file://./../decorators/aop-decorator-classes.ts} for details.
+   * See {@link AOPDecorator.around} for details.
    */
   around(context: UnitAOPContext<O>): AOPMethod<T>;
 }
@@ -29,8 +28,7 @@ export interface BeforeAOP<O extends AOPOptions = AOPOptions> {
   /**
    * Before decorator method
    *
-   * See `AOPDecorator.before`
-   * {@link file://./../decorators/aop-decorator-classes.ts} for details.
+   * See {@link AOPDecorator.before} for details.
    */
   before(context: UnitAOPContext<O>): AOPMethod<void>;
 }
@@ -45,8 +43,7 @@ export interface AfterAOP<O extends AOPOptions = AOPOptions> {
   /**
    * After decorator method
    *
-   * See `AOPDecorator.after`
-   * {@link file://./../decorators/aop-decorator-classes.ts} for details.
+   * See {@link AOPDecorator.after} for details.
    */
   after(context: UnitAOPContext<O>): AOPMethod<void>;
 }
@@ -64,8 +61,7 @@ export interface AfterReturningAOP<O extends AOPOptions = AOPOptions, T = any> {
   /**
    * AfterReturning decorator method
    *
-   * See `AOPDecorator.afterReturning`
-   * {@link file://./../decorators/aop-decorator-classes.ts} for details.
+   * See {@link AOPDecorator.afterReturning} for details.
    */
   afterReturning(context: ResultAOPContext<O, T>): AOPMethod<void>;
 }
@@ -81,8 +77,7 @@ export interface AfterThrowingAOP<O extends AOPOptions = AOPOptions, E = unknown
   /**
    * AfterThrowing decorator method
    *
-   * See `AOPDecorator.afterThrowing`
-   * {@link file://./../decorators/aop-decorator-classes.ts} for details.
+   * See {@link AOPDecorator.afterThrowing} for details.
    */
   afterThrowing(context: ErrorAOPContext<O, E>): AOPMethod<void>;
 }

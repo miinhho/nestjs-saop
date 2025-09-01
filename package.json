@@ -9,7 +9,11 @@
     "nestjs-aop",
     "nest-aop"
   ],
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "author": "miinhho",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -19,7 +23,8 @@
     "test": "jest",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:coverage": "jest --coverage --coverageReporters=text --coverageReporters=lcov",
-    "commit": "cz"
+    "commit": "cz",
+    "typedoc": "typedoc"
   },
   "peerDependencies": {
     "@nestjs/common": "^9 || ^10 || ^11",
@@ -51,6 +56,8 @@
     "rxjs": "^7.8.2",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.1",
+    "typedoc": "^0.28.12",
+    "typedoc-plugin-markdown": "^4.8.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.41.0"
   },

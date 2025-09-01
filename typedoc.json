@@ -1,0 +1,15 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "exclude": ["**/*+(index|.spec|.e2e).ts"],
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "disableSources": true,
+  "excludeInternal": true,
+  "readme": "none",
+  "includeVersion": true,
+  
+  // typedoc-plugin-markdown options
+  "useCodeBlocks": true,
+  "hideBreadcrumbs": true,
+  "hidePageHeader": true
+}
