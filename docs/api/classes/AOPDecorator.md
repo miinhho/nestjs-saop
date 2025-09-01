@@ -2,14 +2,6 @@
 
 Provides the foundation for creating custom AOP decorators.
 
-## Template
-
-Method return type (default: `any`)
-
-## Template
-
-Error type (default: `unknown`)
-
 ## Example
 
 ```typescript

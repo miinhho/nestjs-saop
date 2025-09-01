@@ -28,8 +28,6 @@ type AOPDecoratorConstructor<O extends AOPOptions> = new () => AOPDecorator<O>;
  * Provides the foundation for creating custom AOP decorators.
  *
  * @template O - Options type
- * @template T - Method return type (default: `any`)
- * @template E - Error type (default: `unknown`)
  *
  * @example
  * ```typescript
