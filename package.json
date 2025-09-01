@@ -21,6 +21,7 @@
     "format": "prettier --write .",
     "prepare": "husky install",
     "test": "jest",
+    "test:unit": "jest --testPathPatterns=.*\\.spec\\.ts$",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:coverage": "jest --coverage --coverageReporters=text --coverageReporters=lcov",
     "commit": "cz",

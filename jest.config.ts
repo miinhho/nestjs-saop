@@ -17,7 +17,7 @@ const config: Config = {
   clearMocks: true,
 
   // Indicates whether the coverage information should be collected while executing the test
-  collectCoverage: true,
+  collectCoverage: false,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
   collectCoverageFrom: [
@@ -40,7 +40,7 @@ const config: Config = {
   coverageProvider: 'v8',
 
   // A list of reporter names that Jest uses when writing coverage reports
-  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
+  coverageReporters: ['text', 'lcov'],
 
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
@@ -82,23 +82,11 @@ const config: Config = {
   // The paths to modules that run some code to configure or set up the testing environment before each test
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
 
-  // The number of seconds after which a test is considered as slow and reported as such in the results
-  slowTestThreshold: 5,
-
-  // The test environment that will be used for testing
-  // testEnvironment: "jest-environment-node",
-
-  // Options that will be passed to the testEnvironment
-  // testEnvironmentOptions: {},
-
   // Adds a location field to test results
   testLocationInResults: true,
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   testPathIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/node_modules/'],
-
-  // This option allows use of a custom test runner
-  testRunner: 'jest-circus',
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   unmockedModulePathPatterns: ['reflect-metadata'],
