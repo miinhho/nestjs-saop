@@ -3,8 +3,23 @@ name: CI
 on:
   push:
     branches: [main, develop]
+    paths: 
+      - 'src/**/*.ts'
+      - 'test/**/*.ts'
+      - 'package.json'
+      - 'jest.config.ts'
+      - 'tsconfig.json'
+      - 'tsconfig.build.json'
   pull_request:
     branches: [main, develop]
+    paths: 
+      - 'src/**/*.ts'
+      - 'test/**/*.ts'
+      - 'package.json'
+      - 'jest.config.ts'
+      - 'tsconfig.json'
+      - 'tsconfig.build.json'
+    
 
 jobs:
   test:
