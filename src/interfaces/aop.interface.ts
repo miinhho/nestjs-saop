@@ -30,9 +30,9 @@ export type AOPType = (typeof AOP_TYPES)[keyof typeof AOP_TYPES];
 /**
  * A method function that can be used in AOP contexts.
  *
- * @template T - The return type of the method (default: unknown)
+ * @template T - The return type of the method (default: `any`)
  */
-export type AOPMethod<T = unknown> = (...args: any[]) => T;
+export type AOPMethod<T = any> = (...args: any[]) => T;
 
 /**
  * Context object passed to AOP decorators.

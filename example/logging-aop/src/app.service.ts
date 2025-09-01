@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { LoggingAOP, LoggingOptions } from './logging.aop';
+import { LoggingAOP } from './logging.aop';
 
 @Injectable()
 export class AppService {
-  @LoggingAOP.around<LoggingOptions>({
+  @LoggingAOP.around({
     logLevel: 'info',
   })
   @LoggingAOP.before()

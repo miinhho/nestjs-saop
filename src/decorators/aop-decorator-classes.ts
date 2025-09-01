@@ -50,9 +50,7 @@ type AOPDecoratorConstructor<O extends AOPOptions> = new () => AOPDecorator<O>;
  * ```
  */
 @Injectable()
-export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E = unknown>
-  implements IAOPDecorator<O, T, E>
-{
+export abstract class AOPDecorator<O extends AOPOptions = AOPOptions> implements IAOPDecorator<O> {
   /**
    * Creates a method decorator that applies around advice to the target method.
    *
@@ -243,7 +241,7 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
    * @param context - Context containing the original method and options
    * @returns A wrapped method function that will be executed
    */
-  around?(context: UnitAOPContext<O>): AOPMethod<T>;
+  around?(context: UnitAOPContext<O>): AOPMethod<any>;
 
   /**
    * Before decorator method (optional implementation)
@@ -274,7 +272,7 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
    * @param context - Context containing the method, options, and result
    * @returns A callback function executed after successful method completion
    */
-  afterReturning?(context: ResultAOPContext<O, T>): AOPMethod<void>;
+  afterReturning?(context: ResultAOPContext<O>): AOPMethod<void>;
 
   /**
    * AfterThrowing decorator method (optional implementation)
@@ -284,5 +282,5 @@ export abstract class AOPDecorator<O extends AOPOptions = AOPOptions, T = any, E
    * @param context - Context containing the method, options, and error
    * @returns A callback function executed when an exception occurs
    */
-  afterThrowing?(context: ErrorAOPContext<O, E>): AOPMethod<void>;
+  afterThrowing?(context: ErrorAOPContext<O>): AOPMethod<void>;
 }
