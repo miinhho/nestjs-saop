@@ -3,7 +3,14 @@ import { Controller, Get, Injectable, Module } from '@nestjs/common';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
-import { AOPDecorator, AOPModule, Aspect } from '../../src';
+import {
+  AOPDecorator,
+  AOPModule,
+  Aspect,
+  ErrorAOPContext,
+  ResultAOPContext,
+  UnitAOPContext,
+} from '../../src';
 
 class AOPTracker {
   static beforeCount = 0;
@@ -25,9 +32,13 @@ class AOPTracker {
   }
 }
 
+type ExampleOptions = {
+  helloPrefix?: string;
+};
+
 @Aspect()
-class TestableAOP extends AOPDecorator {
-  before({ method }: any) {
+class TestableAOP extends AOPDecorator<ExampleOptions> {
+  before({ method }: UnitAOPContext<ExampleOptions>) {
     return (...args: any[]) => {
       AOPTracker.beforeCount++;
       AOPTracker.lastMethodName = method.name;
@@ -35,7 +46,7 @@ class TestableAOP extends AOPDecorator {
     };
   }
 
-  afterReturning({ method, result }: any) {
+  afterReturning({ method, result }: ResultAOPContext<ExampleOptions>) {
     return (...args: any[]) => {
       AOPTracker.afterReturningCount++;
       AOPTracker.lastMethodName = method.name;
@@ -43,7 +54,7 @@ class TestableAOP extends AOPDecorator {
     };
   }
 
-  afterThrowing({ method, error }: any) {
+  afterThrowing({ method, error }: ErrorAOPContext<ExampleOptions>) {
     return (...args: any[]) => {
       AOPTracker.afterThrowingCount++;
       AOPTracker.lastMethodName = method.name;
@@ -54,7 +65,9 @@ class TestableAOP extends AOPDecorator {
 
 @Injectable()
 class TestService {
-  @TestableAOP.before()
+  @TestableAOP.before({
+    helloPrefix: 'Hello',
+  })
   @TestableAOP.afterReturning()
   getHello(name: string): string {
     return `Hello ${name}!`;

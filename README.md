@@ -340,11 +340,11 @@ export class ExternalApiService {
 The `AOPDecorator` class uses TypeScript generics to provide strong typing and better IntelliSense support:
 
 ```ts
-abstract class AOPDecorator<O>
+abstract class AOPDecorator<Options>
 ```
 
 **Generic Parameters:**
-- **`O` (Options Type)**: defines the configuration options for your decorator
+- **`Options`**: defines the configuration options for your decorator
 
 **Usage Examples:**
 
