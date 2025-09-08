@@ -1,7 +1,7 @@
-# Type Alias: UnitAOPContext\<O\>
+# Type Alias: UnitAOPContext\<Options\>
 
 ```ts
-type UnitAOPContext<O> = Pick<AOPContext<O>, "method" | "options">;
+type UnitAOPContext<Options> = Pick<AOPContext<Options>, "method" | "options">;
 ```
 
 Simplified context used for AOP advice that doesn't need access to
@@ -11,8 +11,6 @@ method results or errors.
 
 ## Type Parameters
 
-### O
+### Options
 
-`O` = [`AOPOptions`](../interfaces/AOPOptions.md)
-
-Options type
+`Options` = [`AOPOptions`](../interfaces/AOPOptions.md)

@@ -1,4 +1,4 @@
-# Interface: AfterReturningAOP\<O, T\>
+# Interface: AfterReturningAOP\<Options, ReturnType\>
 
 Contract for after-returning advice, which executes only when
 the target method completes successfully without throwing an exception.
@@ -7,17 +7,13 @@ Provides access to the method's return value.
 
 ## Type Parameters
 
-### O
+### Options
 
-`O` *extends* [`AOPOptions`](AOPOptions.md) = [`AOPOptions`](AOPOptions.md)
+`Options` = [`AOPOptions`](AOPOptions.md)
 
-Options type
+### ReturnType
 
-### T
-
-`T` = `any`
-
-Method return type (default: `any`)
+`ReturnType` = `any`
 
 ## Methods
 
@@ -35,7 +31,7 @@ See [AOPDecorator.afterReturning](../classes/AOPDecorator.md#afterreturning-2) f
 
 ##### context
 
-[`ResultAOPContext`](../type-aliases/ResultAOPContext.md)\<`O`, `T`\>
+[`ResultAOPContext`](../type-aliases/ResultAOPContext.md)\<`Options`, `ReturnType`\>
 
 #### Returns
 

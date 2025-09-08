@@ -1,4 +1,4 @@
-# Interface: AroundAOP\<O, T\>
+# Interface: AroundAOP\<Options, ReturnType\>
 
 Contract for around advice, which wraps the entire method execution.
 
@@ -7,24 +7,20 @@ parameters, skip execution, or alter the return value.
 
 ## Type Parameters
 
-### O
+### Options
 
-`O` *extends* [`AOPOptions`](AOPOptions.md) = [`AOPOptions`](AOPOptions.md)
+`Options` = [`AOPOptions`](AOPOptions.md)
 
-Options type
+### ReturnType
 
-### T
-
-`T` = `any`
-
-Method return type (default: `any`)
+`ReturnType` = `any`
 
 ## Methods
 
 ### around()
 
 ```ts
-around(context): AOPMethod<T>;
+around(context): AOPMethod<ReturnType>;
 ```
 
 Around decorator method
@@ -35,8 +31,8 @@ See [AOPDecorator.around](../classes/AOPDecorator.md#around-2) for details.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`O`\>
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
 
 #### Returns
 
-[`AOPMethod`](../type-aliases/AOPMethod.md)\<`T`\>
+[`AOPMethod`](../type-aliases/AOPMethod.md)\<`ReturnType`\>

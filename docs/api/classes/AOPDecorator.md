@@ -1,4 +1,4 @@
-# Abstract Class: AOPDecorator\<O\>
+# Abstract Class: AOPDecorator
 
 Provides the foundation for creating custom AOP decorators.
 
@@ -21,29 +21,21 @@ export class LoggingAOP extends AOPDecorator {
 }
 ```
 
-## Type Parameters
-
-### O
-
-`O` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
-
-Options type
-
 ## Implements
 
-- [`IAOPDecorator`](../interfaces/IAOPDecorator.md)\<`O`\>
+- [`IAOPDecorator`](../interfaces/IAOPDecorator.md)
 
 ## Constructors
 
 ### Constructor
 
 ```ts
-new AOPDecorator<O>(): AOPDecorator<O>;
+new AOPDecorator(): AOPDecorator;
 ```
 
 #### Returns
 
-`AOPDecorator`\<`O`\>
+`AOPDecorator`
 
 ## Methods
 
@@ -61,7 +53,7 @@ Executed after the target method completes, whether successfully or with an erro
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`O`\>
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)
 
 Context containing the original method and options
 
@@ -92,7 +84,7 @@ the return value.
 
 ##### context
 
-[`ResultAOPContext`](../type-aliases/ResultAOPContext.md)\<`O`\>
+[`ResultAOPContext`](../type-aliases/ResultAOPContext.md)
 
 Context containing the method, options, and result
 
@@ -122,7 +114,7 @@ Executed when the target method throws an exception.
 
 ##### context
 
-[`ErrorAOPContext`](../type-aliases/ErrorAOPContext.md)\<`O`\>
+[`ErrorAOPContext`](../type-aliases/ErrorAOPContext.md)
 
 Context containing the method, options, and error
 
@@ -155,7 +147,7 @@ a different result.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`O`\>
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)
 
 Context containing the original method and options
 
@@ -185,7 +177,7 @@ Executed before the target method runs.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`O`\>
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)
 
 Context containing the original method and options
 
@@ -204,7 +196,7 @@ A callback function executed before the method
 ### after()
 
 ```ts
-static after<O>(this, options): MethodDecorator;
+static after<Options>(this, options): MethodDecorator;
 ```
 
 Creates a method decorator that applies after advice to the target method.
@@ -214,21 +206,19 @@ it succeeded or threw an exception.
 
 #### Type Parameters
 
-##### O
+##### Options
 
-`O` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
-
-Options type extending AOPOptions
+`Options` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
 
 #### Parameters
 
 ##### this
 
-`AOPDecoratorConstructor`\<`O`\> & [`AfterAOP`](../interfaces/AfterAOP.md)\<`O`\>
+`AOPDecoratorConstructor` & [`AfterAOP`](../interfaces/AfterAOP.md)\<`Options`\>
 
 ##### options
 
-`O` = `...`
+`Options` = `...`
 
 Configuration options for the decorator
 
@@ -254,7 +244,7 @@ getHello(name: string): string {
 ### afterReturning()
 
 ```ts
-static afterReturning<O>(this, options): MethodDecorator;
+static afterReturning<Options>(this, options): MethodDecorator;
 ```
 
 Creates a method decorator that applies after-returning advice to the target method.
@@ -264,21 +254,19 @@ and provides access to the return value for post-processing.
 
 #### Type Parameters
 
-##### O
+##### Options
 
-`O` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
-
-Options type
+`Options` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
 
 #### Parameters
 
 ##### this
 
-`AOPDecoratorConstructor`\<`O`\> & [`AfterReturningAOP`](../interfaces/AfterReturningAOP.md)\<`O`, `any`\>
+`AOPDecoratorConstructor` & [`AfterReturningAOP`](../interfaces/AfterReturningAOP.md)\<`Options`, `any`\>
 
 ##### options
 
-`O` = `...`
+`Options` = `...`
 
 Configuration options for the decorator
 
@@ -304,7 +292,7 @@ getHello(name: string): string {
 ### afterThrowing()
 
 ```ts
-static afterThrowing<O>(this, options): MethodDecorator;
+static afterThrowing<Options>(this, options): MethodDecorator;
 ```
 
 Creates a method decorator that applies after-throwing advice to the target method.
@@ -314,21 +302,19 @@ and provides access to the error for logging, recovery, or re-throwing.
 
 #### Type Parameters
 
-##### O
+##### Options
 
-`O` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
-
-Options type
+`Options` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
 
 #### Parameters
 
 ##### this
 
-`AOPDecoratorConstructor`\<`O`\> & [`AfterThrowingAOP`](../interfaces/AfterThrowingAOP.md)\<`O`, `unknown`\>
+`AOPDecoratorConstructor` & [`AfterThrowingAOP`](../interfaces/AfterThrowingAOP.md)\<`Options`, `unknown`\>
 
 ##### options
 
-`O` = `...`
+`Options` = `...`
 
 Configuration options for the decorator
 
@@ -354,7 +340,7 @@ getError(): string {
 ### around()
 
 ```ts
-static around<O>(this, options): MethodDecorator;
+static around<Options>(this, options): MethodDecorator;
 ```
 
 Creates a method decorator that applies around advice to the target method.
@@ -364,21 +350,19 @@ parameters, conditionally execute the method, or return a different result.
 
 #### Type Parameters
 
-##### O
+##### Options
 
-`O` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
-
-Options type
+`Options` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
 
 #### Parameters
 
 ##### this
 
-`AOPDecoratorConstructor`\<`O`\> & [`AroundAOP`](../interfaces/AroundAOP.md)\<`O`, `any`\>
+`AOPDecoratorConstructor` & [`AroundAOP`](../interfaces/AroundAOP.md)\<`Options`, `any`\>
 
 ##### options
 
-`O` = `...`
+`Options` = `...`
 
 Configuration options for the decorator
 
@@ -404,7 +388,7 @@ getHello(name: string): string {
 ### before()
 
 ```ts
-static before<O>(this, options): MethodDecorator;
+static before<Options>(this, options): MethodDecorator;
 ```
 
 Creates a method decorator that applies before advice to the target method.
@@ -413,21 +397,19 @@ The before advice executes before the method runs.
 
 #### Type Parameters
 
-##### O
+##### Options
 
-`O` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
-
-Options type
+`Options` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
 
 #### Parameters
 
 ##### this
 
-`AOPDecoratorConstructor`\<`O`\> & [`BeforeAOP`](../interfaces/BeforeAOP.md)\<`O`\>
+`AOPDecoratorConstructor` & [`BeforeAOP`](../interfaces/BeforeAOP.md)\<`Options`\>
 
 ##### options
 
-`O` = `...`
+`Options` = `...`
 
 Configuration options for the decorator
 

@@ -1,14 +1,12 @@
-# Interface: BeforeAOP\<O\>
+# Interface: BeforeAOP\<Options\>
 
 Contract for before advice, which executes before the target method.
 
 ## Type Parameters
 
-### O
+### Options
 
-`O` *extends* [`AOPOptions`](AOPOptions.md) = [`AOPOptions`](AOPOptions.md)
-
-Options type
+`Options` = [`AOPOptions`](AOPOptions.md)
 
 ## Methods
 
@@ -26,7 +24,7 @@ See [AOPDecorator.before](../classes/AOPDecorator.md#before-2) for details.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`O`\>
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
 
 #### Returns
 
