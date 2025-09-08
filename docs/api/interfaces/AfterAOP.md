@@ -7,7 +7,7 @@ regardless of whether it completed successfully or threw an exception.
 
 ### Options
 
-`Options` = [`AOPOptions`](AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 ## Methods
 

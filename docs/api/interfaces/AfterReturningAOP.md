@@ -9,7 +9,7 @@ Provides access to the method's return value.
 
 ### Options
 
-`Options` = [`AOPOptions`](AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 ### ReturnType
 

@@ -11,7 +11,7 @@ for various AOP advice types (around, before, after, etc.).
 
 ### Options
 
-`Options` = [`AOPOptions`](AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 ### ReturnType
 

@@ -1,4 +1,4 @@
-# Abstract Class: AOPDecorator
+# Abstract Class: AOPDecorator\<Options\>
 
 Provides the foundation for creating custom AOP decorators.
 
@@ -21,21 +21,27 @@ export class LoggingAOP extends AOPDecorator {
 }
 ```
 
+## Type Parameters
+
+### Options
+
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
+
 ## Implements
 
-- [`IAOPDecorator`](../interfaces/IAOPDecorator.md)
+- [`IAOPDecorator`](../interfaces/IAOPDecorator.md)\<`Options`\>
 
 ## Constructors
 
 ### Constructor
 
 ```ts
-new AOPDecorator(): AOPDecorator;
+new AOPDecorator<Options>(): AOPDecorator<Options>;
 ```
 
 #### Returns
 
-`AOPDecorator`
+`AOPDecorator`\<`Options`\>
 
 ## Methods
 
@@ -53,7 +59,7 @@ Executed after the target method completes, whether successfully or with an erro
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
 
 Context containing the original method and options
 
@@ -84,7 +90,7 @@ the return value.
 
 ##### context
 
-[`ResultAOPContext`](../type-aliases/ResultAOPContext.md)
+[`ResultAOPContext`](../type-aliases/ResultAOPContext.md)\<`Options`\>
 
 Context containing the method, options, and result
 
@@ -114,7 +120,7 @@ Executed when the target method throws an exception.
 
 ##### context
 
-[`ErrorAOPContext`](../type-aliases/ErrorAOPContext.md)
+[`ErrorAOPContext`](../type-aliases/ErrorAOPContext.md)\<`Options`\>
 
 Context containing the method, options, and error
 
@@ -147,7 +153,7 @@ a different result.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
 
 Context containing the original method and options
 
@@ -177,7 +183,7 @@ Executed before the target method runs.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
 
 Context containing the original method and options
 
@@ -208,13 +214,13 @@ it succeeded or threw an exception.
 
 ##### Options
 
-`Options` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 #### Parameters
 
 ##### this
 
-`AOPDecoratorConstructor` & [`AfterAOP`](../interfaces/AfterAOP.md)\<`Options`\>
+`AOPDecoratorConstructor`\<`Options`\> & [`AfterAOP`](../interfaces/AfterAOP.md)\<`Options`\>
 
 ##### options
 
@@ -256,13 +262,13 @@ and provides access to the return value for post-processing.
 
 ##### Options
 
-`Options` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 #### Parameters
 
 ##### this
 
-`AOPDecoratorConstructor` & [`AfterReturningAOP`](../interfaces/AfterReturningAOP.md)\<`Options`, `any`\>
+`AOPDecoratorConstructor`\<`Options`\> & [`AfterReturningAOP`](../interfaces/AfterReturningAOP.md)\<`Options`, `any`\>
 
 ##### options
 
@@ -304,13 +310,13 @@ and provides access to the error for logging, recovery, or re-throwing.
 
 ##### Options
 
-`Options` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 #### Parameters
 
 ##### this
 
-`AOPDecoratorConstructor` & [`AfterThrowingAOP`](../interfaces/AfterThrowingAOP.md)\<`Options`, `unknown`\>
+`AOPDecoratorConstructor`\<`Options`\> & [`AfterThrowingAOP`](../interfaces/AfterThrowingAOP.md)\<`Options`, `unknown`\>
 
 ##### options
 
@@ -352,13 +358,13 @@ parameters, conditionally execute the method, or return a different result.
 
 ##### Options
 
-`Options` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 #### Parameters
 
 ##### this
 
-`AOPDecoratorConstructor` & [`AroundAOP`](../interfaces/AroundAOP.md)\<`Options`, `any`\>
+`AOPDecoratorConstructor`\<`Options`\> & [`AroundAOP`](../interfaces/AroundAOP.md)\<`Options`, `any`\>
 
 ##### options
 
@@ -399,13 +405,13 @@ The before advice executes before the method runs.
 
 ##### Options
 
-`Options` *extends* [`AOPOptions`](../interfaces/AOPOptions.md) = [`AOPOptions`](../interfaces/AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 #### Parameters
 
 ##### this
 
-`AOPDecoratorConstructor` & [`BeforeAOP`](../interfaces/BeforeAOP.md)\<`Options`\>
+`AOPDecoratorConstructor`\<`Options`\> & [`BeforeAOP`](../interfaces/BeforeAOP.md)\<`Options`\>
 
 ##### options
 

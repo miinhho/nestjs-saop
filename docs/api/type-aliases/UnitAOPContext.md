@@ -13,4 +13,4 @@ method results or errors.
 
 ### Options
 
-`Options` = [`AOPOptions`](../interfaces/AOPOptions.md)
+`Options` = [`AOPOptions`](AOPOptions.md)

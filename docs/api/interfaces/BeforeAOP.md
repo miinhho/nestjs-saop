@@ -6,7 +6,7 @@ Contract for before advice, which executes before the target method.
 
 ### Options
 
-`Options` = [`AOPOptions`](AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 ## Methods
 

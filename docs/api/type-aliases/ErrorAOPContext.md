@@ -11,7 +11,7 @@ exception thrown by the method along with the standard context information.
 
 ### Options
 
-`Options` = [`AOPOptions`](../interfaces/AOPOptions.md)
+`Options` = [`AOPOptions`](AOPOptions.md)
 
 ### ErrorType
 

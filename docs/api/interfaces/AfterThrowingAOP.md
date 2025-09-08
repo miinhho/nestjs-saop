@@ -7,7 +7,7 @@ the target method throws an exception. Provides access to the thrown error.
 
 ### Options
 
-`Options` = [`AOPOptions`](AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 ### ErrorType
 

@@ -9,7 +9,7 @@ parameters, skip execution, or alter the return value.
 
 ### Options
 
-`Options` = [`AOPOptions`](AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 ### ReturnType
 
