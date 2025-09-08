@@ -1,7 +1,7 @@
-# Type Alias: ErrorAOPContext\<O, E\>
+# Type Alias: ErrorAOPContext\<Options, ErrorType\>
 
 ```ts
-type ErrorAOPContext<O, E> = Pick<AOPContext<O, unknown, E>, "method" | "options" | "error">;
+type ErrorAOPContext<Options, ErrorType> = Pick<AOPContext<Options, unknown, ErrorType>, "method" | "options" | "error">;
 ```
 
 Context used for `after-throwing` advice, providing access to the
@@ -9,14 +9,10 @@ exception thrown by the method along with the standard context information.
 
 ## Type Parameters
 
-### O
+### Options
 
-`O` = [`AOPOptions`](../interfaces/AOPOptions.md)
+`Options` = [`AOPOptions`](AOPOptions.md)
 
-Options type
+### ErrorType
 
-### E
-
-`E` = `unknown`
-
-Error type (default: `unknown`)
+`ErrorType` = `unknown`

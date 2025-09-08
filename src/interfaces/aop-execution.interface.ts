@@ -7,7 +7,7 @@ import type { AOPMethod, ErrorAOPContext, ResultAOPContext, UnitAOPContext } fro
  * Allows complete control over method invocation, including the ability to modify
  * parameters, skip execution, or alter the return value.
  */
-export interface AroundAOP<Options extends AOPOptions = AOPOptions, ReturnType = any> {
+export interface AroundAOP<Options = AOPOptions, ReturnType = any> {
   /**
    * Around decorator method
    *
@@ -19,7 +19,7 @@ export interface AroundAOP<Options extends AOPOptions = AOPOptions, ReturnType =
 /**
  * Contract for before advice, which executes before the target method.
  */
-export interface BeforeAOP<Options extends AOPOptions = AOPOptions> {
+export interface BeforeAOP<Options = AOPOptions> {
   /**
    * Before decorator method
    *
@@ -32,7 +32,7 @@ export interface BeforeAOP<Options extends AOPOptions = AOPOptions> {
  * Contract for after advice, which executes after the target method,
  * regardless of whether it completed successfully or threw an exception.
  */
-export interface AfterAOP<Options extends AOPOptions = AOPOptions> {
+export interface AfterAOP<Options = AOPOptions> {
   /**
    * After decorator method
    *
@@ -47,7 +47,7 @@ export interface AfterAOP<Options extends AOPOptions = AOPOptions> {
  *
  * Provides access to the method's return value.
  */
-export interface AfterReturningAOP<Options extends AOPOptions = AOPOptions, ReturnType = any> {
+export interface AfterReturningAOP<Options = AOPOptions, ReturnType = any> {
   /**
    * AfterReturning decorator method
    *
@@ -60,7 +60,7 @@ export interface AfterReturningAOP<Options extends AOPOptions = AOPOptions, Retu
  * Contract for after-throwing advice, which executes only when
  * the target method throws an exception. Provides access to the thrown error.
  */
-export interface AfterThrowingAOP<Options extends AOPOptions = AOPOptions, ErrorType = unknown> {
+export interface AfterThrowingAOP<Options = AOPOptions, ErrorType = unknown> {
   /**
    * AfterThrowing decorator method
    *

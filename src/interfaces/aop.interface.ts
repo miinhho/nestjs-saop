@@ -39,7 +39,7 @@ export type AOPMethod<ReturnType = any> = (...args: any[]) => ReturnType;
  *
  * @internal
  */
-export type AOPContext<Options = AOPOptions, ReturnType = any, ErrorType = unknown> = {
+export type AOPContext<Options, ReturnType = any, ErrorType = unknown> = {
   /** The original method function being intercepted */
   method: Function;
   /** Configuration options passed to the decorator */

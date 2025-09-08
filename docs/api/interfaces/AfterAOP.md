@@ -1,15 +1,13 @@
-# Interface: AfterAOP\<O\>
+# Interface: AfterAOP\<Options\>
 
 Contract for after advice, which executes after the target method,
 regardless of whether it completed successfully or threw an exception.
 
 ## Type Parameters
 
-### O
+### Options
 
-`O` *extends* [`AOPOptions`](AOPOptions.md) = [`AOPOptions`](AOPOptions.md)
-
-Options type
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 ## Methods
 
@@ -27,7 +25,7 @@ See [AOPDecorator.after](../classes/AOPDecorator.md#after-2) for details.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`O`\>
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
 
 #### Returns
 

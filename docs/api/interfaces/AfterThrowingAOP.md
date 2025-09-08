@@ -1,21 +1,17 @@
-# Interface: AfterThrowingAOP\<O, E\>
+# Interface: AfterThrowingAOP\<Options, ErrorType\>
 
 Contract for after-throwing advice, which executes only when
 the target method throws an exception. Provides access to the thrown error.
 
 ## Type Parameters
 
-### O
+### Options
 
-`O` *extends* [`AOPOptions`](AOPOptions.md) = [`AOPOptions`](AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
-Options type
+### ErrorType
 
-### E
-
-`E` = `unknown`
-
-Error type (default: `unknown`)
+`ErrorType` = `unknown`
 
 ## Methods
 
@@ -33,7 +29,7 @@ See [AOPDecorator.afterThrowing](../classes/AOPDecorator.md#afterthrowing-2) for
 
 ##### context
 
-[`ErrorAOPContext`](../type-aliases/ErrorAOPContext.md)\<`O`, `E`\>
+[`ErrorAOPContext`](../type-aliases/ErrorAOPContext.md)\<`Options`, `ErrorType`\>
 
 #### Returns
 

@@ -1,7 +1,7 @@
-# Type Alias: ResultAOPContext\<O, T\>
+# Type Alias: ResultAOPContext\<Options, ReturnType\>
 
 ```ts
-type ResultAOPContext<O, T> = Pick<AOPContext<O, T>, "method" | "options" | "result">;
+type ResultAOPContext<Options, ReturnType> = Pick<AOPContext<Options, ReturnType>, "method" | "options" | "result">;
 ```
 
 Context used for `after-returning` advice, providing access to the
@@ -9,14 +9,10 @@ method's return value along with the standard context information.
 
 ## Type Parameters
 
-### O
+### Options
 
-`O` = [`AOPOptions`](../interfaces/AOPOptions.md)
+`Options` = [`AOPOptions`](AOPOptions.md)
 
-Options type
+### ReturnType
 
-### T
-
-`T` = `any`
-
-Method return type (default: `any`)
+`ReturnType` = `any`

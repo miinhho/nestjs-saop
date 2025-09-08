@@ -1,18 +1,16 @@
-# Type Alias: AOPMethod()\<T\>
+# Type Alias: AOPMethod()\<ReturnType\>
 
 ```ts
-type AOPMethod<T> = (...args) => T;
+type AOPMethod<ReturnType> = (...args) => ReturnType;
 ```
 
 A method function that can be used in AOP contexts.
 
 ## Type Parameters
 
-### T
+### ReturnType
 
-`T` = `any`
-
-The return type of the method (default: `any`)
+`ReturnType` = `any`
 
 ## Parameters
 
@@ -22,4 +20,4 @@ The return type of the method (default: `any`)
 
 ## Returns
 
-`T`
+`ReturnType`

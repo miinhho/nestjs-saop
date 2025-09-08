@@ -36,7 +36,7 @@ export class AOPModule implements OnModuleInit {
    *
    * Triggers the AOP system setup process.
    */
-  onModuleInit() {
+  onModuleInit(): void {
     this.initializeAOP();
   }
 
@@ -44,7 +44,7 @@ export class AOPModule implements OnModuleInit {
    * Main initialization method that scans the application for instances
    * and processes them to apply AOP decorators.
    */
-  private initializeAOP() {
+  private initializeAOP(): void {
     const instances = this.instanceCollector.collectAllInstances();
 
     for (const wrapper of instances) {
@@ -61,7 +61,7 @@ export class AOPModule implements OnModuleInit {
    *
    * @param wrapper - InstanceWrapper object containing the instance to process
    */
-  private processInstance(wrapper: any) {
+  private processInstance(wrapper: any): void {
     const methods = this.methodProcessor.processInstanceMethods(wrapper);
     if (methods.length === 0) return;
 
@@ -91,7 +91,7 @@ export class AOPModule implements OnModuleInit {
   }: {
     wrapper: any;
     aopDecorators: IAOPDecorator[];
-  } & AOPMethodWithDecorators) {
+  } & AOPMethodWithDecorators): void {
     const prototype = wrapper.metatype?.prototype;
     const originalMethod = prototype ? prototype[methodName] : undefined;
 

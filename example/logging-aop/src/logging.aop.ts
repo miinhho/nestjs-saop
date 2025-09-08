@@ -15,7 +15,7 @@ export type LoggingOptions = {
 };
 
 @Aspect()
-export class LoggingAOP extends AOPDecorator<LoggingOptions> {
+export class LoggingAOP extends AOPDecorator {
   around({ method, options }: UnitAOPContext<LoggingOptions>): AOPMethod {
     return (...args: any[]) => {
       console.log('Around: Before method call', ...args, options);

@@ -340,11 +340,11 @@ export class ExternalApiService {
 The `AOPDecorator` class uses TypeScript generics to provide strong typing and better IntelliSense support:
 
 ```ts
-abstract class AOPDecorator<O>
+abstract class AOPDecorator<Options>
 ```
 
 **Generic Parameters:**
-- **`O` (Options Type)**: defines the configuration options for your decorator
+- **`Options`**: defines the configuration options for your decorator
 
 **Usage Examples:**
 
@@ -352,7 +352,7 @@ abstract class AOPDecorator<O>
 // Basic usage with default generics
 @Aspect()
 export class BasicDecorator extends AOPDecorator {
-  // O = AOPOptions
+  // Options = AOPOptions (default type)
 }
 
 // With custom options type
@@ -428,23 +428,23 @@ export class UserService {
 
 ```ts
 // Before, After, Around advice
-UnitAOPContext<O> = {
+UnitAOPContext<Options> = {
   method: Function;
-  options: O;
+  options: Options;
 }
 
 // AfterReturning advice
-ResultAOPContext<O, T> = {
+ResultAOPContext<Options, ReturnType> = {
   method: Function;
-  options: O;
-  result: T;  // Available only in afterReturning
+  options: Options;
+  result: ReturnType;  // Available only in afterReturning
 }
 
 // AfterThrowing advice
-ErrorAOPContext<O, E> = {
+ErrorAOPContext<Options, ErrorType> = {
   method: Function;
-  options: O;
-  error: E;   // Available only in afterThrowing
+  options: Options;
+  error: ErrorType;   // Available only in afterThrowing
 }
 ```
 

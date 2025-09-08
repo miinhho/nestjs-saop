@@ -11,24 +11,19 @@ import type { AOPType } from './aop.interface';
  * Base interface for all AOP decorators, providing optional implementations
  * for various AOP advice types (around, before, after, etc.).
  */
-export interface IAOPDecorator<
-  Options extends AOPOptions = AOPOptions,
-  ReturnType = any,
-  ErrorType = unknown,
-> extends Partial<AroundAOP<Options, ReturnType>>,
+export interface IAOPDecorator<Options = AOPOptions, ReturnType = any, ErrorType = unknown>
+  extends Partial<AroundAOP<Options, ReturnType>>,
     Partial<BeforeAOP<Options>>,
     Partial<AfterAOP<Options>>,
     Partial<AfterReturningAOP<Options, ReturnType>>,
     Partial<AfterThrowingAOP<Options, ErrorType>> {}
 
 /**
- * Options passed to AOP decorators.
- *
- * Allows any key-value pairs.
+ * Default options passed to AOP decorators.
  */
-export interface AOPOptions {
-  [key: string]: any;
-}
+export type AOPOptions = {
+  [key: string | number | symbol]: any;
+};
 
 /**
  * Information about an applied AOP decorator.
@@ -39,14 +34,14 @@ export interface AOPOptions {
  *
  * @internal
  */
-export interface AOPDecoratorMetadata {
+export type AOPDecoratorMetadata = {
   /** Decorator type */
   type: AOPType;
   /** Decorator options */
   options: AOPOptions;
   /** Decorator class name */
   decoratorClass?: string;
-}
+};
 
 /**
  * Context information when applying AOP decorators to methods.
@@ -75,9 +70,9 @@ export type AOPDecoratorContext = {
  *
  * @internal
  */
-export interface AOPMethodWithDecorators {
+export type AOPMethodWithDecorators = {
   /** Method name */
   methodName: string;
   /** Array of decorator metadata */
   decorators: any[];
-}
+};

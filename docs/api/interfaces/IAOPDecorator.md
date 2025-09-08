@@ -1,31 +1,25 @@
-# Interface: IAOPDecorator\<O, T, E\>
+# Interface: IAOPDecorator\<Options, ReturnType, ErrorType\>
 
 Base interface for all AOP decorators, providing optional implementations
 for various AOP advice types (around, before, after, etc.).
 
 ## Extends
 
-- `Partial`\<[`AroundAOP`](AroundAOP.md)\<`O`, `T`\>\>.`Partial`\<[`BeforeAOP`](BeforeAOP.md)\<`O`\>\>.`Partial`\<[`AfterAOP`](AfterAOP.md)\<`O`\>\>.`Partial`\<[`AfterReturningAOP`](AfterReturningAOP.md)\<`O`, `T`\>\>.`Partial`\<[`AfterThrowingAOP`](AfterThrowingAOP.md)\<`O`, `E`\>\>
+- `Partial`\<[`AroundAOP`](AroundAOP.md)\<`Options`, `ReturnType`\>\>.`Partial`\<[`BeforeAOP`](BeforeAOP.md)\<`Options`\>\>.`Partial`\<[`AfterAOP`](AfterAOP.md)\<`Options`\>\>.`Partial`\<[`AfterReturningAOP`](AfterReturningAOP.md)\<`Options`, `ReturnType`\>\>.`Partial`\<[`AfterThrowingAOP`](AfterThrowingAOP.md)\<`Options`, `ErrorType`\>\>
 
 ## Type Parameters
 
-### O
+### Options
 
-`O` *extends* [`AOPOptions`](AOPOptions.md) = [`AOPOptions`](AOPOptions.md)
+`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
-Options type
+### ReturnType
 
-### T
+`ReturnType` = `any`
 
-`T` = `any`
+### ErrorType
 
-Method return type (default: `any`)
-
-### E
-
-`E` = `unknown`
-
-Error type (default: `unknown`)
+`ErrorType` = `unknown`
 
 ## Properties
 
@@ -43,7 +37,7 @@ See [AOPDecorator.after](../classes/AOPDecorator.md#after-2) for details.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`O`\>
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
 
 #### Returns
 
@@ -69,7 +63,7 @@ See [AOPDecorator.afterReturning](../classes/AOPDecorator.md#afterreturning-2) f
 
 ##### context
 
-[`ResultAOPContext`](../type-aliases/ResultAOPContext.md)\<`O`, `T`\>
+[`ResultAOPContext`](../type-aliases/ResultAOPContext.md)\<`Options`, `ReturnType`\>
 
 #### Returns
 
@@ -95,7 +89,7 @@ See [AOPDecorator.afterThrowing](../classes/AOPDecorator.md#afterthrowing-2) for
 
 ##### context
 
-[`ErrorAOPContext`](../type-aliases/ErrorAOPContext.md)\<`O`, `E`\>
+[`ErrorAOPContext`](../type-aliases/ErrorAOPContext.md)\<`Options`, `ErrorType`\>
 
 #### Returns
 
@@ -110,7 +104,7 @@ See [AOPDecorator.afterThrowing](../classes/AOPDecorator.md#afterthrowing-2) for
 ### around()?
 
 ```ts
-optional around: (context) => AOPMethod<T>;
+optional around: (context) => AOPMethod<ReturnType>;
 ```
 
 Around decorator method
@@ -121,11 +115,11 @@ See [AOPDecorator.around](../classes/AOPDecorator.md#around-2) for details.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`O`\>
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
 
 #### Returns
 
-[`AOPMethod`](../type-aliases/AOPMethod.md)\<`T`\>
+[`AOPMethod`](../type-aliases/AOPMethod.md)\<`ReturnType`\>
 
 #### Inherited from
 
@@ -147,7 +141,7 @@ See [AOPDecorator.before](../classes/AOPDecorator.md#before-2) for details.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`O`\>
+[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
 
 #### Returns
 

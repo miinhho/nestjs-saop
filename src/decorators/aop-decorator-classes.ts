@@ -20,7 +20,7 @@ import { addMetadata } from '../utils';
  *
  * @internal
  */
-type AOPDecoratorConstructor<Options extends AOPOptions> = new () => AOPDecorator<Options>;
+type AOPDecoratorConstructor<Options = AOPOptions> = new () => AOPDecorator<Options>;
 
 /**
  * Provides the foundation for creating custom AOP decorators.
@@ -44,9 +44,7 @@ type AOPDecoratorConstructor<Options extends AOPOptions> = new () => AOPDecorato
  * ```
  */
 @Injectable()
-export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
-  implements IAOPDecorator<Options>
-{
+export abstract class AOPDecorator<Options = AOPOptions> implements IAOPDecorator<Options> {
   /**
    * Creates a method decorator that applies around advice to the target method.
    *
@@ -66,7 +64,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * }
    * ```
    */
-  static around<Options extends AOPOptions = AOPOptions>(
+  static around<Options = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AroundAOP<Options>,
     options: Options = {} as Options,
   ): MethodDecorator {
@@ -100,7 +98,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * }
    * ```
    */
-  static before<Options extends AOPOptions = AOPOptions>(
+  static before<Options = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & BeforeAOP<Options>,
     options: Options = {} as Options,
   ): MethodDecorator {
@@ -135,7 +133,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * }
    * ```
    */
-  static after<Options extends AOPOptions = AOPOptions>(
+  static after<Options = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AfterAOP<Options>,
     options: Options = {} as Options,
   ): MethodDecorator {
@@ -170,7 +168,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * }
    * ```
    */
-  static afterReturning<Options extends AOPOptions = AOPOptions>(
+  static afterReturning<Options = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AfterReturningAOP<Options, any>,
     options: Options = {} as Options,
   ): MethodDecorator {
@@ -205,7 +203,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * }
    * ```
    */
-  static afterThrowing<Options extends AOPOptions = AOPOptions>(
+  static afterThrowing<Options = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AfterThrowingAOP<Options, unknown>,
     options: Options = {} as Options,
   ): MethodDecorator {
