@@ -2,8 +2,12 @@
 
 ## [0.2.0] - 2025.09.09
 
-### Fixed
-- Type error when using a number or symbol as an AOP option key.
+### What's Changed
+- support number symbol key by @miinhho in https://github.com/miinhho/nestjs-saop/pull/5
+- change generic type names more descriptively by @miinhho in https://github.com/miinhho/nestjs-saop/pull/3
+- chore: remove cz by @miinhho in https://github.com/miinhho/nestjs-saop/pull/4
+
+**Full Changelog**: https://github.com/miinhho/nestjs-saop/compare/v0.1.1...v0.2.0
 
 
 ## [0.1.1] - 2025.09.01
