@@ -29,31 +29,25 @@ export type AOPType = (typeof AOP_TYPES)[keyof typeof AOP_TYPES];
 
 /**
  * A method function that can be used in AOP contexts.
- *
- * @template T - The return type of the method (default: `any`)
  */
-export type AOPMethod<T = any> = (...args: any[]) => T;
+export type AOPMethod<ReturnType = any> = (...args: any[]) => ReturnType;
 
 /**
  * Context object passed to AOP decorators.
  *
  * Containing all information needed for method interception and advice execution.
  *
- * @template O - Options type
- * @template T - Method return type (default: `any`)
- * @template E - Error type (default: `unknown`)
- *
  * @internal
  */
-export type AOPContext<O = AOPOptions, T = any, E = unknown> = {
+export type AOPContext<Options = AOPOptions, ReturnType = any, ErrorType = unknown> = {
   /** The original method function being intercepted */
   method: Function;
   /** Configuration options passed to the decorator */
-  options: O;
+  options: Options;
   /** The result returned by the method (available in afterReturning) */
-  result?: T;
+  result?: ReturnType;
   /** The error thrown by the method (available in afterThrowing) */
-  error?: E;
+  error?: ErrorType;
 };
 
 /**
@@ -61,31 +55,23 @@ export type AOPContext<O = AOPOptions, T = any, E = unknown> = {
  * method results or errors.
  *
  * (`before`, `after`, `around` advice)
- *
- * @template O - Options type
  */
-export type UnitAOPContext<O = AOPOptions> = Pick<AOPContext<O>, 'method' | 'options'>;
+export type UnitAOPContext<Options = AOPOptions> = Pick<AOPContext<Options>, 'method' | 'options'>;
 
 /**
  * Context used for `after-returning` advice, providing access to the
  * method's return value along with the standard context information.
- *
- * @template O - Options type
- * @template T - Method return type (default: `any`)
  */
-export type ResultAOPContext<O = AOPOptions, T = any> = Pick<
-  AOPContext<O, T>,
+export type ResultAOPContext<Options = AOPOptions, ReturnType = any> = Pick<
+  AOPContext<Options, ReturnType>,
   'method' | 'options' | 'result'
 >;
 
 /**
  * Context used for `after-throwing` advice, providing access to the
  * exception thrown by the method along with the standard context information.
- *
- * @template O - Options type
- * @template E - Error type (default: `unknown`)
  */
-export type ErrorAOPContext<O = AOPOptions, E = unknown> = Pick<
-  AOPContext<O, unknown, E>,
+export type ErrorAOPContext<Options = AOPOptions, ErrorType = unknown> = Pick<
+  AOPContext<Options, unknown, ErrorType>,
   'method' | 'options' | 'error'
 >;

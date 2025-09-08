@@ -6,46 +6,39 @@ import type { AOPMethod, ErrorAOPContext, ResultAOPContext, UnitAOPContext } fro
  *
  * Allows complete control over method invocation, including the ability to modify
  * parameters, skip execution, or alter the return value.
- *
- * @template O - Options type
- * @template T - Method return type (default: `any`)
  */
-export interface AroundAOP<O extends AOPOptions = AOPOptions, T = any> {
+export interface AroundAOP<Options extends AOPOptions = AOPOptions, ReturnType = any> {
   /**
    * Around decorator method
    *
    * See {@link AOPDecorator.around} for details.
    */
-  around(context: UnitAOPContext<O>): AOPMethod<T>;
+  around(context: UnitAOPContext<Options>): AOPMethod<ReturnType>;
 }
 
 /**
  * Contract for before advice, which executes before the target method.
- *
- * @template O - Options type
  */
-export interface BeforeAOP<O extends AOPOptions = AOPOptions> {
+export interface BeforeAOP<Options extends AOPOptions = AOPOptions> {
   /**
    * Before decorator method
    *
    * See {@link AOPDecorator.before} for details.
    */
-  before(context: UnitAOPContext<O>): AOPMethod<void>;
+  before(context: UnitAOPContext<Options>): AOPMethod<void>;
 }
 
 /**
  * Contract for after advice, which executes after the target method,
  * regardless of whether it completed successfully or threw an exception.
- *
- * @template O - Options type
  */
-export interface AfterAOP<O extends AOPOptions = AOPOptions> {
+export interface AfterAOP<Options extends AOPOptions = AOPOptions> {
   /**
    * After decorator method
    *
    * See {@link AOPDecorator.after} for details.
    */
-  after(context: UnitAOPContext<O>): AOPMethod<void>;
+  after(context: UnitAOPContext<Options>): AOPMethod<void>;
 }
 
 /**
@@ -53,31 +46,25 @@ export interface AfterAOP<O extends AOPOptions = AOPOptions> {
  * the target method completes successfully without throwing an exception.
  *
  * Provides access to the method's return value.
- *
- * @template O - Options type
- * @template T - Method return type (default: `any`)
  */
-export interface AfterReturningAOP<O extends AOPOptions = AOPOptions, T = any> {
+export interface AfterReturningAOP<Options extends AOPOptions = AOPOptions, ReturnType = any> {
   /**
    * AfterReturning decorator method
    *
    * See {@link AOPDecorator.afterReturning} for details.
    */
-  afterReturning(context: ResultAOPContext<O, T>): AOPMethod<void>;
+  afterReturning(context: ResultAOPContext<Options, ReturnType>): AOPMethod<void>;
 }
 
 /**
  * Contract for after-throwing advice, which executes only when
  * the target method throws an exception. Provides access to the thrown error.
- *
- * @template O - Options type
- * @template E - Error type (default: `unknown`)
  */
-export interface AfterThrowingAOP<O extends AOPOptions = AOPOptions, E = unknown> {
+export interface AfterThrowingAOP<Options extends AOPOptions = AOPOptions, ErrorType = unknown> {
   /**
    * AfterThrowing decorator method
    *
    * See {@link AOPDecorator.afterThrowing} for details.
    */
-  afterThrowing(context: ErrorAOPContext<O, E>): AOPMethod<void>;
+  afterThrowing(context: ErrorAOPContext<Options, ErrorType>): AOPMethod<void>;
 }
