@@ -362,7 +362,7 @@ interface LoggingOptions {
 }
 
 @Aspect()
-export class LoggingDecorator extends AOPDecorator<LoggingOptions> {
+export class LoggingDecorator extends AOPDecorator {
   before({ method, options }: UnitAOPContext<LoggingOptions>) {
     return (...args: any[]) => {
       const timestamp = options.includeTimestamp ? `[${new Date().toISOString()}] ` : '';

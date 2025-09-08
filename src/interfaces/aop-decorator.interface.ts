@@ -11,11 +11,8 @@ import type { AOPType } from './aop.interface';
  * Base interface for all AOP decorators, providing optional implementations
  * for various AOP advice types (around, before, after, etc.).
  */
-export interface IAOPDecorator<
-  Options extends AOPOptions = AOPOptions,
-  ReturnType = any,
-  ErrorType = unknown,
-> extends Partial<AroundAOP<Options, ReturnType>>,
+export interface IAOPDecorator<Options = AOPOptions, ReturnType = any, ErrorType = unknown>
+  extends Partial<AroundAOP<Options, ReturnType>>,
     Partial<BeforeAOP<Options>>,
     Partial<AfterAOP<Options>>,
     Partial<AfterReturningAOP<Options, ReturnType>>,

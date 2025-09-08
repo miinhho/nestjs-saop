@@ -20,7 +20,7 @@ import { addMetadata } from '../utils';
  *
  * @internal
  */
-type AOPDecoratorConstructor<Options extends AOPOptions> = new () => AOPDecorator<Options>;
+type AOPDecoratorConstructor = new () => AOPDecorator;
 
 /**
  * Provides the foundation for creating custom AOP decorators.
@@ -44,9 +44,7 @@ type AOPDecoratorConstructor<Options extends AOPOptions> = new () => AOPDecorato
  * ```
  */
 @Injectable()
-export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
-  implements IAOPDecorator<Options>
-{
+export abstract class AOPDecorator implements IAOPDecorator {
   /**
    * Creates a method decorator that applies around advice to the target method.
    *
@@ -67,7 +65,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * ```
    */
   static around<Options extends AOPOptions = AOPOptions>(
-    this: AOPDecoratorConstructor<Options> & AroundAOP<Options>,
+    this: AOPDecoratorConstructor & AroundAOP<Options>,
     options: Options = {} as Options,
   ): MethodDecorator {
     return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
@@ -101,7 +99,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * ```
    */
   static before<Options extends AOPOptions = AOPOptions>(
-    this: AOPDecoratorConstructor<Options> & BeforeAOP<Options>,
+    this: AOPDecoratorConstructor & BeforeAOP<Options>,
     options: Options = {} as Options,
   ): MethodDecorator {
     return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
@@ -136,7 +134,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * ```
    */
   static after<Options extends AOPOptions = AOPOptions>(
-    this: AOPDecoratorConstructor<Options> & AfterAOP<Options>,
+    this: AOPDecoratorConstructor & AfterAOP<Options>,
     options: Options = {} as Options,
   ): MethodDecorator {
     return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
@@ -171,7 +169,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * ```
    */
   static afterReturning<Options extends AOPOptions = AOPOptions>(
-    this: AOPDecoratorConstructor<Options> & AfterReturningAOP<Options, any>,
+    this: AOPDecoratorConstructor & AfterReturningAOP<Options, any>,
     options: Options = {} as Options,
   ): MethodDecorator {
     return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
@@ -206,7 +204,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * ```
    */
   static afterThrowing<Options extends AOPOptions = AOPOptions>(
-    this: AOPDecoratorConstructor<Options> & AfterThrowingAOP<Options, unknown>,
+    this: AOPDecoratorConstructor & AfterThrowingAOP<Options, unknown>,
     options: Options = {} as Options,
   ): MethodDecorator {
     return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
@@ -232,7 +230,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * @param context - Context containing the original method and options
    * @returns A wrapped method function that will be executed
    */
-  around?(context: UnitAOPContext<Options>): AOPMethod<any>;
+  around?(context: UnitAOPContext): AOPMethod<any>;
 
   /**
    * Before decorator method (optional implementation)
@@ -242,7 +240,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * @param context - Context containing the original method and options
    * @returns A callback function executed before the method
    */
-  before?(context: UnitAOPContext<Options>): AOPMethod<void>;
+  before?(context: UnitAOPContext): AOPMethod<void>;
 
   /**
    * After decorator method (optional implementation)
@@ -252,7 +250,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * @param context - Context containing the original method and options
    * @returns A callback function executed after the method
    */
-  after?(context: UnitAOPContext<Options>): AOPMethod<void>;
+  after?(context: UnitAOPContext): AOPMethod<void>;
 
   /**
    * AfterReturning decorator method (optional implementation)
@@ -263,7 +261,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * @param context - Context containing the method, options, and result
    * @returns A callback function executed after successful method completion
    */
-  afterReturning?(context: ResultAOPContext<Options>): AOPMethod<void>;
+  afterReturning?(context: ResultAOPContext): AOPMethod<void>;
 
   /**
    * AfterThrowing decorator method (optional implementation)
@@ -273,5 +271,5 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * @param context - Context containing the method, options, and error
    * @returns A callback function executed when an exception occurs
    */
-  afterThrowing?(context: ErrorAOPContext<Options>): AOPMethod<void>;
+  afterThrowing?(context: ErrorAOPContext): AOPMethod<void>;
 }
