@@ -1,6 +1,16 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## [0.2.0] - 2025.09.09
+
+### Fixed
+- Type error when using a number or symbol as an AOP option key.
+
+
+## [0.1.1] - 2025.09.01
+
+### Fixed
+- Changed npm packages to only include source code, README.md, and LICENSE.
+
 
 ## [0.1.0] - 2025-09-01
 
