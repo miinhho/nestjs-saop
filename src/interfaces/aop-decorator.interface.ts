@@ -10,17 +10,16 @@ import type { AOPType } from './aop.interface';
 /**
  * Base interface for all AOP decorators, providing optional implementations
  * for various AOP advice types (around, before, after, etc.).
- *
- * @template O - Options type
- * @template T - Method return type (default: `any`)
- * @template E - Error type (default: `unknown`)
  */
-export interface IAOPDecorator<O extends AOPOptions = AOPOptions, T = any, E = unknown>
-  extends Partial<AroundAOP<O, T>>,
-    Partial<BeforeAOP<O>>,
-    Partial<AfterAOP<O>>,
-    Partial<AfterReturningAOP<O, T>>,
-    Partial<AfterThrowingAOP<O, E>> {}
+export interface IAOPDecorator<
+  Options extends AOPOptions = AOPOptions,
+  ReturnType = any,
+  ErrorType = unknown,
+> extends Partial<AroundAOP<Options, ReturnType>>,
+    Partial<BeforeAOP<Options>>,
+    Partial<AfterAOP<Options>>,
+    Partial<AfterReturningAOP<Options, ReturnType>>,
+    Partial<AfterThrowingAOP<Options, ErrorType>> {}
 
 /**
  * Options passed to AOP decorators.
