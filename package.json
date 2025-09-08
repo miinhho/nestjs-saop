@@ -24,7 +24,6 @@
     "test:unit": "jest --testPathPatterns=.*\\.spec\\.ts$",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:coverage": "jest --coverage --coverageReporters=text --coverageReporters=lcov",
-    "commit": "cz",
     "typedoc": "typedoc"
   },
   "peerDependencies": {
@@ -34,8 +33,6 @@
     "rxjs": "^7.5.6"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.3.0",
-    "@commitlint/config-conventional": "^19.2.2",
     "@eslint/js": "^9.34.0",
     "@nestjs/common": "^11.1.6",
     "@nestjs/core": "^11.1.6",
@@ -45,8 +42,6 @@
     "@types/node": "^24.3.0",
     "@types/supertest": "^6.0.3",
     "@typescript-eslint/parser": "^8.41.0",
-    "commitizen": "^4.3.0",
-    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9.34.0",
     "globals": "^16.3.0",
     "husky": "^9.0.11",
@@ -61,11 +56,6 @@
     "typedoc-plugin-markdown": "^4.8.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.41.0"
-  },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
   },
   "lint-staged": {
     "*.{ts,js}": [

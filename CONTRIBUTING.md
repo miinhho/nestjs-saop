@@ -45,7 +45,6 @@ We welcome contributions to the nestjs-saop project! This document provides guid
 - Use strict TypeScript configuration
 - Provide proper type annotations
 - Avoid `any` type when possible
-- Use interfaces for complex types
 
 ### Testing
 
