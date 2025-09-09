@@ -339,13 +339,6 @@ export class ExternalApiService {
 #### AOPDecorator Generics
 The `AOPDecorator` class uses TypeScript generics to provide strong typing and better IntelliSense support:
 
-```ts
-abstract class AOPDecorator<Options>
-```
-
-**Generic Parameters:**
-- **`Options`**: defines the configuration options for your decorator
-
 **Usage Examples:**
 
 ```ts
@@ -362,7 +355,9 @@ interface LoggingOptions {
 }
 
 @Aspect()
-export class LoggingDecorator extends AOPDecorator<LoggingOptions> {
+export class LoggingDecorator extends AOPDecorator {
+  // Generic type parameter for custom options
+  // This enables TypeScript to infer the option type when using LoggingDecorator.before()
   before({ method, options }: UnitAOPContext<LoggingOptions>) {
     return (...args: any[]) => {
       const timestamp = options.includeTimestamp ? `[${new Date().toISOString()}] ` : '';
