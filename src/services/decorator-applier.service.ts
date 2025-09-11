@@ -54,9 +54,7 @@ export class DecoratorApplier {
         continue;
       }
 
-      const targetDecorator = aopDecorators.find(
-        d => d.constructor.name === decorator.decoratorClass.name,
-      );
+      const targetDecorator = aopDecorators.find(d => d.constructor === decorator.decoratorClass);
       if (targetDecorator) {
         this.applySingleDecorator({
           aopDecorator: targetDecorator,

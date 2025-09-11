@@ -97,9 +97,10 @@ export class MethodProcessor {
 
     const decoratorsWithOrder = decorators.map(decorator => {
       const order = this.getAspectOrderDecorator(decorator);
-      if (order === undefined) {
-        // If order is undefined, we skip this decorator
-        return undefined;
+      if (order === undefined || order.length === 0) {
+        // If no order metadata, it would be treated as error case
+        // because default value provided in aspect decorator.
+        return;
       }
 
       return { ...decorator, order };

@@ -11,7 +11,7 @@ exception thrown by the method along with the standard context information.
 
 ### Options
 
-`Options` = [`AOPOptions`](AOPOptions.md)
+`Options` *extends* [`AOPOptions`](AOPOptions.md) = [`AOPOptions`](AOPOptions.md)
 
 ### ErrorType
 

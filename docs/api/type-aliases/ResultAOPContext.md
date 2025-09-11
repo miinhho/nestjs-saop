@@ -11,7 +11,7 @@ method's return value along with the standard context information.
 
 ### Options
 
-`Options` = [`AOPOptions`](AOPOptions.md)
+`Options` *extends* [`AOPOptions`](AOPOptions.md) = [`AOPOptions`](AOPOptions.md)
 
 ### ReturnType
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0] - 2025.09.12
+
+### What's Changed
+- added `order` option to `@Aspect` which a smaller order value will be executed first. (default is `0`)
+- drop number option key support due to `Reflect` api
+
+**Full Changelog**: https://github.com/miinhho/nestjs-saop/compare/v0.2.0...v0.3.0
+
 ## [0.2.0] - 2025.09.09
 
 ### What's Changed

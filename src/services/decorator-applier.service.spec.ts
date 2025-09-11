@@ -29,25 +29,36 @@ describe('DecoratorApplier', () => {
       // Check that methodName exists on the prototype (for test development)
       if (!descriptor) throw new Error('Descriptor not found');
 
-      const decoratorClassName = 'mockAOPDecorator';
-      const mockAOPDecorator: IAOPDecorator = {
-        before: jest.fn().mockReturnValue(jest.fn()),
-        after: jest.fn().mockReturnValue(jest.fn()),
-        afterReturning: jest.fn().mockReturnValue(jest.fn()),
-        afterThrowing: jest.fn().mockReturnValue(jest.fn()),
-        around: jest.fn().mockReturnValue(jest.fn().mockReturnValue('around result')),
-      };
-      (mockAOPDecorator as any).constructor = { name: decoratorClassName };
+      class MockAOPDecorator implements IAOPDecorator {
+        before() {
+          return jest.fn();
+        }
+        after() {
+          return jest.fn();
+        }
+        afterReturning() {
+          return jest.fn();
+        }
+        afterThrowing() {
+          return jest.fn();
+        }
+        around() {
+          return jest.fn().mockReturnValue('around result');
+        }
+      }
+      const mockAOPDecorator = new MockAOPDecorator();
+      jest.spyOn(mockAOPDecorator, 'before');
+      jest.spyOn(mockAOPDecorator, 'after');
 
       const decorators: AOPDecoratorMetadata[] = [
         {
-          decoratorClass: { name: decoratorClassName } as any,
+          decoratorClass: MockAOPDecorator,
           type: AOP_TYPES.BEFORE,
           options: {},
           order: 0,
         },
         {
-          decoratorClass: { name: decoratorClassName } as any,
+          decoratorClass: MockAOPDecorator,
           type: AOP_TYPES.AFTER,
           options: {},
           order: 0,
@@ -86,34 +97,31 @@ describe('DecoratorApplier', () => {
       // Check that methodName exists on the prototype (for test development)
       if (!descriptor) throw new Error('Descriptor not found');
 
-      const orderedCalls: string[] = [];
-      const decoratorClassName1 = 'mockAOPDecorator1';
-      const mockAOPDecorator1: IAOPDecorator = {
-        before: jest.fn().mockImplementation(() => {
-          orderedCalls.push(decoratorClassName1);
+      class MockAOPDecorator1 implements IAOPDecorator {
+        before() {
+          orderedCalls.push(1);
           return jest.fn();
-        }),
-      } as any;
-      (mockAOPDecorator1 as any).constructor = { name: decoratorClassName1 };
-
-      const decoratorClassName2 = 'mockAOPDecorator2';
-      const mockAOPDecorator2 = {
-        before: jest.fn().mockImplementation(() => {
-          orderedCalls.push(decoratorClassName2);
+        }
+      }
+      class MockAOPDecorator2 implements IAOPDecorator {
+        before() {
+          orderedCalls.push(2);
           return jest.fn();
-        }),
-      } as any;
-      (mockAOPDecorator2 as any).constructor = { name: decoratorClassName2 };
+        }
+      }
+      const orderedCalls: number[] = [];
+      const mockAOPDecorator1 = new MockAOPDecorator1();
+      const mockAOPDecorator2 = new MockAOPDecorator2();
 
       const decorators: AOPDecoratorMetadata[] = [
         {
-          decoratorClass: { name: decoratorClassName1 } as any,
+          decoratorClass: MockAOPDecorator1,
           type: AOP_TYPES.BEFORE,
           options: {},
           order: 1,
         },
         {
-          decoratorClass: { name: decoratorClassName2 } as any,
+          decoratorClass: MockAOPDecorator2,
           type: AOP_TYPES.BEFORE,
           options: {},
           order: 2,
@@ -133,7 +141,7 @@ describe('DecoratorApplier', () => {
       const newMethod = instance.testMethod;
       newMethod.call(instance);
 
-      expect(orderedCalls).toEqual([decoratorClassName1, decoratorClassName2]);
+      expect(orderedCalls).toEqual([1, 2]);
     });
 
     it('should warn if decorator has no decoratorClass', () => {
