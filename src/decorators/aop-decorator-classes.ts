@@ -49,6 +49,19 @@ export type AOPDecoratorConstructor<Options extends AOPOptions = AOPOptions> =
 export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
   implements IAOPDecorator<Options>
 {
+  /**
+   * Internal helper to add metadata for the decorator.
+   *
+   * This method is used by static decorator methods (e.g. before, after)
+   * to attach metadata to the target method.
+   *
+   * @param decoratorClass - The AOP decorator class being applied
+   * @param options - Configuration options for the decorator
+   * @param type - The type of AOP advice (before, after, etc.)
+   * @returns A method decorator function
+   *
+   * @internal
+   */
   private static addDecoratorMetadata({
     decoratorClass,
     options,
