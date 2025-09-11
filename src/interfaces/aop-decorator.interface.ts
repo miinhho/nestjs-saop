@@ -19,10 +19,15 @@ export interface IAOPDecorator<Options = AOPOptions, ReturnType = any, ErrorType
     Partial<AfterThrowingAOP<Options, ErrorType>> {}
 
 /**
+ * Key type for AOP options, allowing string or symbol keys.
+ */
+export type AOPOptionsKey = string | symbol;
+
+/**
  * Default options passed to AOP decorators.
  */
 export type AOPOptions = {
-  [key: string | number | symbol]: any;
+  [key: AOPOptionsKey]: any;
 };
 
 /**
@@ -30,7 +35,8 @@ export type AOPOptions = {
  *
  * @property `type` - The type of AOP decorator (e.g., around, before, after)
  * @property `options` - Configuration options passed to the decorator
- * @property `decoratorClass` - Optional name of the decorator class
+ * @property `order` - The order in which this decorator should be applied
+ * @property `decoratorClass` - Name of the decorator class
  *
  * @internal
  */
@@ -39,8 +45,10 @@ export type AOPDecoratorMetadata = {
   type: AOPType;
   /** Decorator options */
   options: AOPOptions;
+  /** Order of execution */
+  order: number;
   /** Decorator class name */
-  decoratorClass?: string;
+  decoratorClass: string;
 };
 
 /**
@@ -74,5 +82,5 @@ export type AOPMethodWithDecorators = {
   /** Method name */
   methodName: string;
   /** Array of decorator metadata */
-  decorators: any[];
+  decorators: AOPDecoratorMetadata[];
 };

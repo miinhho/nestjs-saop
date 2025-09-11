@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { AOP_TYPES, type AOPDecoratorContext, type IAOPDecorator } from '../interfaces';
+import { internalLogger } from 'src/utils/internal-logger';
+import {
+  AOP_TYPES,
+  AOPDecoratorMetadata,
+  type AOPDecoratorContext,
+  type IAOPDecorator,
+} from '../interfaces';
 
 /**
  * Service for applying AOP decorators to methods
@@ -32,17 +38,19 @@ export class DecoratorApplier {
   }: {
     instance: any;
     methodName: string;
-    decorators: any[];
+    decorators: AOPDecoratorMetadata[];
     aopDecorators: IAOPDecorator[];
     originalMethod: Function;
   }) {
     const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(instance), methodName);
     if (!descriptor) return;
 
-    for (const decorator of decorators) {
+    // Sort decorators by order for consistent AOP sequence.
+    const sortedDecorators = decorators.sort((a, b) => a.order - b.order);
+    for (const decorator of sortedDecorators) {
       if (!decorator.decoratorClass) {
-        console.warn(
-          `[nestjs-aop]: Decorator without decoratorClass found for method ${methodName}. Skipping.`,
+        internalLogger.warn(
+          `Decorator without decoratorClass found for method ${methodName}. Skipping.`,
         );
         continue;
       }
@@ -59,8 +67,8 @@ export class DecoratorApplier {
           decorator,
         });
       } else {
-        console.warn(
-          `[nestjs-aop]: No matching decorator instance found for ${decorator.decoratorClass} on method ${methodName}`,
+        internalLogger.warn(
+          `No matching decorator instance found for ${decorator.decoratorClass} on method ${methodName}`,
         );
       }
     }
@@ -87,7 +95,7 @@ export class DecoratorApplier {
     originalMethod,
     decorator,
   }: Omit<AOPDecoratorContext, 'options'> & {
-    decorator: any;
+    decorator: AOPDecoratorMetadata;
   }) {
     const decoratorContext = {
       aopDecorator,

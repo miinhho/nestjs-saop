@@ -37,6 +37,11 @@ export type AOPMethod<ReturnType = any> = (...args: any[]) => ReturnType;
  *
  * Containing all information needed for method interception and advice execution.
  *
+ * @property `method` - The original method function being intercepted
+ * @property `options` - Configuration options passed to the decorator
+ * @property `result` - The result returned by the method (available in afterReturning)
+ * @property `error` - The error thrown by the method (available in afterThrowing)
+ *
  * @internal
  */
 export type AOPContext<Options, ReturnType = any, ErrorType = unknown> = {

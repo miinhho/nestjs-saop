@@ -10,9 +10,25 @@ import { applyDecorators, Injectable, SetMetadata } from '@nestjs/common';
  */
 export const AOP_CLASS_METADATA_KEY = Symbol('saop:class');
 
+/**
+ * AOP order metadata key for the ＠Aspect decorator.
+ *
+ * This key is used to store the execution order of aspects.
+ *
+ * @internal
+ */
 export const AOP_ORDER_METADATA_KEY = Symbol('saop:order');
 
+/**
+ * Options for the ＠Aspect decorator
+ *
+ * @property `order` - The order in which this aspect should be applied. Lower values execute first.
+ */
 export type AspectOptions = {
+  /**
+   * The order in which this aspect should be applied.
+   * Lower values execute first.
+   */
   order?: number;
 };
 
@@ -22,11 +38,13 @@ export type AspectOptions = {
  * Classes decorated with ＠Aspect are automatically registered as injectable
  * services and can be used to apply cross-cutting concerns to methods.
  *
+ * @param options - Configuration options for the aspect.
+ * @param options.order - The order in which this aspect should be applied. Lower values execute first.
  * @returns A class decorator function
  *
  * @example
  * ```typescript
- * ＠Aspect()
+ * ＠Aspect({ order: 1 })
  * export class LoggingAspect {
  *   // AOP methods will be implemented here
  * }
