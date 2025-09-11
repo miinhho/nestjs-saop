@@ -10,6 +10,12 @@ import { applyDecorators, Injectable, SetMetadata } from '@nestjs/common';
  */
 export const AOP_CLASS_METADATA_KEY = Symbol('saop:class');
 
+export const AOP_ORDER_METADATA_KEY = Symbol('saop:order');
+
+export type AspectOptions = {
+  order?: number;
+};
+
 /**
  * Class decorator to mark a class as AOP decorator
  *
@@ -26,5 +32,9 @@ export const AOP_CLASS_METADATA_KEY = Symbol('saop:class');
  * }
  * ```
  */
-export const Aspect = (): ClassDecorator =>
-  applyDecorators(SetMetadata(AOP_CLASS_METADATA_KEY, true), Injectable);
+export const Aspect = ({ order = 0 }: AspectOptions): ClassDecorator =>
+  applyDecorators(
+    SetMetadata(AOP_CLASS_METADATA_KEY, true),
+    SetMetadata(AOP_ORDER_METADATA_KEY, order),
+    Injectable,
+  );
