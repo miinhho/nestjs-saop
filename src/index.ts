@@ -16,3 +16,5 @@ export type {
 } from './interfaces';
 
 export { AOPModule } from './aop.module';
+
+export { AOPError } from './error';

@@ -1,3 +1,5 @@
+import { AOP_ORDER_METADATA_KEY } from '../decorators';
+import { AOPError } from '../error';
 import { AOP_TYPES, AOPDecoratorMetadata } from '../interfaces';
 import { AOP_METADATA_KEY } from '../utils';
 import { MethodProcessor } from './method-processor.service';
@@ -7,10 +9,6 @@ describe('MethodProcessor', () => {
 
   beforeEach(() => {
     service = new MethodProcessor();
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
   });
 
   describe('processInstanceMethods', () => {
@@ -111,7 +109,16 @@ describe('MethodProcessor', () => {
         metatype: TestClass,
       };
 
-      Reflect.getMetadata = jest.fn().mockReturnValue([{ type: 'before' }]);
+      const getMetadataSpy = jest.spyOn(Reflect, 'getMetadata');
+      getMetadataSpy.mockImplementation((key, target, propertyKey) => {
+        if (key === AOP_METADATA_KEY && propertyKey === 'method1') {
+          return [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestClass }];
+        }
+        if (key === AOP_ORDER_METADATA_KEY && target === TestClass) {
+          return 0;
+        }
+        return undefined;
+      });
 
       const result = service.processInstanceMethods(wrapper);
 
@@ -229,7 +236,7 @@ describe('MethodProcessor', () => {
       const mockDecorators = [
         { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
       ];
-      const mockOrder = [{ order: 1 }];
+      const mockOrder = 1;
 
       const methodName = 'testMethod';
       jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
@@ -240,6 +247,24 @@ describe('MethodProcessor', () => {
       expect(result).toEqual([{ ...mockDecorators[0], order: mockOrder }]);
       expect((service as any).getAspectDecorator).toHaveBeenCalledWith(TestDecorator, methodName);
       expect((service as any).getAspectOrderDecorator).toHaveBeenCalledWith(mockDecorators[0]);
+    });
+
+    it('should throw AOPError decorators with order when decorators exist and have non-number order', () => {
+      class TestDecorator {
+        testMethod() {}
+      }
+      const mockDecorators = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
+      ];
+      const mockOrder = '1';
+
+      const methodName = 'testMethod';
+      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
+      jest.spyOn(service as any, 'getAspectOrderDecorator').mockReturnValue(mockOrder);
+
+      expect(() => {
+        (service as any).getDecorators(TestDecorator, methodName);
+      }).toThrow(AOPError);
     });
 
     it('should skip decorators without order', () => {
@@ -284,7 +309,7 @@ describe('MethodProcessor', () => {
         { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
         { type: AOP_TYPES.AFTER, options: {}, decoratorClass: TestDecorator },
       ];
-      const mockOrder1 = [{ order: 1 }];
+      const mockOrder1 = 1;
       const mockOrder2 = undefined;
 
       jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);

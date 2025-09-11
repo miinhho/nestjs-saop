@@ -20,10 +20,6 @@ describe('AOPDecorator', () => {
     getMetadataSpy.mockReturnValue(undefined);
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   describe('around', () => {
     it('should create a method decorator that calls addMetadata with correct parameters', () => {
       const decorator = TestAOPDecorator.around({ priority: 1 });

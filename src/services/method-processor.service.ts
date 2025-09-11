@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AOP_ORDER_METADATA_KEY } from '../decorators';
+import { AOPError } from '../error';
 import type { AOPDecoratorMetadata, AOPMethodWithDecorators } from '../interfaces';
 import { AOP_METADATA_KEY } from '../utils';
 
@@ -95,16 +96,24 @@ export class MethodProcessor {
       return undefined;
     }
 
-    const decoratorsWithOrder = decorators.map(decorator => {
-      const order = this.getAspectOrderDecorator(decorator);
-      if (order === undefined || order.length === 0) {
-        // If no order metadata, it would be treated as error case
-        // because default value provided in aspect decorator.
-        return;
-      }
+    const decoratorsWithOrder = decorators
+      .map(decorator => {
+        const order = this.getAspectOrderDecorator(decorator);
+        if (order === undefined || order.length === 0) {
+          // If no order metadata, it would be treated as error case
+          // because default value provided in aspect decorator.
+          return;
+        }
 
-      return { ...decorator, order };
-    });
+        if (typeof order !== 'number' && typeof order[0]?.order !== 'number') {
+          throw new AOPError(
+            `Invalid order value for decorator on method ${methodName}. Order must be a number.`,
+          );
+        }
+
+        return { ...decorator, order };
+      })
+      .filter(Boolean);
     return decoratorsWithOrder;
   }
 

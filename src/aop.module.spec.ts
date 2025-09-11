@@ -43,10 +43,6 @@ describe('AOPModule', () => {
     decoratorApplier = module.get(DecoratorApplier);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('forRoot', () => {
     it('should return a dynamic module with correct configuration', () => {
       const dynamicModule = AOPModule.forRoot();

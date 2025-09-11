@@ -11,13 +11,8 @@ describe('addMetadata', () => {
     mockTarget = { constructor: jest.fn() };
     mockPropertyKey = 'testMethod';
 
-    // Mock Reflect methods
     getMetadataSpy = jest.spyOn(Reflect, 'getMetadata');
     defineMetadataSpy = jest.spyOn(Reflect, 'defineMetadata');
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   it('should add metadata for the first time when no existing metadata', () => {

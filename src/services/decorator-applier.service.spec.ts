@@ -9,10 +9,6 @@ describe('DecoratorApplier', () => {
     service = new DecoratorApplier();
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('applyDecorators', () => {
     it('should apply multiple decorators correctly', () => {
       class TestClass {
