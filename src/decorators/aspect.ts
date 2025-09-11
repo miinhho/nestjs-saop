@@ -50,7 +50,7 @@ export type AspectOptions = {
  * }
  * ```
  */
-export const Aspect = ({ order = 0 }: AspectOptions): ClassDecorator =>
+export const Aspect = ({ order = 0 }: AspectOptions = {}): ClassDecorator =>
   applyDecorators(
     SetMetadata(AOP_CLASS_METADATA_KEY, true),
     SetMetadata(AOP_ORDER_METADATA_KEY, order),

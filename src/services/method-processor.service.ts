@@ -32,11 +32,7 @@ export class MethodProcessor {
     for (const methodName of methodNames) {
       const decorators = this.getDecorators(wrapper.metatype, methodName);
       if (decorators && decorators.length > 0) {
-        const decoratorsWithOrder = decorators.map(decorator => ({
-          ...decorator,
-          order: this.getAspectOrder(decorator),
-        }));
-        methods.push({ methodName, decorators: decoratorsWithOrder });
+        methods.push({ methodName, decorators });
       }
     }
 
@@ -87,25 +83,45 @@ export class MethodProcessor {
   }
 
   /**
-   * Retrieves AOP decorator metadata for a specific method.
+   * Retrieves AOP decorator metadata for a specific method and adds order information.
    *
    * @param metatype - The class constructor
    * @param methodName - The name of the method to check
    * @returns Array of decorator metadata if found, `undefined` otherwise
    */
   private getDecorators(metatype: any, methodName: string): any[] | undefined {
+    const decorators = this.getAspectDecorator(metatype, methodName);
+    if (!decorators || decorators.length === 0) {
+      return undefined;
+    }
+
+    const decoratorsWithOrder = decorators.map(decorator => ({
+      ...decorator,
+      order: this.getAspectOrderDecorator(decorator),
+    }));
+    return decoratorsWithOrder;
+  }
+
+  /**
+   * Retrieves AOP decorator metadata for a specific method.
+   *
+   * @param metatype - The class constructor
+   * @param methodName - The name of the method to check
+   * @returns Array of decorator metadata if found, `undefined` otherwise
+   */
+  private getAspectDecorator(metatype: any, methodName: string): any[] | undefined {
     return Reflect.getMetadata(AOP_METADATA_KEY, metatype, methodName);
   }
 
   /**
-   * Retrieves the execution order for a given decorator.
+   * Retrieves AOP order metadata for a given decorator.
    *
    * If no explicit order is set, defaults to `0`.
    *
    * @param decorator - The decorator metadata
    * @returns The order number for the decorator
    */
-  private getAspectOrder(decorator: AOPDecoratorMetadata): number {
+  private getAspectOrderDecorator(decorator: AOPDecoratorMetadata): number {
     // The value of order is set to 0 in ＠Aspect too.
     // But to be sure we set it here again if not present.
     return Reflect.getMetadata(AOP_ORDER_METADATA_KEY, decorator.decoratorClass) ?? 0;
