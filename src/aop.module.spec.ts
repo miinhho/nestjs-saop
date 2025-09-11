@@ -2,7 +2,7 @@ import { DiscoveryModule } from '@nestjs/core';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { AOPModule } from './aop.module';
-import { AOP_TYPES } from './interfaces';
+import { AOP_TYPES, AOPDecoratorMetadata, AOPMethodWithDecorators } from './interfaces';
 import { DecoratorApplier } from './services/decorator-applier.service';
 import { InstanceCollector } from './services/instance-collector.service';
 import { MethodProcessor } from './services/method-processor.service';
@@ -95,14 +95,19 @@ describe('AOPModule', () => {
 
   describe('processInstance', () => {
     it('should process instance methods and apply decorators', () => {
+      class TestDecorator {
+        testMethod() {}
+      }
       const mockWrapper = { instance: {}, metatype: class Test {} } as any;
-      const mockMethods = [
+      const mockMethods: AOPMethodWithDecorators[] = [
         {
           methodName: 'testMethod',
-          decorators: [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'TestDecorator' }],
+          decorators: [
+            { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 0 },
+          ],
         },
       ];
-      const mockAOPDecorators = [{ name: 'TestDecorator' }] as any;
+      const mockAOPDecorators = [{ name: TestDecorator.name }] as any;
 
       methodProcessor.processInstanceMethods.mockReturnValue(mockMethods);
       instanceCollector.collectAOPDecorators.mockReturnValue(mockAOPDecorators);
@@ -133,18 +138,31 @@ describe('AOPModule', () => {
     });
 
     it('should handle multiple methods', () => {
+      class TestDecorator {
+        method1() {}
+      }
+      class TestDecorator2 {
+        method2() {}
+      }
       const mockWrapper = { instance: {}, metatype: class Test {} };
-      const mockMethods = [
+      const mockMethods: AOPMethodWithDecorators[] = [
         {
           methodName: 'method1',
-          decorators: [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'TestDecorator' }],
+          decorators: [
+            { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 1 },
+          ],
         },
         {
           methodName: 'method2',
-          decorators: [{ type: AOP_TYPES.AFTER, options: {}, decoratorClass: 'TestDecorator2' }],
+          decorators: [
+            { type: AOP_TYPES.AFTER, options: {}, decoratorClass: TestDecorator2, order: 2 },
+          ],
         },
       ];
-      const mockAOPDecorators = [{ name: 'TestDecorator' }, { name: 'TestDecorator2' }] as any;
+      const mockAOPDecorators = [
+        { name: TestDecorator.name },
+        { name: TestDecorator2.name },
+      ] as any;
 
       methodProcessor.processInstanceMethods.mockReturnValue(mockMethods);
       instanceCollector.collectAOPDecorators.mockReturnValue(mockAOPDecorators);
@@ -175,11 +193,12 @@ describe('AOPModule', () => {
 
   describe('processMethod', () => {
     it('should apply decorators to the method', () => {
+      class TestDecorator {}
       const mockWrapper = { instance: {}, metatype: class Test {} } as any;
-      const mockDecorators = [
-        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'TestDecorator' },
+      const mockDecorators: AOPDecoratorMetadata[] = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 0 },
       ];
-      const mockAOPDecorators = [{ name: 'TestDecorator' }] as any;
+      const mockAOPDecorators = [{ name: TestDecorator.name }];
       const originalMethod = jest.fn();
 
       (mockWrapper.metatype.prototype as any).testMethod = originalMethod;
@@ -201,11 +220,12 @@ describe('AOPModule', () => {
     });
 
     it('should handle method that does not exist on prototype', () => {
+      class TestDecorator {}
       const mockWrapper = { instance: {}, metatype: class Test {} };
-      const mockDecorators = [
-        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'TestDecorator' },
+      const mockDecorators: AOPDecoratorMetadata[] = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 0 },
       ];
-      const mockAOPDecorators = [{ name: 'TestDecorator' }];
+      const mockAOPDecorators = [{ name: TestDecorator.name }];
 
       (aopModule as any).processMethod({
         wrapper: mockWrapper,
@@ -224,8 +244,9 @@ describe('AOPModule', () => {
     });
 
     it('should handle empty decorators array', () => {
+      class TestDecorator {}
       const mockWrapper = { instance: {}, metatype: class Test {} };
-      const mockAOPDecorators = [{ name: 'TestDecorator' }];
+      const mockAOPDecorators = [{ name: TestDecorator.name }];
       const originalMethod = jest.fn();
 
       (mockWrapper.metatype.prototype as any).testMethod = originalMethod;
@@ -247,9 +268,12 @@ describe('AOPModule', () => {
     });
 
     it('should handle null aopDecorators', () => {
+      class TestDecorator {
+        testMethod() {}
+      }
       const mockWrapper = { instance: {}, metatype: class Test {} };
-      const mockDecorators = [
-        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'TestDecorator' },
+      const mockDecorators: AOPDecoratorMetadata[] = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 0 },
       ];
       const originalMethod = jest.fn();
 
@@ -275,11 +299,14 @@ describe('AOPModule', () => {
   describe('edge cases', () => {
     it('should handle symbol method names', () => {
       const symbolMethod = Symbol('testMethod');
+      class TestDecorator {
+        [symbolMethod]() {}
+      }
       const mockWrapper = { instance: {}, metatype: class Test {} };
-      const mockDecorators = [
-        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'TestDecorator' },
+      const mockDecorators: AOPDecoratorMetadata[] = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 0 },
       ];
-      const mockAOPDecorators = [{ name: 'TestDecorator' }];
+      const mockAOPDecorators = [{ name: TestDecorator.name }];
       const originalMethod = jest.fn();
 
       (mockWrapper.metatype.prototype as any)[symbolMethod] = originalMethod;
@@ -301,11 +328,12 @@ describe('AOPModule', () => {
     });
 
     it('should handle instance without prototype methods', () => {
+      class TestDecorator {}
       const mockWrapper = { instance: {}, metatype: undefined };
-      const mockDecorators = [
-        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'TestDecorator' },
+      const mockDecorators: AOPDecoratorMetadata[] = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 0 },
       ];
-      const mockAOPDecorators = [{ name: 'TestDecorator' }];
+      const mockAOPDecorators = [{ name: TestDecorator.name }];
 
       (aopModule as any).processMethod({
         wrapper: mockWrapper,

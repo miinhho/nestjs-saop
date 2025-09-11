@@ -1,3 +1,4 @@
+import { AOPDecoratorConstructor } from 'src/decorators';
 import type {
   AfterAOP,
   AfterReturningAOP,
@@ -11,8 +12,11 @@ import type { AOPType } from './aop.interface';
  * Base interface for all AOP decorators, providing optional implementations
  * for various AOP advice types (around, before, after, etc.).
  */
-export interface IAOPDecorator<Options = AOPOptions, ReturnType = any, ErrorType = unknown>
-  extends Partial<AroundAOP<Options, ReturnType>>,
+export interface IAOPDecorator<
+  Options extends AOPOptions = AOPOptions,
+  ReturnType = any,
+  ErrorType = unknown,
+> extends Partial<AroundAOP<Options, ReturnType>>,
     Partial<BeforeAOP<Options>>,
     Partial<AfterAOP<Options>>,
     Partial<AfterReturningAOP<Options, ReturnType>>,
@@ -36,7 +40,7 @@ export type AOPOptions = {
  * @property `type` - The type of AOP decorator (e.g., around, before, after)
  * @property `options` - Configuration options passed to the decorator
  * @property `order` - The order in which this decorator should be applied
- * @property `decoratorClass` - Name of the decorator class
+ * @property `decoratorClass` - Decorator class
  *
  * @internal
  */
@@ -47,8 +51,8 @@ export type AOPDecoratorMetadata = {
   options: AOPOptions;
   /** Order of execution */
   order: number;
-  /** Decorator class name */
-  decoratorClass: string;
+  /** Decorator class */
+  decoratorClass: AOPDecoratorConstructor & IAOPDecorator;
 };
 
 /**

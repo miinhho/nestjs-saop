@@ -1,4 +1,5 @@
-import type { AOPOptionsKey, AOPType } from '../interfaces';
+import { AOPDecoratorConstructor } from '../decorators';
+import type { AOPOptionsKey, AOPType, IAOPDecorator } from '../interfaces';
 
 /**
  * Used as a metadata key to store AOP decorator information
@@ -29,7 +30,7 @@ export const addMetadata = ({
   options = {},
   type,
 }: {
-  decoratorClass: string;
+  decoratorClass: AOPDecoratorConstructor & IAOPDecorator;
   target: any;
   propertyKey: AOPOptionsKey;
   options: any;

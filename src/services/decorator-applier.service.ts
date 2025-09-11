@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { internalLogger } from 'src/utils/internal-logger';
 import {
   AOP_TYPES,
   AOPDecoratorMetadata,
   type AOPDecoratorContext,
   type IAOPDecorator,
 } from '../interfaces';
+import { logger } from '../utils';
 
 /**
  * Service for applying AOP decorators to methods
@@ -45,18 +45,17 @@ export class DecoratorApplier {
     const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(instance), methodName);
     if (!descriptor) return;
 
-    // Sort decorators by order for consistent AOP sequence.
-    const sortedDecorators = decorators.sort((a, b) => a.order - b.order);
+    // To handle decorator order correctly, we sort in descending order
+    // so that higher order decorators are applied first.
+    const sortedDecorators = decorators.sort((a, b) => b.order - a.order);
     for (const decorator of sortedDecorators) {
       if (!decorator.decoratorClass) {
-        internalLogger.warn(
-          `Decorator without decoratorClass found for method ${methodName}. Skipping.`,
-        );
+        logger.warn(`Decorator without decoratorClass found for method ${methodName}. Skipping.`);
         continue;
       }
 
       const targetDecorator = aopDecorators.find(
-        d => d.constructor.name === decorator.decoratorClass,
+        d => d.constructor.name === decorator.decoratorClass.name,
       );
       if (targetDecorator) {
         this.applySingleDecorator({
@@ -67,7 +66,7 @@ export class DecoratorApplier {
           decorator,
         });
       } else {
-        internalLogger.warn(
+        logger.warn(
           `No matching decorator instance found for ${decorator.decoratorClass} on method ${methodName}`,
         );
       }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AOP_ORDER_METADATA_KEY } from 'src/decorators';
+import { AOP_ORDER_METADATA_KEY } from '../decorators';
 import type { AOPDecoratorMetadata, AOPMethodWithDecorators } from '../interfaces';
 import { AOP_METADATA_KEY } from '../utils';
 
@@ -95,10 +95,15 @@ export class MethodProcessor {
       return undefined;
     }
 
-    const decoratorsWithOrder = decorators.map(decorator => ({
-      ...decorator,
-      order: this.getAspectOrderDecorator(decorator),
-    }));
+    const decoratorsWithOrder = decorators.map(decorator => {
+      const order = this.getAspectOrderDecorator(decorator);
+      if (order === undefined) {
+        // If order is undefined, we skip this decorator
+        return undefined;
+      }
+
+      return { ...decorator, order };
+    });
     return decoratorsWithOrder;
   }
 
@@ -116,14 +121,10 @@ export class MethodProcessor {
   /**
    * Retrieves AOP order metadata for a given decorator.
    *
-   * If no explicit order is set, defaults to `0`.
-   *
    * @param decorator - The decorator metadata
    * @returns The order number for the decorator
    */
-  private getAspectOrderDecorator(decorator: AOPDecoratorMetadata): number {
-    // The value of order is set to 0 in ＠Aspect too.
-    // But to be sure we set it here again if not present.
-    return Reflect.getMetadata(AOP_ORDER_METADATA_KEY, decorator.decoratorClass) ?? 0;
+  private getAspectOrderDecorator(decorator: AOPDecoratorMetadata): any[] | undefined {
+    return Reflect.getMetadata(AOP_ORDER_METADATA_KEY, decorator.decoratorClass);
   }
 }

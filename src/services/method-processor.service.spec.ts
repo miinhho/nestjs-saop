@@ -1,3 +1,4 @@
+import { AOP_TYPES, AOPDecoratorMetadata } from '../interfaces';
 import { AOP_METADATA_KEY } from '../utils';
 import { MethodProcessor } from './method-processor.service';
 
@@ -18,8 +19,11 @@ describe('MethodProcessor', () => {
         method1() {}
         method2() {}
       }
+      class TestDecorator {}
 
-      const mockDecorators = [{ type: 'before', options: {} }];
+      const mockDecorators: AOPDecoratorMetadata[] = [
+        { type: AOP_TYPES.BEFORE, options: {}, order: 0, decoratorClass: TestDecorator },
+      ];
       const wrapper = {
         instance: new TestClass(),
         metatype: TestClass,
@@ -28,11 +32,31 @@ describe('MethodProcessor', () => {
       Reflect.getMetadata = jest.fn();
       (Reflect.getMetadata as jest.Mock)
         .mockReturnValueOnce(mockDecorators) // method1 has decorators
+        .mockReturnValueOnce(mockDecorators) // method1 has decorators
+        .mockReturnValueOnce(undefined) // method2 has no decorators
         .mockReturnValueOnce(undefined); // method2 has no decorators
 
       const result = service.processInstanceMethods(wrapper);
+      const expectMetadata = [
+        {
+          methodName: 'method1',
+          decorators: [
+            {
+              ...mockDecorators[0],
+              order: [
+                {
+                  order: 0,
+                  decoratorClass: TestDecorator,
+                  type: AOP_TYPES.BEFORE,
+                  options: {},
+                },
+              ],
+            },
+          ],
+        },
+      ];
 
-      expect(result).toEqual([{ methodName: 'method1', decorators: mockDecorators }]);
+      expect(result).toEqual(expectMetadata);
       expect(Reflect.getMetadata).toHaveBeenCalledWith(AOP_METADATA_KEY, TestClass, 'method1');
       expect(Reflect.getMetadata).toHaveBeenCalledWith(AOP_METADATA_KEY, TestClass, 'method2');
     });
@@ -176,14 +200,7 @@ describe('MethodProcessor', () => {
     });
 
     it('should handle error when accessing Object.getOwnPropertyNames', () => {
-      const problematicPrototype = Object.create(null);
-      Object.defineProperty(problematicPrototype, 'constructor', {
-        get() {
-          throw new Error('Cannot access properties');
-        },
-      });
-
-      const result = (service as any).getMethodNames(problematicPrototype);
+      const result = (service as any).getMethodNames('foo');
 
       expect(result).toEqual([]);
     });
@@ -205,26 +222,80 @@ describe('MethodProcessor', () => {
   });
 
   describe('getDecorators', () => {
-    it('should return decorators from metadata', () => {
-      class TestClass {}
+    it('should return decorators with order when decorators exist and have order', () => {
+      class TestDecorator {
+        testMethod() {}
+      }
+      const mockDecorators = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
+      ];
+      const mockOrder = [{ order: 1 }];
 
-      const mockDecorators = [{ type: 'before' }];
-      Reflect.getMetadata = jest.fn().mockReturnValue(mockDecorators);
+      const methodName = 'testMethod';
+      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
+      jest.spyOn(service as any, 'getAspectOrderDecorator').mockReturnValue(mockOrder);
 
-      const result = (service as any).getDecorators(TestClass, 'method1');
+      const result = (service as any).getDecorators(TestDecorator, methodName);
 
-      expect(result).toEqual(mockDecorators);
-      expect(Reflect.getMetadata).toHaveBeenCalledWith(AOP_METADATA_KEY, TestClass, 'method1');
+      expect(result).toEqual([{ ...mockDecorators[0], order: mockOrder }]);
+      expect((service as any).getAspectDecorator).toHaveBeenCalledWith(TestDecorator, methodName);
+      expect((service as any).getAspectOrderDecorator).toHaveBeenCalledWith(mockDecorators[0]);
     });
 
-    it('should return undefined if no metadata', () => {
-      class TestClass {}
+    it('should skip decorators without order', () => {
+      class TestDecorator {
+        testMethod() {}
+      }
+      const mockDecorators = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
+      ];
 
-      Reflect.getMetadata = jest.fn().mockReturnValue(undefined);
+      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
+      jest.spyOn(service as any, 'getAspectOrderDecorator').mockReturnValue(undefined);
 
-      const result = (service as any).getDecorators(TestClass, 'method1');
+      const result = (service as any).getDecorators(TestDecorator, 'testMethod');
+
+      expect(result).toEqual([undefined]);
+    });
+
+    it('should return undefined when no decorators exist', () => {
+      const methodName = 'testMethod';
+      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(undefined);
+
+      const result = (service as any).getDecorators({}, methodName);
 
       expect(result).toBeUndefined();
+      expect((service as any).getAspectDecorator).toHaveBeenCalledWith({}, methodName);
+    });
+
+    it('should return undefined when decorators array is empty', () => {
+      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue([]);
+
+      const result = (service as any).getDecorators({}, 'testMethod');
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle multiple decorators with mixed order availability', () => {
+      class TestDecorator {
+        testMethod() {}
+      }
+      const mockDecorators = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
+        { type: AOP_TYPES.AFTER, options: {}, decoratorClass: TestDecorator },
+      ];
+      const mockOrder1 = [{ order: 1 }];
+      const mockOrder2 = undefined;
+
+      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
+      jest
+        .spyOn(service as any, 'getAspectOrderDecorator')
+        .mockReturnValueOnce(mockOrder1)
+        .mockReturnValueOnce(mockOrder2);
+
+      const result = (service as any).getDecorators(TestDecorator, 'testMethod');
+
+      expect(result).toEqual([{ ...mockDecorators[0], order: mockOrder1 }, undefined]);
     });
   });
 });

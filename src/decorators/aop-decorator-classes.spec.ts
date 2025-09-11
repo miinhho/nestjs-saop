@@ -32,7 +32,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AROUND, options: { priority: 1 }, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AROUND, options: { priority: 1 }, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         mockPropertyKey,
       );
@@ -45,7 +45,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AROUND, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AROUND, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         mockPropertyKey,
       );
@@ -59,7 +59,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AROUND, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AROUND, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         symbolKey,
       );
@@ -90,7 +90,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.BEFORE, options: { priority: 1 }, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.BEFORE, options: { priority: 1 }, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         mockPropertyKey,
       );
@@ -103,7 +103,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         mockPropertyKey,
       );
@@ -117,7 +117,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         symbolKey,
       );
@@ -140,7 +140,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AFTER, options: { priority: 1 }, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AFTER, options: { priority: 1 }, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         mockPropertyKey,
       );
@@ -153,7 +153,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AFTER, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AFTER, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         mockPropertyKey,
       );
@@ -167,7 +167,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AFTER, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AFTER, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         symbolKey,
       );
@@ -194,7 +194,7 @@ describe('AOPDecorator', () => {
           {
             type: AOP_TYPES.AFTER_RETURNING,
             options: { priority: 1 },
-            decoratorClass: 'TestAOPDecorator',
+            decoratorClass: TestAOPDecorator,
           },
         ],
         mockTarget.constructor,
@@ -209,7 +209,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AFTER_RETURNING, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AFTER_RETURNING, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         mockPropertyKey,
       );
@@ -223,7 +223,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AFTER_RETURNING, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AFTER_RETURNING, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         symbolKey,
       );
@@ -250,7 +250,7 @@ describe('AOPDecorator', () => {
           {
             type: AOP_TYPES.AFTER_THROWING,
             options: { priority: 1 },
-            decoratorClass: 'TestAOPDecorator',
+            decoratorClass: TestAOPDecorator,
           },
         ],
         mockTarget.constructor,
@@ -265,7 +265,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AFTER_THROWING, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AFTER_THROWING, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         mockPropertyKey,
       );
@@ -279,7 +279,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AFTER_THROWING, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AFTER_THROWING, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         symbolKey,
       );
@@ -302,7 +302,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.AROUND, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.AROUND, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         mockPropertyKey,
       );
@@ -315,7 +315,7 @@ describe('AOPDecorator', () => {
 
       expect(defineMetadataSpy).toHaveBeenCalledWith(
         AOP_METADATA_KEY,
-        [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'TestAOPDecorator' }],
+        [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestAOPDecorator }],
         mockTarget.constructor,
         '',
       );
