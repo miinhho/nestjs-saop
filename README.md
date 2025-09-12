@@ -27,14 +27,12 @@ Spring style AOP (Aspect Oriented Programming) in Nest.js
   - Compatible with all NestJS dependency injection patterns
 
 - ✅ **Flexible Configuration**: Highly configurable AOP options and contexts
-  - Custom options support through `AOPOptions` interface
   - Conditional AOP execution based on runtime conditions
   - Multiple decorators per method with different configurations
 
 - ✅ **Decorator Pattern Implementation**: Clean decorator-based API
   - `@Aspect({ order?: number })` decorator for AOP class identification with optional execution order control
   - Static method decorators for easy application
-  - Interface-based AOP decorator contracts
 
 ## Installation
 
@@ -163,8 +161,8 @@ export class ConditionalDecorator implements AOPDecorator {
 
 1. `🔄 Around`
 2. `▶️ Before`
-3. `⏹️ After`
-4. `✅ AfterReturning` or `❌ AfterThrowing`
+3. `✅ AfterReturning` or `❌ AfterThrowing`
+4. `⏹️ After`
 5. `🔄 Around`
 
 ### AOP Execution Order
