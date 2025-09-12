@@ -46,6 +46,7 @@ export class MethodProcessor {
    * applied.
    *
    * @param wrapper - InstanceWrapper containing the instance and metatype
+   *
    * @returns Array of methods with their associated AOP decorators
    */
   processInstanceMethods(wrapper: any): AOPMethodWithDecorators[] {
@@ -117,6 +118,7 @@ export class MethodProcessor {
    * Safely retrieves the prototype of a class constructor.
    *
    * @param metatype - The class constructor
+   *
    * @returns The class prototype if valid, `null` otherwise
    */
   private getPrototype(metatype: any): object | null {
@@ -133,6 +135,7 @@ export class MethodProcessor {
    * the constructor and non-function properties.
    *
    * @param prototype - The class prototype to analyze
+   *
    * @returns Array of method names found in the prototype
    */
   private getMethodNames(prototype: any): string[] {
@@ -161,6 +164,7 @@ export class MethodProcessor {
    *
    * @param metatype - The class constructor
    * @param methodName - The name of the method to check
+   *
    * @returns Array of decorator metadata if found, `undefined` otherwise
    */
   private getDecorators(metatype: any, methodName: string): any[] | undefined {
@@ -182,6 +186,7 @@ export class MethodProcessor {
    *
    * @param metatype - The class constructor
    * @param methodName - The name of the method to check
+   *
    * @returns Array of decorator metadata if found, `undefined` otherwise
    */
   private getAspectDecorator(
@@ -270,6 +275,7 @@ export class MethodProcessor {
 
   /**
    * Gets cache hit rate as a percentage.
+   *
    * @returns Hit rate percentage (0-100) or 0 if stats disabled
    */
   getCacheHitRate(): number {

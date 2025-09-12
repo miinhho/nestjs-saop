@@ -58,6 +58,7 @@ export class InstanceCollector {
    * instance's constructor.
    *
    * @param wrapper - InstanceWrapper object from NestJS discovery
+   *
    * @returns `true` if the wrapper contains an AOP decorator instance
    */
   private isAOPDecorator(wrapper: any): boolean {
