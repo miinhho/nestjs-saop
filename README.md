@@ -475,7 +475,7 @@ export class UserService {
 **Context Types by Advice Type:**
 
 ```ts
-// Before, After, Around advice
+// Before, After advice
 UnitAOPContext<Options> = {
   method: Function;
   options: Options;
@@ -487,6 +487,14 @@ ResultAOPContext<Options, ReturnType> = {
   options: Options;
   result: ReturnType;  // Available only in afterReturning
 }
+
+// Around advice
+AroundAOPContext<Options> = {
+  method: Function;
+  instance: object;
+  proceed: Function;
+  options: Options;
+};
 
 // AfterThrowing advice
 ErrorAOPContext<Options, ErrorType> = {
