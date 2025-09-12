@@ -7,12 +7,25 @@ import {
 } from '../interfaces';
 import { logger } from '../utils';
 
+/**
+ * Type definition for chains of AOP advice functions.
+ * @internal
+ */
 type ChainFunctions = Record<AOPType, Function | undefined>;
 
+/**
+ * Parameters for applying AOP decorators to a method.
+ * @internal
+ */
 type DecoratorApplierParams = {
   instance: any;
+  forceReapply?: boolean; // For testing scenarios where reapplication is needed
 } & ChainCreationParams;
 
+/**
+ * Parameters for creating a chain of AOP advice functions.
+ * @internal
+ */
 type ChainCreationParams = {
   decorators: AOPDecoratorMetadataWithOrder[];
   aopDecorators: IAOPDecorator[];
@@ -20,6 +33,10 @@ type ChainCreationParams = {
   methodName: string;
 };
 
+/**
+ * Parameters for searching a target AOP decorator instance.
+ * @internal
+ */
 type DecoratorSearchParams = {
   decorator: AOPDecoratorMetadataWithOrder;
   aopDecorators: IAOPDecorator[];
@@ -38,25 +55,57 @@ type DecoratorSearchParams = {
  */
 @Injectable()
 export class DecoratorApplier {
-  private static readonly AOP_APPLIED_SYMBOL = Symbol('aop:applied');
+  private static readonly AOP_PROTOTYPE_APPLIED_SYMBOL = Symbol('aop:prototype:applied');
 
   /**
    * Checks if a method has already been processed to avoid duplicate AOP application.
+   *
+   * Uses both instance-level and prototype-level tracking for comprehensive duplicate prevention.
    */
   private isMethodProcessed(instance: any, methodName: string): boolean {
-    const appliedMethods = instance[DecoratorApplier.AOP_APPLIED_SYMBOL];
-    return appliedMethods?.has(methodName) || false;
+    const prototype = Object.getPrototypeOf(instance);
+    const prototypeAppliedMethods = prototype[DecoratorApplier.AOP_PROTOTYPE_APPLIED_SYMBOL];
+
+    // Check if we have tracking and this specific method is tracked
+    if (prototypeAppliedMethods?.has(methodName)) {
+      // Double-check by examining the actual method descriptor
+      const descriptor = Object.getOwnPropertyDescriptor(prototype, methodName);
+      if (descriptor?.value?.name === 'combinedAOPMethod') {
+        return true;
+      }
+      // If tracking exists but method isn't actually wrapped, clear the tracking
+      prototypeAppliedMethods.delete(methodName);
+    }
+
+    return false;
   }
 
   /**
    * Marks a method as processed to prevent duplicate AOP application.
+   *
+   * Uses prototype-level tracking for robust duplicate prevention.
    */
   private markMethodAsProcessed(instance: any, methodName: string): void {
-    if (!instance[DecoratorApplier.AOP_APPLIED_SYMBOL]) {
-      instance[DecoratorApplier.AOP_APPLIED_SYMBOL] = new Set<string>();
+    const prototype = Object.getPrototypeOf(instance);
+
+    // Mark at prototype level (primary tracking)
+    if (!prototype[DecoratorApplier.AOP_PROTOTYPE_APPLIED_SYMBOL]) {
+      prototype[DecoratorApplier.AOP_PROTOTYPE_APPLIED_SYMBOL] = new Set<string>();
     }
-    instance[DecoratorApplier.AOP_APPLIED_SYMBOL].add(methodName);
+    prototype[DecoratorApplier.AOP_PROTOTYPE_APPLIED_SYMBOL].add(methodName);
   }
+
+  /**
+   * Resets the AOP processing state for a specific prototype.
+   *
+   * This is primarily intended for testing scenarios.
+   * @internal
+   */
+  resetPrototypeState(instance: any): void {
+    const prototype = Object.getPrototypeOf(instance);
+    delete prototype[DecoratorApplier.AOP_PROTOTYPE_APPLIED_SYMBOL];
+  }
+
   /**
    * Processes an array of decorator metadata and applies each corresponding
    * AOP advice to the target method.
@@ -73,12 +122,18 @@ export class DecoratorApplier {
     decorators,
     aopDecorators,
     originalMethod,
+    forceReapply = false,
   }: DecoratorApplierParams) {
-    const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(instance), methodName);
-    if (!descriptor) return;
+    const prototype = Object.getPrototypeOf(instance);
+    const descriptor = Object.getOwnPropertyDescriptor(prototype, methodName);
 
-    // Prevent duplicate processing of the same method
-    if (this.isMethodProcessed(instance, methodName)) {
+    if (!descriptor || !descriptor.configurable) {
+      return;
+    }
+
+    // Prevent duplicate processing of the same method with comprehensive checks
+    if (!forceReapply && this.isMethodProcessed(instance, methodName)) {
+      logger.debug(`Method ${methodName} already processed, skipping duplicate application`);
       return;
     }
 
@@ -102,12 +157,16 @@ export class DecoratorApplier {
       methodName,
     });
 
-    descriptor.value = this.combineChains({ chains, originalMethod, instance });
+    // Create a named function for better debugging and duplicate detection
+    const combinedMethod = this.combineChains({ chains, originalMethod, instance });
 
-    Object.defineProperty(Object.getPrototypeOf(instance), methodName, descriptor);
+    descriptor.value = combinedMethod;
+    Object.defineProperty(prototype, methodName, descriptor);
 
     // Mark method as processed to prevent future duplicate processing
     this.markMethodAsProcessed(instance, methodName);
+
+    logger.debug(`Successfully applied AOP decorators to ${methodName}`);
   }
 
   /**
@@ -116,6 +175,7 @@ export class DecoratorApplier {
    * @param params.decorator - The decorator metadata to find
    * @param params.aopDecorators - The list of available AOP decorator instances
    * @param params.methodName - The name of the method being processed
+   *
    * @returns The target decorator instance or null if not found
    */
   private findTargetDecorator({
@@ -215,7 +275,7 @@ export class DecoratorApplier {
     originalMethod: Function;
     instance: any;
   }): Function {
-    return (...args: any[]) => {
+    return function combinedAOPMethod(...args: any[]) {
       const beforeChain = chains[AOP_TYPES.BEFORE];
       if (beforeChain) {
         beforeChain(...args);

@@ -12,6 +12,35 @@ import { AOP_METADATA_KEY } from '../utils';
  */
 @Injectable()
 export class MethodProcessor {
+  private classCache = new WeakMap<
+    Function,
+    {
+      methods: AOPMethodWithDecorators[];
+      lastAccessed: number;
+    }
+  >();
+
+  private readonly fallbackCache = new Map<
+    string,
+    {
+      methods: AOPMethodWithDecorators[];
+      timestamp: number;
+    }
+  >();
+
+  // Cache statistics for monitoring (can be disabled in production)
+  private readonly enableStats: boolean;
+  private cacheStats = {
+    hits: 0,
+    misses: 0,
+    fallbackHits: 0,
+  };
+
+  constructor() {
+    // Disable stats in production for performance
+    this.enableStats = process.env.NODE_ENV !== 'production';
+  }
+
   /**
    * Analyzes a class instance to find all methods that have AOP decorators
    * applied.
@@ -20,10 +49,54 @@ export class MethodProcessor {
    * @returns Array of methods with their associated AOP decorators
    */
   processInstanceMethods(wrapper: any): AOPMethodWithDecorators[] {
-    if (!wrapper.instance || !wrapper.metatype) {
+    if (!wrapper?.instance || !wrapper?.metatype) {
       return [];
     }
 
+    const metatype = wrapper.metatype;
+
+    // Primary cache: WeakMap with class constructor
+    const cached = this.classCache.get(metatype);
+    if (cached) {
+      cached.lastAccessed = Date.now();
+      if (this.enableStats) this.cacheStats.hits++;
+      return cached.methods;
+    }
+
+    // Fallback cache: string-based for edge cases
+    const cacheKey = metatype.name || 'unknown';
+    const fallbackCached = this.fallbackCache.get(cacheKey);
+    if (fallbackCached) {
+      if (this.enableStats) this.cacheStats.fallbackHits++;
+      // Promote to primary cache
+      this.classCache.set(metatype, {
+        methods: fallbackCached.methods,
+        lastAccessed: Date.now(),
+      });
+      return fallbackCached.methods;
+    }
+
+    // Cache miss: process methods
+    if (this.enableStats) this.cacheStats.misses++;
+    const methods = this.processMethodsInternal(wrapper);
+
+    // Store in both caches
+    this.classCache.set(metatype, {
+      methods,
+      lastAccessed: Date.now(),
+    });
+    this.fallbackCache.set(cacheKey, {
+      methods,
+      timestamp: Date.now(),
+    });
+
+    return methods;
+  }
+
+  /**
+   * Internal method processing logic (extracted for caching)
+   */
+  private processMethodsInternal(wrapper: any): AOPMethodWithDecorators[] {
     const prototype = this.getPrototype(wrapper.metatype);
     if (!prototype) return [];
 
@@ -100,6 +173,7 @@ export class MethodProcessor {
       const order = this.getAspectOrderDecorator(decorator);
       return { ...decorator, order };
     });
+
     return decoratorsWithOrder;
   }
 
@@ -138,6 +212,70 @@ export class MethodProcessor {
           `Expected number, but got ${typeof order}: ${order}`,
       );
     }
+
     return order;
+  }
+
+  /**
+   * Clears all caches. Useful for testing or when runtime metadata changes are expected.
+   * Note: WeakMap entries will be automatically garbage collected when their keys are no longer referenced.
+   */
+  clearCaches(): void {
+    this.classCache = new WeakMap();
+    this.fallbackCache.clear();
+    if (this.enableStats) {
+      this.cacheStats = { hits: 0, misses: 0, fallbackHits: 0 };
+    }
+  }
+
+  /**
+   * Invalidates cache for a specific class.
+   * This is useful when metadata for a class changes at runtime.
+   *
+   * @param classConstructor - The class constructor to invalidate cache for
+   */
+  invalidateClassCache(classConstructor: Function): void {
+    // Remove from WeakMap
+    this.classCache.delete(classConstructor);
+
+    // Remove from fallback cache if exists
+    const className = classConstructor.name;
+    if (className && this.fallbackCache.has(className)) {
+      this.fallbackCache.delete(className);
+    }
+  }
+
+  /**
+   * Gets cache statistics for monitoring and debugging.
+   *
+   * Returns empty stats if monitoring is disabled.
+   */
+  getCacheStats() {
+    if (!this.enableStats) {
+      return {
+        hits: 0,
+        misses: 0,
+        fallbackHits: 0,
+        fallbackCacheSize: 0,
+        enabled: false,
+      };
+    }
+
+    return {
+      ...this.cacheStats,
+      fallbackCacheSize: this.fallbackCache.size,
+      enabled: true,
+    };
+  }
+
+  /**
+   * Gets cache hit rate as a percentage.
+   * @returns Hit rate percentage (0-100) or 0 if stats disabled
+   */
+  getCacheHitRate(): number {
+    if (!this.enableStats) return 0;
+
+    const totalAccess = this.cacheStats.hits + this.cacheStats.misses;
+    return totalAccess > 0 ? (this.cacheStats.hits / totalAccess) * 100 : 0;
   }
 }

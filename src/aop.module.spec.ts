@@ -108,10 +108,9 @@ describe('AOPModule', () => {
       methodProcessor.processInstanceMethods.mockReturnValue(mockMethods);
       instanceCollector.collectAOPDecorators.mockReturnValue(mockAOPDecorators);
 
-      (aopModule as any).processInstance(mockWrapper);
+      (aopModule as any).processInstance(mockWrapper, mockAOPDecorators);
 
       expect(methodProcessor.processInstanceMethods).toHaveBeenCalledWith(mockWrapper);
-      expect(instanceCollector.collectAOPDecorators).toHaveBeenCalled();
       expect(decoratorApplier.applyDecorators).toHaveBeenCalledWith({
         instance: mockWrapper.instance,
         methodName: 'testMethod',
@@ -126,10 +125,9 @@ describe('AOPModule', () => {
 
       methodProcessor.processInstanceMethods.mockReturnValue([]);
 
-      (aopModule as any).processInstance(mockWrapper);
+      (aopModule as any).processInstance(mockWrapper, []);
 
       expect(methodProcessor.processInstanceMethods).toHaveBeenCalledWith(mockWrapper);
-      expect(instanceCollector.collectAOPDecorators).not.toHaveBeenCalled();
       expect(decoratorApplier.applyDecorators).not.toHaveBeenCalled();
     });
 
@@ -163,17 +161,13 @@ describe('AOPModule', () => {
       methodProcessor.processInstanceMethods.mockReturnValue(mockMethods);
       instanceCollector.collectAOPDecorators.mockReturnValue(mockAOPDecorators);
 
-      (aopModule as any).processInstance(mockWrapper);
+      (aopModule as any).processInstance(mockWrapper, mockAOPDecorators);
 
       expect(decoratorApplier.applyDecorators).toHaveBeenCalledTimes(2);
     });
 
     it('should handle null wrapper', () => {
-      methodProcessor.processInstanceMethods.mockImplementation(() => {
-        throw new Error('Null wrapper');
-      });
-
-      expect(() => (aopModule as any).processInstance(null)).toThrow('Null wrapper');
+      expect(() => (aopModule as any).processInstance(null, [])).not.toThrow();
     });
 
     it('should handle wrapper without metatype', () => {
@@ -181,7 +175,7 @@ describe('AOPModule', () => {
 
       methodProcessor.processInstanceMethods.mockReturnValue([]);
 
-      (aopModule as any).processInstance(mockWrapper);
+      (aopModule as any).processInstance(mockWrapper, []);
 
       expect(methodProcessor.processInstanceMethods).toHaveBeenCalledWith(mockWrapper);
     });

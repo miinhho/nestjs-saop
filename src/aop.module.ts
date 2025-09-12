@@ -2,6 +2,7 @@ import { Module, type DynamicModule, type OnModuleInit } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 import type { AOPMethodWithDecorators, IAOPDecorator } from './interfaces';
 import { DecoratorApplier, InstanceCollector, MethodProcessor } from './services';
+import { logger } from './utils';
 
 /**
  * Main AOP module for NestJS
@@ -50,10 +51,16 @@ export class AOPModule implements OnModuleInit {
    * and processes them to apply AOP decorators.
    */
   private initializeAOP(): void {
-    const instances = this.instanceCollector.collectAllInstances();
+    try {
+      const instances = this.instanceCollector.collectAllInstances();
+      const aopDecorators = this.instanceCollector.collectAOPDecorators();
 
-    for (const wrapper of instances) {
-      this.processInstance(wrapper);
+      for (const wrapper of instances) {
+        this.processInstance(wrapper, aopDecorators);
+      }
+    } catch (error) {
+      logger.error('Failed to initialize AOP module:', error);
+      throw error;
     }
   }
 
@@ -65,15 +72,24 @@ export class AOPModule implements OnModuleInit {
    * the necessary AOP decorator instances and applies them.
    *
    * @param wrapper - InstanceWrapper object containing the instance to process
+   * @param aopDecorators - Pre-collected AOP decorator instances for better performance
    */
-  private processInstance(wrapper: any): void {
-    const methods = this.methodProcessor.processInstanceMethods(wrapper);
-    if (methods.length === 0) return;
+  private processInstance(wrapper: any, aopDecorators: IAOPDecorator[]): void {
+    try {
+      if (!wrapper) {
+        logger.warn('Null or undefined wrapper provided, skipping');
+        return;
+      }
 
-    const aopDecorators = this.instanceCollector.collectAOPDecorators();
+      const methods = this.methodProcessor.processInstanceMethods(wrapper);
+      if (methods.length === 0) return;
 
-    for (const { methodName, decorators } of methods) {
-      this.processMethod({ wrapper, methodName, decorators, aopDecorators });
+      for (const { methodName, decorators } of methods) {
+        this.processMethod({ wrapper, methodName, decorators, aopDecorators });
+      }
+    } catch (error) {
+      const wrapperName = wrapper?.name || 'unknown';
+      logger.error(`Failed to process instance ${wrapperName}:`, error);
     }
   }
 
@@ -97,15 +113,20 @@ export class AOPModule implements OnModuleInit {
     wrapper: any;
     aopDecorators: IAOPDecorator[];
   } & AOPMethodWithDecorators): void {
-    const prototype = wrapper.metatype?.prototype;
-    const originalMethod = prototype ? prototype[methodName] : undefined;
+    try {
+      const prototype = wrapper.metatype?.prototype;
+      const originalMethod = prototype ? prototype[methodName] : undefined;
 
-    this.decoratorApplier.applyDecorators({
-      instance: wrapper.instance,
-      methodName,
-      decorators,
-      aopDecorators,
-      originalMethod,
-    });
+      this.decoratorApplier.applyDecorators({
+        instance: wrapper.instance,
+        methodName,
+        decorators,
+        aopDecorators,
+        originalMethod,
+      });
+    } catch (error) {
+      const wrapperName = wrapper?.name || 'unknown';
+      logger.error(`Failed to process method ${methodName} on ${wrapperName}:`, error);
+    }
   }
 }
