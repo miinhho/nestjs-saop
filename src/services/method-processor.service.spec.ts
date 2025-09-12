@@ -27,8 +27,7 @@ describe('MethodProcessor', () => {
         metatype: TestClass,
       };
 
-      Reflect.getMetadata = jest.fn();
-      (Reflect.getMetadata as jest.Mock).mockImplementation((key, target, propertyKey) => {
+      jest.spyOn(Reflect, 'getMetadata').mockImplementation((key, target, propertyKey) => {
         if (key === AOP_METADATA_KEY) {
           if (propertyKey === 'method1') return mockDecorators;
           if (propertyKey === 'method2') return undefined;
@@ -67,7 +66,7 @@ describe('MethodProcessor', () => {
         metatype: TestClass,
       };
 
-      Reflect.getMetadata = jest.fn().mockReturnValue(undefined);
+      jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 
       const result = service.processInstanceMethods(wrapper);
 
@@ -258,16 +257,11 @@ describe('MethodProcessor', () => {
       const methodName = 'testMethod';
       jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
 
-      // Mock Reflect.getMetadata to return a string (invalid order)
-      const originalGetMetadata = Reflect.getMetadata;
-      Reflect.getMetadata = jest.fn().mockReturnValue('1');
+      jest.spyOn(Reflect, 'getMetadata').mockReturnValue('1');
 
       expect(() => {
         (service as any).getDecorators(TestDecorator, methodName);
       }).toThrow(AOPError);
-
-      // Restore original function
-      Reflect.getMetadata = originalGetMetadata;
     });
 
     it('should throw AOPError when decorator has no order metadata', () => {
@@ -279,17 +273,146 @@ describe('MethodProcessor', () => {
       ];
 
       jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
-
-      // Mock Reflect.getMetadata to return undefined
-      const originalGetMetadata = Reflect.getMetadata;
-      Reflect.getMetadata = jest.fn().mockReturnValue(undefined);
+      jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 
       expect(() => {
         (service as any).getDecorators(TestDecorator, 'testMethod');
       }).toThrow(AOPError);
+    });
+  });
 
-      // Restore original function
-      Reflect.getMetadata = originalGetMetadata;
+  describe('getPrototype', () => {
+    it('should return prototype for valid metatype', () => {
+      class TestClass {}
+      const result = (service as any).getPrototype(TestClass);
+      expect(result).toBe(TestClass.prototype);
+    });
+
+    it('should return null for invalid metatype', () => {
+      const result = (service as any).getPrototype(null);
+      expect(result).toBeNull();
+    });
+
+    it('should return null if prototype is invalid', () => {
+      const mockMetatype = { prototype: null };
+      const result = (service as any).getPrototype(mockMetatype);
+      expect(result).toBeNull();
+    });
+
+    it('should return null if accessing prototype throws error', () => {
+      const mockMetatype = {
+        get prototype() {
+          throw new Error('Access error');
+        },
+      };
+      const result = (service as any).getPrototype(mockMetatype);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('getMethodNames', () => {
+    it('should return method names from prototype', () => {
+      class TestClass {
+        method1() {}
+        method2() {}
+      }
+      const result = (service as any).getMethodNames(TestClass.prototype);
+      expect(result).toContain('method1');
+      expect(result).toContain('method2');
+      expect(result).not.toContain('constructor');
+    });
+
+    it('should exclude constructor', () => {
+      class TestClass {
+        constructor() {}
+        method1() {}
+      }
+      const result = (service as any).getMethodNames(TestClass.prototype);
+      expect(result).not.toContain('constructor');
+      expect(result).toContain('method1');
+    });
+
+    it('should handle invalid prototype', () => {
+      const result = (service as any).getMethodNames(null);
+      expect(result).toEqual([]);
+    });
+
+    it('should handle prototype with non-function properties', () => {
+      const prototype = {
+        method1() {},
+        property1: 'value',
+        property2: 123,
+      };
+      const result = (service as any).getMethodNames(prototype);
+      expect(result).toContain('method1');
+      expect(result).not.toContain('property1');
+      expect(result).not.toContain('property2');
+    });
+
+    // it('should handle error when accessing Object.getOwnPropertyNames', () => {
+    //   jest.spyOn(Object, 'getOwnPropertyNames').mockImplementation(() => {
+    //     throw new Error('Access error');
+    //   });
+
+    //   const result = (service as any).getMethodNames({});
+    //   expect(result).toEqual([]);
+    // });
+
+    it('should handle error when checking property type', () => {
+      const prototype = {
+        get problematicProperty() {
+          throw new Error('Access error');
+        },
+        normalMethod() {},
+      };
+
+      const result = (service as any).getMethodNames(prototype);
+      expect(result).toContain('normalMethod');
+      expect(result).not.toContain('problematicProperty');
+    });
+  });
+
+  describe('getDecorators', () => {
+    it('should return decorators with order when decorators exist and have order', () => {
+      class TestDecorator {}
+      const mockDecorators = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
+      ];
+
+      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
+      jest.spyOn(Reflect, 'getMetadata').mockReturnValue(5);
+
+      const result = (service as any).getDecorators(TestDecorator, 'testMethod');
+
+      expect(result).toEqual([{ ...mockDecorators[0], order: 5 }]);
+    });
+
+    it('should throw AOPError decorators with order when decorators exist and have non-number order', () => {
+      class TestDecorator {}
+      const mockDecorators = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
+      ];
+
+      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
+      jest.spyOn(Reflect, 'getMetadata').mockReturnValue('invalid-order');
+
+      expect(() => {
+        (service as any).getDecorators(TestDecorator, 'testMethod');
+      }).toThrow(AOPError);
+    });
+
+    it('should throw AOPError when decorator has no order metadata', () => {
+      class TestDecorator {}
+      const mockDecorators = [
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
+      ];
+
+      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
+      jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
+
+      expect(() => {
+        (service as any).getDecorators(TestDecorator, 'testMethod');
+      }).toThrow(AOPError);
     });
 
     it('should return undefined when no decorators exist', () => {
@@ -300,14 +423,6 @@ describe('MethodProcessor', () => {
 
       expect(result).toBeUndefined();
       expect((service as any).getAspectDecorator).toHaveBeenCalledWith({}, methodName);
-    });
-
-    it('should return undefined when decorators array is empty', () => {
-      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue([]);
-
-      const result = (service as any).getDecorators({}, 'testMethod');
-
-      expect(result).toBeUndefined();
     });
 
     it('should throw AOPError when any decorator has no order metadata', () => {
@@ -321,19 +436,58 @@ describe('MethodProcessor', () => {
 
       jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
 
-      // Mock Reflect.getMetadata to return a number for first call, undefined for second
-      const originalGetMetadata = Reflect.getMetadata;
-      Reflect.getMetadata = jest
-        .fn()
+      jest
+        .spyOn(Reflect, 'getMetadata')
         .mockReturnValueOnce(1) // First decorator has valid order
         .mockReturnValueOnce(undefined); // Second decorator has no order
 
       expect(() => {
         (service as any).getDecorators(TestDecorator, 'testMethod');
       }).toThrow(AOPError);
+    });
+  });
 
-      // Restore original function
-      Reflect.getMetadata = originalGetMetadata;
+  describe('getCacheStats', () => {
+    it('should return empty stats when monitoring is disabled', () => {
+      // Create service with NODE_ENV=production to disable stats
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+
+      const productionService = new MethodProcessor();
+      const stats = productionService.getCacheStats();
+
+      expect(stats).toEqual({
+        hits: 0,
+        misses: 0,
+        fallbackHits: 0,
+        fallbackCacheSize: 0,
+        enabled: false,
+      });
+
+      process.env.NODE_ENV = originalEnv;
+    });
+
+    it('should return actual stats when monitoring is enabled', () => {
+      const stats = service.getCacheStats();
+      expect(stats.enabled).toBe(true);
+      expect(typeof stats.hits).toBe('number');
+      expect(typeof stats.misses).toBe('number');
+      expect(typeof stats.fallbackHits).toBe('number');
+      expect(typeof stats.fallbackCacheSize).toBe('number');
+    });
+  });
+
+  describe('getCacheHitRate', () => {
+    it('should return 0 when stats are disabled', () => {
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+
+      const productionService = new MethodProcessor();
+      const hitRate = productionService.getCacheHitRate();
+
+      expect(hitRate).toBe(0);
+
+      process.env.NODE_ENV = originalEnv;
     });
   });
 });

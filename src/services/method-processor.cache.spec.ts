@@ -22,8 +22,7 @@ describe('MethodProcessor - Cache Functionality', () => {
         metatype: TestClass,
       };
 
-      Reflect.getMetadata = jest.fn();
-      (Reflect.getMetadata as jest.Mock).mockImplementation((key, target, propertyKey) => {
+      jest.spyOn(Reflect, 'getMetadata').mockImplementation((key, target, propertyKey) => {
         if (key === AOP_METADATA_KEY && propertyKey === 'method1') {
           return [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator }];
         }
@@ -241,7 +240,7 @@ describe('MethodProcessor - Cache Functionality', () => {
 
       // Mock complex metadata processing
       let processCallCount = 0;
-      jest.spyOn(Reflect, 'getMetadata').mockImplementation((key, target, propertyKey) => {
+      jest.spyOn(Reflect, 'getMetadata').mockImplementation(key => {
         if (key === AOP_METADATA_KEY) {
           processCallCount++;
           return [{ type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator }];
