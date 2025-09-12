@@ -7,7 +7,7 @@ type UnitAOPContext<Options> = Pick<AOPContext<Options>, "method" | "options">;
 Simplified context used for AOP advice that doesn't need access to
 method results or errors.
 
-(`before`, `after`, `around` advice)
+(`before`, `after` advice)
 
 ## Type Parameters
 

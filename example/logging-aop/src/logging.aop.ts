@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   AOPDecorator,
   AOPMethod,
+  AroundAOPContext,
   Aspect,
   ErrorAOPContext,
   ResultAOPContext,
@@ -14,12 +17,23 @@ export type LoggingOptions = {
 
 @Aspect()
 export class LoggingAOP extends AOPDecorator {
-  around({ method, options }: UnitAOPContext<LoggingOptions>): AOPMethod {
+  around({
+    method,
+    options,
+    proceed,
+    instance,
+  }: AroundAOPContext<LoggingOptions>): AOPMethod {
     return (...args: any[]): any => {
-      console.log('Around: Before method call', args, options);
-      const result = method.apply(this, args);
+      console.log(
+        'Around: Before method call',
+        args,
+        method.name,
+        options,
+        instance,
+      );
+      const result = proceed(...args);
       console.log('Around: After method call', result);
-      return result;
+      return result + ' Logged by AOP';
     };
   }
 

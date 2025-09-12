@@ -8,6 +8,7 @@ export type {
   AOPMethod,
   AOPOptions,
   AroundAOP,
+  AroundAOPContext,
   BeforeAOP,
   ErrorAOPContext,
   IAOPDecorator,

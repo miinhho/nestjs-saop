@@ -85,10 +85,10 @@ describe('DecoratorApplier', () => {
       const executionOrder: string[] = [];
 
       class MockAroundDecorator implements IAOPDecorator {
-        around({ method }: any) {
+        around({ proceed }: any) {
           return (...args: any[]) => {
             executionOrder.push('Around-start');
-            const result = method(...args);
+            const result = proceed(...args);
             executionOrder.push('Around-end');
             return result;
           };

@@ -59,12 +59,27 @@ export type AOPContext<Options extends AOPOptions, ReturnType = any, ErrorType =
  * Simplified context used for AOP advice that doesn't need access to
  * method results or errors.
  *
- * (`before`, `after`, `around` advice)
+ * (`before`, `after` advice)
  */
 export type UnitAOPContext<Options extends AOPOptions = AOPOptions> = Pick<
   AOPContext<Options>,
   'method' | 'options'
 >;
+
+/**
+ * Context used specifically for `around` advice, providing access to both
+ * the original method metadata and the proceed function to continue execution.
+ */
+export type AroundAOPContext<Options extends AOPOptions = AOPOptions> = {
+  /** The original method function being intercepted (for metadata) */
+  method: Function;
+  /** Class instance being decorated */
+  instance: object;
+  /** Function to proceed with the next advice */
+  proceed: Function;
+  /** Configuration options passed to the decorator */
+  options: Options;
+};
 
 /**
  * Context used for `after-returning` advice, providing access to the

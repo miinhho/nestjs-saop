@@ -1,4 +1,4 @@
-# nestjs-saop v0.3.0
+# nestjs-saop v0.3.1
 
 ## Classes
 
@@ -19,6 +19,7 @@
 
 - [AOPMethod](type-aliases/AOPMethod.md)
 - [AOPOptions](type-aliases/AOPOptions.md)
+- [AroundAOPContext](type-aliases/AroundAOPContext.md)
 - [ErrorAOPContext](type-aliases/ErrorAOPContext.md)
 - [ResultAOPContext](type-aliases/ResultAOPContext.md)
 - [UnitAOPContext](type-aliases/UnitAOPContext.md)
