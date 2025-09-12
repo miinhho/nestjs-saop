@@ -1,5 +1,11 @@
 import type { AOPOptions } from './aop-decorator.interface';
-import type { AOPMethod, ErrorAOPContext, ResultAOPContext, UnitAOPContext } from './aop.interface';
+import type {
+  AOPMethod,
+  AroundAOPContext,
+  ErrorAOPContext,
+  ResultAOPContext,
+  UnitAOPContext,
+} from './aop.interface';
 
 /**
  * Contract for around advice, which wraps the entire method execution.
@@ -13,7 +19,7 @@ export interface AroundAOP<Options extends AOPOptions = AOPOptions, ReturnType =
    *
    * See {@link AOPDecorator.around} for details.
    */
-  around(context: UnitAOPContext<Options>): AOPMethod<ReturnType>;
+  around(context: AroundAOPContext<Options>): AOPMethod<ReturnType>;
 }
 
 /**

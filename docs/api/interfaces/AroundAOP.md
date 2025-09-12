@@ -31,7 +31,7 @@ See [AOPDecorator.around](../classes/AOPDecorator.md#around-2) for details.
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
+[`AroundAOPContext`](../type-aliases/AroundAOPContext.md)\<`Options`\>
 
 #### Returns
 

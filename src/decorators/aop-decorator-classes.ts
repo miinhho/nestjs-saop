@@ -7,6 +7,7 @@ import type {
   AOPOptions,
   AOPType,
   AroundAOP,
+  AroundAOPContext,
   BeforeAOP,
   ErrorAOPContext,
   IAOPDecorator,
@@ -236,13 +237,13 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    *
    * Full control over execution.
    *
-   * Can modify parameters, conditionally execute the original method, or return
-   * a different result.
+   * Allows complete control over method invocation, including the ability to modify
+   * parameters, skip execution, or alter the return value.
    *
-   * @param context - Context containing the original method and options
+   * @param context - Context containing the original method metadata and the proceed function to continue execution.
    * @returns A wrapped method function that will be executed
    */
-  around?(context: UnitAOPContext<Options>): AOPMethod<any>;
+  around?(context: AroundAOPContext<Options>): AOPMethod<any>;
 
   /**
    * Before decorator method (optional implementation)

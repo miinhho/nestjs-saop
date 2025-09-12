@@ -67,10 +67,10 @@ import { AOPDecorator, Aspect } from 'nestjs-saop';
 
 @Aspect()
 export class LoggingDecorator extends AOPDecorator {
-  around({ method, options }) {
+  around({ method, proceed, options }) {
     return (...args: any[]) => {
       console.log('🔄 Around: Before method call', ...args);
-      const result = method.apply(this, args);
+      const result = proceed(...args);
       console.log('🔄 Around: After method call', result);
       return result;
     };
@@ -230,7 +230,7 @@ In this example, when `getOrdered()` is called, the AOPs will execute in order: 
 export class CachingDecorator extends AOPDecorator {
   private cache = new Map();
 
-  around({ method, options }) {
+  around({ method, options, proceed }) {
     return (...args: any[]) => {
       const key = `${method.name}:${JSON.stringify(args)}`;
 
@@ -240,7 +240,7 @@ export class CachingDecorator extends AOPDecorator {
       }
 
       console.log('🔄 Cache miss, executing method...');
-      const result = method.apply(this, args);
+      const result = proceed(...args);
 
       if (options.ttl) {
         setTimeout(() => this.cache.delete(key), options.ttl);

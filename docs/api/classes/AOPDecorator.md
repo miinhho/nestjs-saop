@@ -146,16 +146,16 @@ Around decorator method (optional implementation)
 
 Full control over execution.
 
-Can modify parameters, conditionally execute the original method, or return
-a different result.
+Allows complete control over method invocation, including the ability to modify
+parameters, skip execution, or alter the return value.
 
 #### Parameters
 
 ##### context
 
-[`UnitAOPContext`](../type-aliases/UnitAOPContext.md)\<`Options`\>
+[`AroundAOPContext`](../type-aliases/AroundAOPContext.md)\<`Options`\>
 
-Context containing the original method and options
+Context containing the original method metadata and the proceed function to continue execution.
 
 #### Returns
 

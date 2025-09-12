@@ -222,11 +222,17 @@ export class DecoratorApplier {
               methodName,
             });
             if (targetDecorator?.around) {
-              const aroundWrapper = targetDecorator.around({
-                method: nextMethod,
-                options: decorator.options,
-              });
-              return (...args: any[]) => aroundWrapper(...args);
+              return function (this: any, ...args: any[]) {
+                const context = {
+                  method: originalMethod,
+                  instance: this,
+                  options: decorator.options,
+                  proceed: (...proceedArgs: any[]) => nextMethod.call(this, ...proceedArgs),
+                };
+
+                const aroundWrapper = targetDecorator.around!(context);
+                return aroundWrapper.call(this, ...args);
+              };
             }
             return nextMethod;
           }, coreExecution)
@@ -357,9 +363,13 @@ export class DecoratorApplier {
     return function combinedAOPMethod(...args: any[]) {
       // Around wraps everything, or execute core if no Around
       const finalExecution = chains[AOP_TYPES.AROUND];
-      return finalExecution
-        ? finalExecution.call(instance, ...args)
-        : originalMethod.apply(instance, args);
+      if (finalExecution) {
+        // finalExecution is already a wrapped function that handles the around advice
+        return finalExecution.call(instance, ...args);
+      } else {
+        // No around advice, execute the original method directly
+        return originalMethod.apply(instance, args);
+      }
     };
   }
 }

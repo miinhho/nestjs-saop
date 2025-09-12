@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1] - 2025.09.12
+
+### What's Changed
+- fixed original method access using around
+- add `AroundAOPContext` which contains original method metadata and the proceed function to continue execution
+
+**Full Changelog**: https://github.com/miinhho/nestjs-saop/compare/v0.3.1...v0.3.1
+
 ## [0.3.0] - 2025.09.12
 
 ### What's Changed
