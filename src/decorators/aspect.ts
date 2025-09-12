@@ -22,7 +22,7 @@ export const AOP_ORDER_METADATA_KEY = Symbol('saop:order');
 /**
  * Options for the ＠Aspect decorator
  *
- * @property `order` - The order in which this aspect should be applied. Lower values execute first. Default is Number.MAX_SAFE_INTEGER.
+ * @property `order` - The order in which this aspect should be applied. Lower values execute first. Default is `Number.MAX_SAFE_INTEGER`.
  */
 export type AspectOptions = {
   /**
