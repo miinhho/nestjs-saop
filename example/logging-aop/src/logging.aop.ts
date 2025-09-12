@@ -21,9 +21,16 @@ export class LoggingAOP extends AOPDecorator {
     method,
     options,
     proceed,
+    instance,
   }: AroundAOPContext<LoggingOptions>): AOPMethod {
     return (...args: any[]): any => {
-      console.log('Around: Before method call', args, method.name, options);
+      console.log(
+        'Around: Before method call',
+        args,
+        method.name,
+        options,
+        instance,
+      );
       const result = proceed(...args);
       console.log('Around: After method call', result);
       return result + ' Logged by AOP';
