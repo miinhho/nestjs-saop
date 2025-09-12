@@ -38,7 +38,7 @@ export type AspectOptions = {
  * Classes decorated with ＠Aspect are automatically registered as injectable
  * services and can be used to apply cross-cutting concerns to methods.
  *
- * @param options.order - The order in which this aspect should be applied. Lower values execute first.
+ * @param order - The order in which this aspect should be applied. Lower values execute first.
  * @returns A class decorator function
  *
  * @example
