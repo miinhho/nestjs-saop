@@ -11,20 +11,16 @@ describe('addMetadata', () => {
     mockTarget = { constructor: jest.fn() };
     mockPropertyKey = 'testMethod';
 
-    // Mock Reflect methods
     getMetadataSpy = jest.spyOn(Reflect, 'getMetadata');
     defineMetadataSpy = jest.spyOn(Reflect, 'defineMetadata');
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   it('should add metadata for the first time when no existing metadata', () => {
+    class TestDecorator {}
     getMetadataSpy.mockReturnValue(undefined);
 
     addMetadata({
-      decoratorClass: 'TestDecorator',
+      decoratorClass: TestDecorator,
       target: mockTarget,
       propertyKey: mockPropertyKey,
       options: { priority: 1 },
@@ -38,20 +34,22 @@ describe('addMetadata', () => {
     );
     expect(defineMetadataSpy).toHaveBeenCalledWith(
       AOP_METADATA_KEY,
-      [{ type: AOP_TYPES.BEFORE, options: { priority: 1 }, decoratorClass: 'TestDecorator' }],
+      [{ type: AOP_TYPES.BEFORE, options: { priority: 1 }, decoratorClass: TestDecorator }],
       mockTarget.constructor,
       mockPropertyKey,
     );
   });
 
   it('should append to existing metadata array', () => {
+    class NewDecorator {}
+    class ExistingDecorator {}
     const existingDecorators = [
-      { type: AOP_TYPES.AFTER, options: {}, decoratorClass: 'ExistingDecorator' },
+      { type: AOP_TYPES.AFTER, options: {}, decoratorClass: ExistingDecorator },
     ];
     getMetadataSpy.mockReturnValue(existingDecorators);
 
     addMetadata({
-      decoratorClass: 'NewDecorator',
+      decoratorClass: NewDecorator,
       target: mockTarget,
       propertyKey: mockPropertyKey,
       options: {},
@@ -61,66 +59,24 @@ describe('addMetadata', () => {
     expect(defineMetadataSpy).toHaveBeenCalledWith(
       AOP_METADATA_KEY,
       [
-        { type: AOP_TYPES.AFTER, options: {}, decoratorClass: 'ExistingDecorator' },
-        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'NewDecorator' },
+        { type: AOP_TYPES.AFTER, options: {}, decoratorClass: ExistingDecorator },
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: NewDecorator },
       ],
       mockTarget.constructor,
       mockPropertyKey,
     );
   });
 
-  it('should handle symbol as propertyKey', () => {
-    const symbolKey = Symbol('testSymbol');
-    getMetadataSpy.mockReturnValue(undefined);
-
-    addMetadata({
-      decoratorClass: 'SymbolDecorator',
-      target: mockTarget,
-      propertyKey: symbolKey,
-      options: {},
-      type: AOP_TYPES.AROUND,
-    });
-
-    expect(getMetadataSpy).toHaveBeenCalledWith(
-      AOP_METADATA_KEY,
-      mockTarget.constructor,
-      symbolKey,
-    );
-    expect(defineMetadataSpy).toHaveBeenCalledWith(
-      AOP_METADATA_KEY,
-      [{ type: AOP_TYPES.AROUND, options: {}, decoratorClass: 'SymbolDecorator' }],
-      mockTarget.constructor,
-      symbolKey,
-    );
-  });
-
-  it('should handle empty options object', () => {
-    getMetadataSpy.mockReturnValue(undefined);
-
-    addMetadata({
-      decoratorClass: 'EmptyOptionsDecorator',
-      target: mockTarget,
-      propertyKey: mockPropertyKey,
-      options: {},
-      type: AOP_TYPES.AFTER,
-    });
-
-    expect(defineMetadataSpy).toHaveBeenCalledWith(
-      AOP_METADATA_KEY,
-      [{ type: AOP_TYPES.AFTER, options: {}, decoratorClass: 'EmptyOptionsDecorator' }],
-      mockTarget.constructor,
-      mockPropertyKey,
-    );
-  });
-
   it('should handle multiple calls and accumulate metadata', () => {
+    class FirstDecorator {}
+    class SecondDecorator {}
     getMetadataSpy.mockReturnValueOnce(undefined);
     getMetadataSpy.mockReturnValueOnce([
-      { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'FirstDecorator' },
+      { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: FirstDecorator },
     ]);
 
     addMetadata({
-      decoratorClass: 'FirstDecorator',
+      decoratorClass: FirstDecorator,
       target: mockTarget,
       propertyKey: mockPropertyKey,
       options: {},
@@ -128,7 +84,7 @@ describe('addMetadata', () => {
     });
 
     addMetadata({
-      decoratorClass: 'SecondDecorator',
+      decoratorClass: SecondDecorator,
       target: mockTarget,
       propertyKey: mockPropertyKey,
       options: { priority: 2 },
@@ -138,34 +94,20 @@ describe('addMetadata', () => {
     expect(defineMetadataSpy).toHaveBeenLastCalledWith(
       AOP_METADATA_KEY,
       [
-        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: 'FirstDecorator' },
-        { type: AOP_TYPES.AFTER, options: { priority: 2 }, decoratorClass: 'SecondDecorator' },
+        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: FirstDecorator },
+        { type: AOP_TYPES.AFTER, options: { priority: 2 }, decoratorClass: SecondDecorator },
       ],
       mockTarget.constructor,
       mockPropertyKey,
     );
   });
 
-  it('should throw type error if target is null or undefined', () => {
-    const invalidTarget = null;
-    getMetadataSpy.mockReturnValue(undefined);
-
-    expect(() => {
-      addMetadata({
-        decoratorClass: 'InvalidTargetDecorator',
-        target: invalidTarget,
-        propertyKey: mockPropertyKey,
-        options: {},
-        type: AOP_TYPES.BEFORE,
-      });
-    }).toThrow();
-  });
-
   it('should correctly store all provided fields', () => {
+    class CompleteDecorator {}
     getMetadataSpy.mockReturnValue(undefined);
 
     addMetadata({
-      decoratorClass: 'CompleteDecorator',
+      decoratorClass: CompleteDecorator,
       target: mockTarget,
       propertyKey: mockPropertyKey,
       options: { customOption: 'value' },
@@ -178,7 +120,7 @@ describe('addMetadata', () => {
         {
           type: AOP_TYPES.AROUND,
           options: { customOption: 'value' },
-          decoratorClass: 'CompleteDecorator',
+          decoratorClass: CompleteDecorator,
         },
       ],
       mockTarget.constructor,

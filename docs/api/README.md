@@ -1,8 +1,9 @@
-# nestjs-saop v0.2.0
+# nestjs-saop v0.3.0
 
 ## Classes
 
 - [AOPDecorator](classes/AOPDecorator.md)
+- [AOPError](classes/AOPError.md)
 - [AOPModule](classes/AOPModule.md)
 
 ## Interfaces

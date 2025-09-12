@@ -13,6 +13,8 @@ import type { IAOPDecorator } from '../interfaces';
  */
 @Injectable()
 export class InstanceCollector {
+  private cachedAOPDecorators: IAOPDecorator[] | null = null;
+
   constructor(private readonly discoveryService: DiscoveryService) {}
 
   /**
@@ -33,6 +35,10 @@ export class InstanceCollector {
    * @returns Array of AOP decorator instances
    */
   collectAOPDecorators(): IAOPDecorator[] {
+    if (this.cachedAOPDecorators !== null) {
+      return this.cachedAOPDecorators;
+    }
+
     const providers = this.discoveryService.getProviders();
     const decorators: IAOPDecorator[] = [];
 
@@ -42,6 +48,7 @@ export class InstanceCollector {
       }
     }
 
+    this.cachedAOPDecorators = decorators;
     return decorators;
   }
 
@@ -51,6 +58,7 @@ export class InstanceCollector {
    * instance's constructor.
    *
    * @param wrapper - InstanceWrapper object from NestJS discovery
+   *
    * @returns `true` if the wrapper contains an AOP decorator instance
    */
   private isAOPDecorator(wrapper: any): boolean {

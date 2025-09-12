@@ -1,3 +1,4 @@
+import { AOPDecoratorConstructor } from 'src/decorators';
 import type {
   AfterAOP,
   AfterReturningAOP,
@@ -11,18 +12,26 @@ import type { AOPType } from './aop.interface';
  * Base interface for all AOP decorators, providing optional implementations
  * for various AOP advice types (around, before, after, etc.).
  */
-export interface IAOPDecorator<Options = AOPOptions, ReturnType = any, ErrorType = unknown>
-  extends Partial<AroundAOP<Options, ReturnType>>,
+export interface IAOPDecorator<
+  Options extends AOPOptions = AOPOptions,
+  ReturnType = any,
+  ErrorType = unknown,
+> extends Partial<AroundAOP<Options, ReturnType>>,
     Partial<BeforeAOP<Options>>,
     Partial<AfterAOP<Options>>,
     Partial<AfterReturningAOP<Options, ReturnType>>,
     Partial<AfterThrowingAOP<Options, ErrorType>> {}
 
 /**
+ * Key type for AOP options, allowing string or symbol keys.
+ */
+export type AOPOptionsKey = string | symbol;
+
+/**
  * Default options passed to AOP decorators.
  */
 export type AOPOptions = {
-  [key: string | number | symbol]: any;
+  [key: AOPOptionsKey]: any;
 };
 
 /**
@@ -30,7 +39,7 @@ export type AOPOptions = {
  *
  * @property `type` - The type of AOP decorator (e.g., around, before, after)
  * @property `options` - Configuration options passed to the decorator
- * @property `decoratorClass` - Optional name of the decorator class
+ * @property `decoratorClass` - Decorator class
  *
  * @internal
  */
@@ -39,9 +48,30 @@ export type AOPDecoratorMetadata = {
   type: AOPType;
   /** Decorator options */
   options: AOPOptions;
-  /** Decorator class name */
-  decoratorClass?: string;
+  /** Decorator class */
+  decoratorClass: AOPDecoratorConstructor & IAOPDecorator;
 };
+
+/**
+ * Metadata for ordering AOP decorators.
+ *
+ * @property `order` - The order in which this decorator should be applied
+ * @property `decoratorClass` - Decorator class
+ *
+ * @internal
+ */
+export type AOPOrderDecoratorMetadata = {
+  /** Decorator order */
+  order: number;
+  /** Decorator class */
+  decoratorClass: AOPDecoratorConstructor & IAOPDecorator;
+};
+
+/**
+ * Combined metadata for AOP decorators including order information.
+ * @internal
+ */
+export type AOPDecoratorMetadataWithOrder = AOPDecoratorMetadata & AOPOrderDecoratorMetadata;
 
 /**
  * Context information when applying AOP decorators to methods.
@@ -74,5 +104,5 @@ export type AOPMethodWithDecorators = {
   /** Method name */
   methodName: string;
   /** Array of decorator metadata */
-  decorators: any[];
+  decorators: AOPDecoratorMetadataWithOrder[];
 };

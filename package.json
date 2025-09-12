@@ -1,6 +1,6 @@
 {
   "name": "nestjs-saop",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Spring style AOP in Nest.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

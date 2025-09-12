@@ -25,7 +25,7 @@ export class LoggingAOP extends AOPDecorator {
 
 ### Options
 
-`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
+`Options` *extends* [`AOPOptions`](../type-aliases/AOPOptions.md) = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 ## Implements
 
@@ -214,7 +214,7 @@ it succeeded or threw an exception.
 
 ##### Options
 
-`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
+`Options` *extends* [`AOPOptions`](../type-aliases/AOPOptions.md) = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 #### Parameters
 
@@ -262,7 +262,7 @@ and provides access to the return value for post-processing.
 
 ##### Options
 
-`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
+`Options` *extends* [`AOPOptions`](../type-aliases/AOPOptions.md) = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 #### Parameters
 
@@ -310,7 +310,7 @@ and provides access to the error for logging, recovery, or re-throwing.
 
 ##### Options
 
-`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
+`Options` *extends* [`AOPOptions`](../type-aliases/AOPOptions.md) = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 #### Parameters
 
@@ -358,7 +358,7 @@ parameters, conditionally execute the method, or return a different result.
 
 ##### Options
 
-`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
+`Options` *extends* [`AOPOptions`](../type-aliases/AOPOptions.md) = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 #### Parameters
 
@@ -405,7 +405,7 @@ The before advice executes before the method runs.
 
 ##### Options
 
-`Options` = [`AOPOptions`](../type-aliases/AOPOptions.md)
+`Options` *extends* [`AOPOptions`](../type-aliases/AOPOptions.md) = [`AOPOptions`](../type-aliases/AOPOptions.md)
 
 #### Parameters
 

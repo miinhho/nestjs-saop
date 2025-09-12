@@ -5,6 +5,7 @@ import type {
   AfterThrowingAOP,
   AOPMethod,
   AOPOptions,
+  AOPType,
   AroundAOP,
   BeforeAOP,
   ErrorAOPContext,
@@ -20,7 +21,8 @@ import { addMetadata } from '../utils';
  *
  * @internal
  */
-type AOPDecoratorConstructor<Options = AOPOptions> = new () => AOPDecorator<Options>;
+export type AOPDecoratorConstructor<Options extends AOPOptions = AOPOptions> =
+  new () => AOPDecorator<Options>;
 
 /**
  * Provides the foundation for creating custom AOP decorators.
@@ -44,7 +46,42 @@ type AOPDecoratorConstructor<Options = AOPOptions> = new () => AOPDecorator<Opti
  * ```
  */
 @Injectable()
-export abstract class AOPDecorator<Options = AOPOptions> implements IAOPDecorator<Options> {
+export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
+  implements IAOPDecorator<Options>
+{
+  /**
+   * Internal helper to add metadata for the decorator.
+   *
+   * This method is used by static decorator methods (e.g. before, after)
+   * to attach metadata to the target method.
+   *
+   * @param decoratorClass - The AOP decorator class being applied
+   * @param options - Configuration options for the decorator
+   * @param type - The type of AOP advice (before, after, etc.)
+   * @returns A method decorator function
+   *
+   * @internal
+   */
+  private static addDecoratorMetadata({
+    decoratorClass,
+    options,
+    type,
+  }: {
+    decoratorClass: AOPDecoratorConstructor & IAOPDecorator;
+    options: AOPOptions;
+    type: AOPType;
+  }): MethodDecorator {
+    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
+      addMetadata({
+        target,
+        propertyKey,
+        decoratorClass,
+        options,
+        type,
+      });
+    };
+  }
+
   /**
    * Creates a method decorator that applies around advice to the target method.
    *
@@ -64,20 +101,15 @@ export abstract class AOPDecorator<Options = AOPOptions> implements IAOPDecorato
    * }
    * ```
    */
-  static around<Options = AOPOptions>(
+  static around<Options extends AOPOptions = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AroundAOP<Options>,
     options: Options = {} as Options,
   ): MethodDecorator {
-    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
-      const decoratorClass = this.name;
-      addMetadata({
-        decoratorClass,
-        target,
-        propertyKey,
-        options,
-        type: AOP_TYPES.AROUND,
-      });
-    };
+    return AOPDecorator.addDecoratorMetadata({
+      decoratorClass: this,
+      options,
+      type: AOP_TYPES.AROUND,
+    });
   }
 
   /**
@@ -98,20 +130,15 @@ export abstract class AOPDecorator<Options = AOPOptions> implements IAOPDecorato
    * }
    * ```
    */
-  static before<Options = AOPOptions>(
+  static before<Options extends AOPOptions = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & BeforeAOP<Options>,
     options: Options = {} as Options,
   ): MethodDecorator {
-    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
-      const decoratorClass = this.name;
-      addMetadata({
-        decoratorClass,
-        target,
-        propertyKey,
-        options,
-        type: AOP_TYPES.BEFORE,
-      });
-    };
+    return AOPDecorator.addDecoratorMetadata({
+      decoratorClass: this,
+      options,
+      type: AOP_TYPES.BEFORE,
+    });
   }
 
   /**
@@ -133,20 +160,15 @@ export abstract class AOPDecorator<Options = AOPOptions> implements IAOPDecorato
    * }
    * ```
    */
-  static after<Options = AOPOptions>(
+  static after<Options extends AOPOptions = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AfterAOP<Options>,
     options: Options = {} as Options,
   ): MethodDecorator {
-    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
-      const decoratorClass = this.name;
-      addMetadata({
-        decoratorClass,
-        target,
-        propertyKey,
-        options,
-        type: AOP_TYPES.AFTER,
-      });
-    };
+    return AOPDecorator.addDecoratorMetadata({
+      decoratorClass: this,
+      options,
+      type: AOP_TYPES.AFTER,
+    });
   }
 
   /**
@@ -168,20 +190,15 @@ export abstract class AOPDecorator<Options = AOPOptions> implements IAOPDecorato
    * }
    * ```
    */
-  static afterReturning<Options = AOPOptions>(
+  static afterReturning<Options extends AOPOptions = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AfterReturningAOP<Options, any>,
     options: Options = {} as Options,
   ): MethodDecorator {
-    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
-      const decoratorClass = this.name;
-      addMetadata({
-        decoratorClass,
-        target,
-        propertyKey,
-        options,
-        type: AOP_TYPES.AFTER_RETURNING,
-      });
-    };
+    return AOPDecorator.addDecoratorMetadata({
+      decoratorClass: this,
+      options,
+      type: AOP_TYPES.AFTER_RETURNING,
+    });
   }
 
   /**
@@ -203,20 +220,15 @@ export abstract class AOPDecorator<Options = AOPOptions> implements IAOPDecorato
    * }
    * ```
    */
-  static afterThrowing<Options = AOPOptions>(
+  static afterThrowing<Options extends AOPOptions = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AfterThrowingAOP<Options, unknown>,
     options: Options = {} as Options,
   ): MethodDecorator {
-    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
-      const decoratorClass = this.name;
-      addMetadata({
-        decoratorClass,
-        target,
-        propertyKey,
-        options,
-        type: AOP_TYPES.AFTER_THROWING,
-      });
-    };
+    return AOPDecorator.addDecoratorMetadata({
+      decoratorClass: this,
+      options,
+      type: AOP_TYPES.AFTER_THROWING,
+    });
   }
 
   /**

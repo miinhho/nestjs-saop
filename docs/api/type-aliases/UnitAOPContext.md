@@ -13,4 +13,4 @@ method results or errors.
 
 ### Options
 
-`Options` = [`AOPOptions`](AOPOptions.md)
+`Options` *extends* [`AOPOptions`](AOPOptions.md) = [`AOPOptions`](AOPOptions.md)

@@ -9,5 +9,5 @@ Default options passed to AOP decorators.
 ## Index Signature
 
 ```ts
-[key: string | number | symbol]: any
+[key: string | symbol]: any
 ```

@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import type { AOPMethodWithDecorators } from '../interfaces';
+import { AOP_ORDER_METADATA_KEY } from '../decorators';
+import { AOPError } from '../error';
+import type { AOPDecoratorMetadata, AOPMethodWithDecorators } from '../interfaces';
 import { AOP_METADATA_KEY } from '../utils';
 
 /**
@@ -10,18 +12,92 @@ import { AOP_METADATA_KEY } from '../utils';
  */
 @Injectable()
 export class MethodProcessor {
+  private classCache = new WeakMap<
+    Function,
+    {
+      methods: AOPMethodWithDecorators[];
+      lastAccessed: number;
+    }
+  >();
+
+  private readonly fallbackCache = new Map<
+    string,
+    {
+      methods: AOPMethodWithDecorators[];
+      timestamp: number;
+    }
+  >();
+
+  // Cache statistics for monitoring (can be disabled in production)
+  private readonly enableStats: boolean;
+  private cacheStats = {
+    hits: 0,
+    misses: 0,
+    fallbackHits: 0,
+  };
+
+  constructor() {
+    // Disable stats in production for performance
+    this.enableStats = process.env.NODE_ENV !== 'production';
+  }
+
   /**
    * Analyzes a class instance to find all methods that have AOP decorators
    * applied.
    *
    * @param wrapper - InstanceWrapper containing the instance and metatype
+   *
    * @returns Array of methods with their associated AOP decorators
    */
   processInstanceMethods(wrapper: any): AOPMethodWithDecorators[] {
-    if (!wrapper.instance || !wrapper.metatype) {
+    if (!wrapper?.instance || !wrapper?.metatype) {
       return [];
     }
 
+    const metatype = wrapper.metatype;
+
+    // Primary cache: WeakMap with class constructor
+    const cached = this.classCache.get(metatype);
+    if (cached) {
+      cached.lastAccessed = Date.now();
+      if (this.enableStats) this.cacheStats.hits++;
+      return cached.methods;
+    }
+
+    // Fallback cache: string-based for edge cases
+    const cacheKey = metatype.name || 'unknown';
+    const fallbackCached = this.fallbackCache.get(cacheKey);
+    if (fallbackCached) {
+      if (this.enableStats) this.cacheStats.fallbackHits++;
+      // Promote to primary cache
+      this.classCache.set(metatype, {
+        methods: fallbackCached.methods,
+        lastAccessed: Date.now(),
+      });
+      return fallbackCached.methods;
+    }
+
+    // Cache miss: process methods
+    if (this.enableStats) this.cacheStats.misses++;
+    const methods = this.processMethodsInternal(wrapper);
+
+    // Store in both caches
+    this.classCache.set(metatype, {
+      methods,
+      lastAccessed: Date.now(),
+    });
+    this.fallbackCache.set(cacheKey, {
+      methods,
+      timestamp: Date.now(),
+    });
+
+    return methods;
+  }
+
+  /**
+   * Internal method processing logic (extracted for caching)
+   */
+  private processMethodsInternal(wrapper: any): AOPMethodWithDecorators[] {
     const prototype = this.getPrototype(wrapper.metatype);
     if (!prototype) return [];
 
@@ -42,6 +118,7 @@ export class MethodProcessor {
    * Safely retrieves the prototype of a class constructor.
    *
    * @param metatype - The class constructor
+   *
    * @returns The class prototype if valid, `null` otherwise
    */
   private getPrototype(metatype: any): object | null {
@@ -58,6 +135,7 @@ export class MethodProcessor {
    * the constructor and non-function properties.
    *
    * @param prototype - The class prototype to analyze
+   *
    * @returns Array of method names found in the prototype
    */
   private getMethodNames(prototype: any): string[] {
@@ -82,13 +160,128 @@ export class MethodProcessor {
   }
 
   /**
+   * Retrieves AOP decorator metadata for a specific method and adds order information.
+   *
+   * @param metatype - The class constructor
+   * @param methodName - The name of the method to check
+   *
+   * @returns Array of decorator metadata if found, `undefined` otherwise
+   */
+  private getDecorators(metatype: any, methodName: string): any[] | undefined {
+    const decorators = this.getAspectDecorator(metatype, methodName);
+    if (!decorators || decorators.length === 0) {
+      return undefined;
+    }
+
+    const decoratorsWithOrder = decorators.map(decorator => {
+      const order = this.getAspectOrderDecorator(decorator);
+      return { ...decorator, order };
+    });
+
+    return decoratorsWithOrder;
+  }
+
+  /**
    * Retrieves AOP decorator metadata for a specific method.
    *
    * @param metatype - The class constructor
    * @param methodName - The name of the method to check
+   *
    * @returns Array of decorator metadata if found, `undefined` otherwise
    */
-  private getDecorators(metatype: any, methodName: string): any[] | undefined {
+  private getAspectDecorator(
+    metatype: any,
+    methodName: string,
+  ): AOPDecoratorMetadata[] | undefined {
     return Reflect.getMetadata(AOP_METADATA_KEY, metatype, methodName);
+  }
+
+  /**
+   * Retrieves AOP order metadata for a given decorator.
+   *
+   * @param decorator - The decorator metadata
+   * @returns The order number for the decorator
+   * @throws AOPError if order metadata is not found
+   */
+  private getAspectOrderDecorator(decorator: AOPDecoratorMetadata): number {
+    const order = Reflect.getMetadata(AOP_ORDER_METADATA_KEY, decorator.decoratorClass);
+    if (order === undefined) {
+      throw new AOPError(
+        `Order metadata not found for decorator ${decorator.decoratorClass.name}. ` +
+          `This should not happen as Aspect decorator provides default order.`,
+      );
+    }
+    if (typeof order !== 'number') {
+      throw new AOPError(
+        `Order metadata for decorator ${decorator.decoratorClass.name} is not a number. ` +
+          `Expected number, but got ${typeof order}: ${order}`,
+      );
+    }
+
+    return order;
+  }
+
+  /**
+   * Clears all caches. Useful for testing or when runtime metadata changes are expected.
+   * Note: WeakMap entries will be automatically garbage collected when their keys are no longer referenced.
+   */
+  clearCaches(): void {
+    this.classCache = new WeakMap();
+    this.fallbackCache.clear();
+    if (this.enableStats) {
+      this.cacheStats = { hits: 0, misses: 0, fallbackHits: 0 };
+    }
+  }
+
+  /**
+   * Invalidates cache for a specific class.
+   * This is useful when metadata for a class changes at runtime.
+   *
+   * @param classConstructor - The class constructor to invalidate cache for
+   */
+  invalidateClassCache(classConstructor: Function): void {
+    // Remove from WeakMap
+    this.classCache.delete(classConstructor);
+
+    // Remove from fallback cache if exists
+    const className = classConstructor.name;
+    if (className && this.fallbackCache.has(className)) {
+      this.fallbackCache.delete(className);
+    }
+  }
+
+  /**
+   * Gets cache statistics for monitoring and debugging.
+   *
+   * Returns empty stats if monitoring is disabled.
+   */
+  getCacheStats() {
+    if (!this.enableStats) {
+      return {
+        hits: 0,
+        misses: 0,
+        fallbackHits: 0,
+        fallbackCacheSize: 0,
+        enabled: false,
+      };
+    }
+
+    return {
+      ...this.cacheStats,
+      fallbackCacheSize: this.fallbackCache.size,
+      enabled: true,
+    };
+  }
+
+  /**
+   * Gets cache hit rate as a percentage.
+   *
+   * @returns Hit rate percentage (0-100) or 0 if stats disabled
+   */
+  getCacheHitRate(): number {
+    if (!this.enableStats) return 0;
+
+    const totalAccess = this.cacheStats.hits + this.cacheStats.misses;
+    return totalAccess > 0 ? (this.cacheStats.hits / totalAccess) * 100 : 0;
   }
 }

@@ -37,9 +37,14 @@ export type AOPMethod<ReturnType = any> = (...args: any[]) => ReturnType;
  *
  * Containing all information needed for method interception and advice execution.
  *
+ * @property `method` - The original method function being intercepted
+ * @property `options` - Configuration options passed to the decorator
+ * @property `result` - The result returned by the method (available in afterReturning)
+ * @property `error` - The error thrown by the method (available in afterThrowing)
+ *
  * @internal
  */
-export type AOPContext<Options, ReturnType = any, ErrorType = unknown> = {
+export type AOPContext<Options extends AOPOptions, ReturnType = any, ErrorType = unknown> = {
   /** The original method function being intercepted */
   method: Function;
   /** Configuration options passed to the decorator */
@@ -56,13 +61,16 @@ export type AOPContext<Options, ReturnType = any, ErrorType = unknown> = {
  *
  * (`before`, `after`, `around` advice)
  */
-export type UnitAOPContext<Options = AOPOptions> = Pick<AOPContext<Options>, 'method' | 'options'>;
+export type UnitAOPContext<Options extends AOPOptions = AOPOptions> = Pick<
+  AOPContext<Options>,
+  'method' | 'options'
+>;
 
 /**
  * Context used for `after-returning` advice, providing access to the
  * method's return value along with the standard context information.
  */
-export type ResultAOPContext<Options = AOPOptions, ReturnType = any> = Pick<
+export type ResultAOPContext<Options extends AOPOptions = AOPOptions, ReturnType = any> = Pick<
   AOPContext<Options, ReturnType>,
   'method' | 'options' | 'result'
 >;
@@ -71,7 +79,7 @@ export type ResultAOPContext<Options = AOPOptions, ReturnType = any> = Pick<
  * Context used for `after-throwing` advice, providing access to the
  * exception thrown by the method along with the standard context information.
  */
-export type ErrorAOPContext<Options = AOPOptions, ErrorType = unknown> = Pick<
+export type ErrorAOPContext<Options extends AOPOptions = AOPOptions, ErrorType = unknown> = Pick<
   AOPContext<Options, unknown, ErrorType>,
   'method' | 'options' | 'error'
 >;
