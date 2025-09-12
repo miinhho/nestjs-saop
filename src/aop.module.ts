@@ -12,6 +12,8 @@ import { DecoratorApplier, InstanceCollector, MethodProcessor } from './services
   providers: [InstanceCollector, MethodProcessor, DecoratorApplier],
 })
 export class AOPModule implements OnModuleInit {
+  private static initialized = false;
+
   constructor(
     private readonly instanceCollector: InstanceCollector,
     private readonly methodProcessor: MethodProcessor,
@@ -37,7 +39,10 @@ export class AOPModule implements OnModuleInit {
    * Triggers the AOP system setup process.
    */
   onModuleInit(): void {
-    this.initializeAOP();
+    if (!AOPModule.initialized) {
+      this.initializeAOP();
+      AOPModule.initialized = true;
+    }
   }
 
   /**

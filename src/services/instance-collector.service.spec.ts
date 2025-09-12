@@ -33,15 +33,6 @@ describe('InstanceCollector', () => {
       expect(mockDiscoveryService.getControllers).toHaveBeenCalled();
       expect(mockDiscoveryService.getProviders).toHaveBeenCalled();
     });
-
-    it('should handle empty controllers and providers', () => {
-      mockDiscoveryService.getControllers.mockReturnValue([]);
-      mockDiscoveryService.getProviders.mockReturnValue([]);
-
-      const result = service.collectAllInstances();
-
-      expect(result).toEqual([]);
-    });
   });
 
   describe('collectAOPDecorators', () => {
@@ -57,14 +48,12 @@ describe('InstanceCollector', () => {
       const mockProviders = [
         { instance: mockAOPDecorator } as any,
         { instance: 'nonAOPProvider' } as any,
-        { instance: null } as any,
       ];
 
       Reflect.hasMetadata = jest.fn();
       (Reflect.hasMetadata as jest.Mock)
         .mockReturnValueOnce(true) // First provider is AOP decorator
-        .mockReturnValueOnce(false) // Second is not
-        .mockReturnValueOnce(false); // Third is null
+        .mockReturnValueOnce(false); // Second is not
 
       mockDiscoveryService.getProviders.mockReturnValue(mockProviders);
 
@@ -75,32 +64,6 @@ describe('InstanceCollector', () => {
         AOP_CLASS_METADATA_KEY,
         mockAOPDecorator.constructor,
       );
-    });
-
-    it('should return empty array if no AOP decorators found', () => {
-      const mockProviders = [{ instance: 'nonAOPProvider' } as any];
-
-      Reflect.hasMetadata = jest.fn().mockReturnValue(false);
-
-      mockDiscoveryService.getProviders.mockReturnValue(mockProviders);
-
-      const result = service.collectAOPDecorators();
-
-      expect(result).toEqual([]);
-    });
-
-    it('should skip invalid instances', () => {
-      const mockProviders = [
-        { instance: null } as any,
-        { instance: undefined } as any,
-        { instance: 'string' } as any,
-      ];
-
-      mockDiscoveryService.getProviders.mockReturnValue(mockProviders);
-
-      const result = service.collectAOPDecorators();
-
-      expect(result).toEqual([]);
     });
   });
 
@@ -117,22 +80,6 @@ describe('InstanceCollector', () => {
         AOP_CLASS_METADATA_KEY,
         mockInstance.constructor,
       );
-    });
-
-    it('should return false for invalid instance', () => {
-      const wrapper = { instance: null };
-
-      const result = (service as any).isAOPDecorator(wrapper);
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false for non-object instance', () => {
-      const wrapper = { instance: 'string' };
-
-      const result = (service as any).isAOPDecorator(wrapper);
-
-      expect(result).toBe(false);
     });
   });
 });

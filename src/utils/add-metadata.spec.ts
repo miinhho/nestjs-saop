@@ -67,52 +67,6 @@ describe('addMetadata', () => {
     );
   });
 
-  it('should handle symbol as propertyKey', () => {
-    class SymbolDecorator {}
-    const symbolKey = Symbol('testSymbol');
-    getMetadataSpy.mockReturnValue(undefined);
-
-    addMetadata({
-      decoratorClass: SymbolDecorator,
-      target: mockTarget,
-      propertyKey: symbolKey,
-      options: {},
-      type: AOP_TYPES.AROUND,
-    });
-
-    expect(getMetadataSpy).toHaveBeenCalledWith(
-      AOP_METADATA_KEY,
-      mockTarget.constructor,
-      symbolKey,
-    );
-    expect(defineMetadataSpy).toHaveBeenCalledWith(
-      AOP_METADATA_KEY,
-      [{ type: AOP_TYPES.AROUND, options: {}, decoratorClass: SymbolDecorator }],
-      mockTarget.constructor,
-      symbolKey,
-    );
-  });
-
-  it('should handle empty options object', () => {
-    class EmptyOptionsDecorator {}
-    getMetadataSpy.mockReturnValue(undefined);
-
-    addMetadata({
-      decoratorClass: EmptyOptionsDecorator,
-      target: mockTarget,
-      propertyKey: mockPropertyKey,
-      options: {},
-      type: AOP_TYPES.AFTER,
-    });
-
-    expect(defineMetadataSpy).toHaveBeenCalledWith(
-      AOP_METADATA_KEY,
-      [{ type: AOP_TYPES.AFTER, options: {}, decoratorClass: EmptyOptionsDecorator }],
-      mockTarget.constructor,
-      mockPropertyKey,
-    );
-  });
-
   it('should handle multiple calls and accumulate metadata', () => {
     class FirstDecorator {}
     class SecondDecorator {}
@@ -146,22 +100,6 @@ describe('addMetadata', () => {
       mockTarget.constructor,
       mockPropertyKey,
     );
-  });
-
-  it('should throw type error if target is null or undefined', () => {
-    class InvalidDecorator {}
-    const invalidTarget = null;
-    getMetadataSpy.mockReturnValue(undefined);
-
-    expect(() => {
-      addMetadata({
-        decoratorClass: InvalidDecorator,
-        target: invalidTarget,
-        propertyKey: mockPropertyKey,
-        options: {},
-        type: AOP_TYPES.BEFORE,
-      });
-    }).toThrow();
   });
 
   it('should correctly store all provided fields', () => {

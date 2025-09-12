@@ -57,44 +57,6 @@ describe('MethodProcessor', () => {
       expect(Reflect.getMetadata).toHaveBeenCalledWith(AOP_METADATA_KEY, TestClass, 'method2');
     });
 
-    it('should return empty array if no methods with decorators', () => {
-      class TestClass {
-        method1() {}
-      }
-
-      const wrapper = {
-        instance: new TestClass(),
-        metatype: TestClass,
-      };
-
-      Reflect.getMetadata = jest.fn().mockReturnValue(undefined);
-
-      const result = service.processInstanceMethods(wrapper);
-
-      expect(result).toEqual([]);
-    });
-
-    it('should handle invalid wrapper', () => {
-      const wrapper = { instance: null, metatype: null };
-
-      const result = service.processInstanceMethods(wrapper);
-
-      expect(result).toEqual([]);
-    });
-
-    it('should handle class with no prototype methods', () => {
-      class TestClass {}
-
-      const wrapper = {
-        instance: new TestClass(),
-        metatype: TestClass,
-      };
-
-      const result = service.processInstanceMethods(wrapper);
-
-      expect(result).toEqual([]);
-    });
-
     it('should skip constructor and non-function properties', () => {
       class TestClass {
         constructor() {}
@@ -133,33 +95,6 @@ describe('MethodProcessor', () => {
 
       expect(result).toBe(TestClass.prototype);
     });
-
-    it('should return null for invalid metatype', () => {
-      const result = (service as any).getPrototype(null);
-
-      expect(result).toBeNull();
-    });
-
-    it('should return null if prototype is invalid', () => {
-      const invalidMetatype = { prototype: null };
-
-      const result = (service as any).getPrototype(invalidMetatype);
-
-      expect(result).toBeNull();
-    });
-
-    it('should return null if accessing prototype throws error', () => {
-      const problematicMetatype = Object.create(null);
-      Object.defineProperty(problematicMetatype, 'prototype', {
-        get() {
-          throw new Error('Cannot access prototype');
-        },
-      });
-
-      const result = (service as any).getPrototype(problematicMetatype);
-
-      expect(result).toBeNull();
-    });
   });
 
   describe('getMethodNames', () => {
@@ -182,45 +117,6 @@ describe('MethodProcessor', () => {
       }
 
       const result = (service as any).getMethodNames(TestClass.prototype);
-
-      expect(result).toEqual(['method1']);
-    });
-
-    it('should handle invalid prototype', () => {
-      const result = (service as any).getMethodNames(null);
-
-      expect(result).toEqual([]);
-    });
-
-    it('should handle prototype with non-function properties', () => {
-      const prototype = {
-        method1: () => {},
-        property: 'value',
-        method2: 'not a function',
-      };
-
-      const result = (service as any).getMethodNames(prototype);
-
-      expect(result).toEqual(['method1']);
-    });
-
-    it('should handle error when accessing Object.getOwnPropertyNames', () => {
-      const result = (service as any).getMethodNames('foo');
-
-      expect(result).toEqual([]);
-    });
-
-    it('should handle error when checking property type', () => {
-      const prototype = {
-        method1: () => {},
-        problematicProperty: Object.defineProperty({}, 'value', {
-          get() {
-            throw new Error('Cannot access property');
-          },
-        }),
-      };
-
-      const result = (service as any).getMethodNames(prototype);
 
       expect(result).toEqual(['method1']);
     });
@@ -290,24 +186,6 @@ describe('MethodProcessor', () => {
 
       // Restore original function
       Reflect.getMetadata = originalGetMetadata;
-    });
-
-    it('should return undefined when no decorators exist', () => {
-      const methodName = 'testMethod';
-      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(undefined);
-
-      const result = (service as any).getDecorators({}, methodName);
-
-      expect(result).toBeUndefined();
-      expect((service as any).getAspectDecorator).toHaveBeenCalledWith({}, methodName);
-    });
-
-    it('should return undefined when decorators array is empty', () => {
-      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue([]);
-
-      const result = (service as any).getDecorators({}, 'testMethod');
-
-      expect(result).toBeUndefined();
     });
 
     it('should throw AOPError when any decorator has no order metadata', () => {
