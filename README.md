@@ -32,7 +32,7 @@ Spring style AOP (Aspect Oriented Programming) in Nest.js
   - Multiple decorators per method with different configurations
 
 - ✅ **Decorator Pattern Implementation**: Clean decorator-based API
-  - `@Aspect()` decorator for AOP class identification
+  - `@Aspect({ order?: number })` decorator for AOP class identification with optional execution order control
   - Static method decorators for easy application
   - Interface-based AOP decorator contracts
 
@@ -166,6 +166,61 @@ export class ConditionalDecorator implements AOPDecorator {
 3. `⏹️ After`
 4. `✅ AfterReturning` or `❌ AfterThrowing`
 5. `🔄 Around`
+
+### AOP Execution Order
+
+When multiple AOP decorators are applied to the same method, you can control the execution order using the `order` option in the `@Aspect()` decorator. Lower order values execute first. If no order is specified, the default is `Number.MAX_SAFE_INTEGER`, giving it the lowest priority.
+
+```ts
+import { AOPDecorator, Aspect } from 'nestjs-saop';
+
+class AOPTracker {
+  static executionOrder: string[] = [];
+
+  static reset() {
+    this.executionOrder = [];
+  }
+}
+
+@Aspect({ order: 1 })
+class FirstAOP extends AOPDecorator {
+  before() {
+    return () => {
+      AOPTracker.executionOrder.push('First');
+    };
+  }
+}
+
+@Aspect({ order: 2 })
+class SecondAOP extends AOPDecorator {
+  before() {
+    return () => {
+      AOPTracker.executionOrder.push('Second');
+    };
+  }
+}
+
+@Aspect({ order: 3 })
+class ThirdAOP extends AOPDecorator {
+  before() {
+    return () => {
+      AOPTracker.executionOrder.push('Third');
+    };
+  }
+}
+
+@Injectable()
+class TestService {
+  @FirstAOP.before()
+  @SecondAOP.before()
+  @ThirdAOP.before()
+  getOrdered(): string {
+    return 'Ordered AOP executed';
+  }
+}
+```
+
+In this example, when `getOrdered()` is called, the AOPs will execute in order: `First` (order 1), `Second` (order 2), `Third` (order 3).
 
 ### AOP Advice Types
 

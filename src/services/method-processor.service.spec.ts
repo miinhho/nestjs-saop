@@ -1,6 +1,6 @@
 import { AOP_ORDER_METADATA_KEY } from '../decorators';
 import { AOPError } from '../error';
-import { AOP_TYPES, AOPDecoratorMetadata } from '../interfaces';
+import { AOP_TYPES, AOPDecoratorMetadataWithOrder } from '../interfaces';
 import { AOP_METADATA_KEY } from '../utils';
 import { MethodProcessor } from './method-processor.service';
 
@@ -19,7 +19,7 @@ describe('MethodProcessor', () => {
       }
       class TestDecorator {}
 
-      const mockDecorators: AOPDecoratorMetadata[] = [
+      const mockDecorators: AOPDecoratorMetadataWithOrder[] = [
         { type: AOP_TYPES.BEFORE, options: {}, order: 0, decoratorClass: TestDecorator },
       ];
       const wrapper = {
@@ -28,11 +28,16 @@ describe('MethodProcessor', () => {
       };
 
       Reflect.getMetadata = jest.fn();
-      (Reflect.getMetadata as jest.Mock)
-        .mockReturnValueOnce(mockDecorators) // method1 has decorators
-        .mockReturnValueOnce(mockDecorators) // method1 has decorators
-        .mockReturnValueOnce(undefined) // method2 has no decorators
-        .mockReturnValueOnce(undefined); // method2 has no decorators
+      (Reflect.getMetadata as jest.Mock).mockImplementation((key, target, propertyKey) => {
+        if (key === AOP_METADATA_KEY) {
+          if (propertyKey === 'method1') return mockDecorators;
+          if (propertyKey === 'method2') return undefined;
+        }
+        if (key === AOP_ORDER_METADATA_KEY && target === TestDecorator) {
+          return 0; // Mock order value
+        }
+        return undefined;
+      });
 
       const result = service.processInstanceMethods(wrapper);
       const expectMetadata = [
@@ -41,14 +46,7 @@ describe('MethodProcessor', () => {
           decorators: [
             {
               ...mockDecorators[0],
-              order: [
-                {
-                  order: 0,
-                  decoratorClass: TestDecorator,
-                  type: AOP_TYPES.BEFORE,
-                  options: {},
-                },
-              ],
+              order: 0,
             },
           ],
         },
@@ -256,18 +254,23 @@ describe('MethodProcessor', () => {
       const mockDecorators = [
         { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
       ];
-      const mockOrder = '1';
 
       const methodName = 'testMethod';
       jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
-      jest.spyOn(service as any, 'getAspectOrderDecorator').mockReturnValue(mockOrder);
+
+      // Mock Reflect.getMetadata to return a string (invalid order)
+      const originalGetMetadata = Reflect.getMetadata;
+      Reflect.getMetadata = jest.fn().mockReturnValue('1');
 
       expect(() => {
         (service as any).getDecorators(TestDecorator, methodName);
       }).toThrow(AOPError);
+
+      // Restore original function
+      Reflect.getMetadata = originalGetMetadata;
     });
 
-    it('should skip decorators without order', () => {
+    it('should throw AOPError when decorator has no order metadata', () => {
       class TestDecorator {
         testMethod() {}
       }
@@ -276,11 +279,17 @@ describe('MethodProcessor', () => {
       ];
 
       jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
-      jest.spyOn(service as any, 'getAspectOrderDecorator').mockReturnValue(undefined);
 
-      const result = (service as any).getDecorators(TestDecorator, 'testMethod');
+      // Mock Reflect.getMetadata to return undefined
+      const originalGetMetadata = Reflect.getMetadata;
+      Reflect.getMetadata = jest.fn().mockReturnValue(undefined);
 
-      expect(result).toEqual([undefined]);
+      expect(() => {
+        (service as any).getDecorators(TestDecorator, 'testMethod');
+      }).toThrow(AOPError);
+
+      // Restore original function
+      Reflect.getMetadata = originalGetMetadata;
     });
 
     it('should return undefined when no decorators exist', () => {
@@ -301,7 +310,7 @@ describe('MethodProcessor', () => {
       expect(result).toBeUndefined();
     });
 
-    it('should handle multiple decorators with mixed order availability', () => {
+    it('should throw AOPError when any decorator has no order metadata', () => {
       class TestDecorator {
         testMethod() {}
       }
@@ -309,18 +318,22 @@ describe('MethodProcessor', () => {
         { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
         { type: AOP_TYPES.AFTER, options: {}, decoratorClass: TestDecorator },
       ];
-      const mockOrder1 = 1;
-      const mockOrder2 = undefined;
 
       jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
-      jest
-        .spyOn(service as any, 'getAspectOrderDecorator')
-        .mockReturnValueOnce(mockOrder1)
-        .mockReturnValueOnce(mockOrder2);
 
-      const result = (service as any).getDecorators(TestDecorator, 'testMethod');
+      // Mock Reflect.getMetadata to return a number for first call, undefined for second
+      const originalGetMetadata = Reflect.getMetadata;
+      Reflect.getMetadata = jest
+        .fn()
+        .mockReturnValueOnce(1) // First decorator has valid order
+        .mockReturnValueOnce(undefined); // Second decorator has no order
 
-      expect(result).toEqual([{ ...mockDecorators[0], order: mockOrder1 }, undefined]);
+      expect(() => {
+        (service as any).getDecorators(TestDecorator, 'testMethod');
+      }).toThrow(AOPError);
+
+      // Restore original function
+      Reflect.getMetadata = originalGetMetadata;
     });
   });
 });

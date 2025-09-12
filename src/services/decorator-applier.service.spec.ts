@@ -1,4 +1,4 @@
-import { AOP_TYPES, AOPDecoratorMetadata, type IAOPDecorator } from '../interfaces';
+import { AOP_TYPES, AOPDecoratorMetadataWithOrder, type IAOPDecorator } from '../interfaces';
 import { logger } from '../utils/aop-logger';
 import { DecoratorApplier } from './decorator-applier.service';
 
@@ -46,7 +46,7 @@ describe('DecoratorApplier', () => {
       jest.spyOn(mockAOPDecorator, 'before');
       jest.spyOn(mockAOPDecorator, 'after');
 
-      const decorators: AOPDecoratorMetadata[] = [
+      const decorators: AOPDecoratorMetadataWithOrder[] = [
         {
           decoratorClass: MockAOPDecorator,
           type: AOP_TYPES.BEFORE,
@@ -109,7 +109,7 @@ describe('DecoratorApplier', () => {
       const mockAOPDecorator1 = new MockAOPDecorator1();
       const mockAOPDecorator2 = new MockAOPDecorator2();
 
-      const decorators: AOPDecoratorMetadata[] = [
+      const decorators: AOPDecoratorMetadataWithOrder[] = [
         {
           decoratorClass: MockAOPDecorator1,
           type: AOP_TYPES.BEFORE,
@@ -174,7 +174,7 @@ describe('DecoratorApplier', () => {
 
       Object.defineProperty(Object.getPrototypeOf(instance), methodName, descriptor);
 
-      const decorators: AOPDecoratorMetadata[] = [
+      const decorators: AOPDecoratorMetadataWithOrder[] = [
         { decoratorClass: UnrelatedDecorator, type: AOP_TYPES.BEFORE, options: {}, order: 0 },
       ];
       const aopDecorators: IAOPDecorator[] = [];
@@ -199,7 +199,7 @@ describe('DecoratorApplier', () => {
       const methodName = 'nonExistentMethod';
       const originalMethod = jest.fn();
 
-      const decorators: AOPDecoratorMetadata[] = [
+      const decorators: AOPDecoratorMetadataWithOrder[] = [
         { type: AOP_TYPES.BEFORE, options: {}, order: 0, decoratorClass: TestClass },
       ];
       const aopDecorators: IAOPDecorator[] = [];
@@ -246,7 +246,7 @@ describe('DecoratorApplier', () => {
       const descriptor = { value: jest.fn(), configurable: true };
       const instance = {};
       const originalMethod = jest.fn();
-      const decorator: AOPDecoratorMetadata = {
+      const decorator: AOPDecoratorMetadataWithOrder = {
         type: AOP_TYPES.BEFORE,
         options: {},
         order: 0,
@@ -277,7 +277,7 @@ describe('DecoratorApplier', () => {
       const descriptor = { value: jest.fn().mockReturnValue('result'), configurable: true };
       const instance = {};
       const originalMethod = jest.fn();
-      const decorator: AOPDecoratorMetadata = {
+      const decorator: AOPDecoratorMetadataWithOrder = {
         type: AOP_TYPES.AFTER,
         options: {},
         order: 0,
@@ -309,7 +309,7 @@ describe('DecoratorApplier', () => {
       const descriptor = { value: jest.fn().mockReturnValue('result'), configurable: true };
       const instance = {};
       const originalMethod = jest.fn();
-      const decorator: AOPDecoratorMetadata = {
+      const decorator: AOPDecoratorMetadataWithOrder = {
         type: AOP_TYPES.AFTER_RETURNING,
         options: {},
         order: 0,
@@ -347,7 +347,7 @@ describe('DecoratorApplier', () => {
       };
       const instance = {};
       const originalMethod = jest.fn();
-      const decorator: AOPDecoratorMetadata = {
+      const decorator: AOPDecoratorMetadataWithOrder = {
         type: AOP_TYPES.AFTER_THROWING,
         options: {},
         order: 0,
@@ -379,7 +379,7 @@ describe('DecoratorApplier', () => {
       const descriptor = { value: jest.fn(), configurable: true };
       const instance = {};
       const originalMethod = jest.fn();
-      const decorator: AOPDecoratorMetadata = {
+      const decorator: AOPDecoratorMetadataWithOrder = {
         type: AOP_TYPES.AROUND,
         options: {},
         order: 0,

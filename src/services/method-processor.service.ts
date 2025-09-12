@@ -96,24 +96,10 @@ export class MethodProcessor {
       return undefined;
     }
 
-    const decoratorsWithOrder = decorators
-      .map(decorator => {
-        const order = this.getAspectOrderDecorator(decorator);
-        if (order === undefined || order.length === 0) {
-          // If no order metadata, it would be treated as error case
-          // because default value provided in aspect decorator.
-          return;
-        }
-
-        if (typeof order !== 'number' && typeof order[0]?.order !== 'number') {
-          throw new AOPError(
-            `Invalid order value for decorator on method ${methodName}. Order must be a number.`,
-          );
-        }
-
-        return { ...decorator, order };
-      })
-      .filter(Boolean);
+    const decoratorsWithOrder = decorators.map(decorator => {
+      const order = this.getAspectOrderDecorator(decorator);
+      return { ...decorator, order };
+    });
     return decoratorsWithOrder;
   }
 
@@ -124,7 +110,10 @@ export class MethodProcessor {
    * @param methodName - The name of the method to check
    * @returns Array of decorator metadata if found, `undefined` otherwise
    */
-  private getAspectDecorator(metatype: any, methodName: string): any[] | undefined {
+  private getAspectDecorator(
+    metatype: any,
+    methodName: string,
+  ): AOPDecoratorMetadata[] | undefined {
     return Reflect.getMetadata(AOP_METADATA_KEY, metatype, methodName);
   }
 
@@ -133,8 +122,22 @@ export class MethodProcessor {
    *
    * @param decorator - The decorator metadata
    * @returns The order number for the decorator
+   * @throws AOPError if order metadata is not found
    */
-  private getAspectOrderDecorator(decorator: AOPDecoratorMetadata): any[] | undefined {
-    return Reflect.getMetadata(AOP_ORDER_METADATA_KEY, decorator.decoratorClass);
+  private getAspectOrderDecorator(decorator: AOPDecoratorMetadata): number {
+    const order = Reflect.getMetadata(AOP_ORDER_METADATA_KEY, decorator.decoratorClass);
+    if (order === undefined) {
+      throw new AOPError(
+        `Order metadata not found for decorator ${decorator.decoratorClass.name}. ` +
+          `This should not happen as Aspect decorator provides default order.`,
+      );
+    }
+    if (typeof order !== 'number') {
+      throw new AOPError(
+        `Order metadata for decorator ${decorator.decoratorClass.name} is not a number. ` +
+          `Expected number, but got ${typeof order}: ${order}`,
+      );
+    }
+    return order;
   }
 }

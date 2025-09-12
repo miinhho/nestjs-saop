@@ -39,7 +39,6 @@ export type AOPOptions = {
  *
  * @property `type` - The type of AOP decorator (e.g., around, before, after)
  * @property `options` - Configuration options passed to the decorator
- * @property `order` - The order in which this decorator should be applied
  * @property `decoratorClass` - Decorator class
  *
  * @internal
@@ -49,11 +48,30 @@ export type AOPDecoratorMetadata = {
   type: AOPType;
   /** Decorator options */
   options: AOPOptions;
-  /** Order of execution */
+  /** Decorator class */
+  decoratorClass: AOPDecoratorConstructor & IAOPDecorator;
+};
+
+/**
+ * Metadata for ordering AOP decorators.
+ *
+ * @property `order` - The order in which this decorator should be applied
+ * @property `decoratorClass` - Decorator class
+ *
+ * @internal
+ */
+export type AOPOrderDecoratorMetadata = {
+  /** Decorator order */
   order: number;
   /** Decorator class */
   decoratorClass: AOPDecoratorConstructor & IAOPDecorator;
 };
+
+/**
+ * Combined metadata for AOP decorators including order information.
+ * @internal
+ */
+export type AOPDecoratorMetadataWithOrder = AOPDecoratorMetadata & AOPOrderDecoratorMetadata;
 
 /**
  * Context information when applying AOP decorators to methods.
@@ -86,5 +104,5 @@ export type AOPMethodWithDecorators = {
   /** Method name */
   methodName: string;
   /** Array of decorator metadata */
-  decorators: AOPDecoratorMetadata[];
+  decorators: AOPDecoratorMetadataWithOrder[];
 };

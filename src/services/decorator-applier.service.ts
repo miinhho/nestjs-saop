@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   AOP_TYPES,
   AOPDecoratorMetadata,
+  AOPDecoratorMetadataWithOrder,
   type AOPDecoratorContext,
   type IAOPDecorator,
 } from '../interfaces';
@@ -38,7 +39,7 @@ export class DecoratorApplier {
   }: {
     instance: any;
     methodName: string;
-    decorators: AOPDecoratorMetadata[];
+    decorators: AOPDecoratorMetadataWithOrder[];
     aopDecorators: IAOPDecorator[];
     originalMethod: Function;
   }) {

@@ -18,11 +18,11 @@ describe('Aspect', () => {
     expect(metadata).toBe(order);
   });
 
-  it('should default AOP_ORDER_METADATA_KEY to 0 if not specified', () => {
+  it('should default AOP_ORDER_METADATA_KEY to Number.MAX_SAFE_INTEGER if not specified', () => {
     @Aspect()
     class TestAspectDefaultOrder {}
 
     const metadata = Reflect.getMetadata(AOP_ORDER_METADATA_KEY, TestAspectDefaultOrder);
-    expect(metadata).toBe(0);
+    expect(metadata).toBe(Number.MAX_SAFE_INTEGER);
   });
 });

@@ -22,12 +22,12 @@ export const AOP_ORDER_METADATA_KEY = Symbol('saop:order');
 /**
  * Options for the ＠Aspect decorator
  *
- * @property `order` - The order in which this aspect should be applied. Lower values execute first.
+ * @property `order` - The order in which this aspect should be applied. Lower values execute first. Default is Number.MAX_SAFE_INTEGER.
  */
 export type AspectOptions = {
   /**
    * The order in which this aspect should be applied.
-   * Lower values execute first.
+   * Lower values execute first. Default is Number.MAX_SAFE_INTEGER.
    */
   order?: number;
 };
@@ -50,7 +50,7 @@ export type AspectOptions = {
  * }
  * ```
  */
-export const Aspect = ({ order = 0 }: AspectOptions = {}): ClassDecorator =>
+export const Aspect = ({ order = Number.MAX_SAFE_INTEGER }: AspectOptions = {}): ClassDecorator =>
   applyDecorators(
     SetMetadata(AOP_CLASS_METADATA_KEY, true),
     SetMetadata(AOP_ORDER_METADATA_KEY, order),
