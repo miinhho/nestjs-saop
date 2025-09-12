@@ -3,6 +3,7 @@
 ## Classes
 
 - [AOPDecorator](classes/AOPDecorator.md)
+- [AOPError](classes/AOPError.md)
 - [AOPModule](classes/AOPModule.md)
 
 ## Interfaces
