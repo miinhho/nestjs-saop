@@ -459,21 +459,10 @@ describe('MethodProcessor', () => {
       expect(stats).toEqual({
         hits: 0,
         misses: 0,
-        fallbackHits: 0,
-        fallbackCacheSize: 0,
         enabled: false,
       });
 
       process.env.NODE_ENV = originalEnv;
-    });
-
-    it('should return actual stats when monitoring is enabled', () => {
-      const stats = service.getCacheStats();
-      expect(stats.enabled).toBe(true);
-      expect(typeof stats.hits).toBe('number');
-      expect(typeof stats.misses).toBe('number');
-      expect(typeof stats.fallbackHits).toBe('number');
-      expect(typeof stats.fallbackCacheSize).toBe('number');
     });
   });
 

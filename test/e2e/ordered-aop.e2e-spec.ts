@@ -3,7 +3,14 @@ import { Controller, Get, Injectable, Module } from '@nestjs/common';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
-import { AOPDecorator, AOPModule, Aspect, ErrorAOPContext, ResultAOPContext } from '../../src';
+import {
+  AOPDecorator,
+  AOPModule,
+  AroundAOPContext,
+  Aspect,
+  ErrorAOPContext,
+  ResultAOPContext,
+} from '../../src';
 
 class AOPTracker {
   static executionOrder: string[] = [];
@@ -87,13 +94,13 @@ class ComplexAOP extends AOPDecorator {
 
 @Aspect({ order: 2 })
 class AsyncAOP extends AOPDecorator {
-  around({ method }: { method: any }) {
+  around({ proceed }: AroundAOPContext) {
     return (...args: any[]) => {
       AOPTracker.executionOrder.push('Async-Around-Before');
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           try {
-            const result = method(...args);
+            const result = proceed(...args);
             AOPTracker.executionOrder.push('Async-Around-After');
             resolve(result);
           } catch (error) {
@@ -111,41 +118,41 @@ class TestService {
   @FirstAOP.before()
   @SecondAOP.before()
   @ThirdAOP.before()
-  getOrdered(): string {
+  getOrdered() {
     AOPTracker.executionOrder.push('Method-Execution');
     return 'ordered-result';
   }
 
   @NegativeOrderAOP.before()
   @FirstAOP.before()
-  getNegativeOrder(): string {
+  getNegativeOrder() {
     AOPTracker.executionOrder.push('Negative-Method');
     return 'negative-result';
   }
 
   @HighOrderAOP.before()
   @FirstAOP.before()
-  getHighOrder(): string {
+  getHighOrder() {
     AOPTracker.executionOrder.push('High-Method');
     return 'high-result';
   }
 
   @ComplexAOP.before()
   @ComplexAOP.afterReturning()
-  getComplex(): string {
+  getComplex() {
     AOPTracker.executionOrder.push('Complex-Method');
     return 'complex-result';
   }
 
   @ComplexAOP.before()
   @ComplexAOP.afterThrowing()
-  throwError(): never {
+  throwError() {
     AOPTracker.executionOrder.push('Error-Method');
     throw new Error('test-error');
   }
 
   @AsyncAOP.around()
-  async getAsync(): Promise<string> {
+  async getAsync() {
     AOPTracker.executionOrder.push('Async-Method');
     return 'async-result';
   }
@@ -156,38 +163,39 @@ class TestController {
   constructor(private readonly testService: TestService) {}
 
   @Get('/ordered')
-  getOrdered(): string {
+  getOrdered() {
     return this.testService.getOrdered();
   }
 
   @Get('/negative-order')
-  getNegativeOrder(): string {
+  getNegativeOrder() {
     return this.testService.getNegativeOrder();
   }
 
   @Get('/high-order')
-  getHighOrder(): string {
+  getHighOrder() {
     return this.testService.getHighOrder();
   }
 
   @Get('/complex')
-  getComplex(): string {
+  getComplex() {
     return this.testService.getComplex();
   }
 
   @Get('/error')
-  getError(): string {
+  getError() {
     return this.testService.throwError();
   }
 
   @Get('/async')
-  async getAsync(): Promise<string> {
+  async getAsync() {
     return await this.testService.getAsync();
   }
 }
 
 @Module({
-  imports: [AOPModule.forRoot()],
+  // To make test faster, we use default AOPModule without forRoot
+  imports: [AOPModule],
   controllers: [TestController],
   providers: [
     TestService,

@@ -288,14 +288,11 @@ export class DecoratorApplier {
             methodName,
           });
           if (targetDecorator?.afterReturning) {
-            const adviceFunction = targetDecorator.afterReturning({
+            targetDecorator.afterReturning({
               method: originalMethod,
               options: decorator.options,
               result,
-            });
-            if (typeof adviceFunction === 'function') {
-              adviceFunction(...args);
-            }
+            })(...args);
           }
         }
 
@@ -309,14 +306,11 @@ export class DecoratorApplier {
             methodName,
           });
           if (targetDecorator?.afterThrowing) {
-            const adviceFunction = targetDecorator.afterThrowing({
+            targetDecorator.afterThrowing({
               method: originalMethod,
               options: decorator.options,
               error,
-            });
-            if (typeof adviceFunction === 'function') {
-              adviceFunction(...args);
-            }
+            })(...args);
           }
         }
         throw error;
