@@ -49,89 +49,6 @@ describe('MethodProcessor - Cache Functionality', () => {
       expect(result2).toEqual(result1);
       expect(result2).toBe(result1);
     });
-
-    it('should update lastAccessed timestamp on cache hit', () => {
-      class TestClass {
-        method1() {}
-      }
-
-      const wrapper = {
-        instance: new TestClass(),
-        metatype: TestClass,
-      };
-
-      const originalDateNow = Date.now;
-      let mockTime = 1000;
-      Date.now = jest.fn(() => mockTime);
-
-      jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
-
-      try {
-        service.processInstanceMethods(wrapper);
-        const cache = (service as any).classCache;
-        const cached = cache.get(TestClass);
-        expect(cached.lastAccessed).toBe(1000);
-
-        mockTime = 2000;
-        service.processInstanceMethods(wrapper);
-        const cachedAfter = cache.get(TestClass);
-        expect(cachedAfter.lastAccessed).toBe(2000);
-      } finally {
-        Date.now = originalDateNow;
-      }
-    });
-  });
-
-  describe('Fallback cache', () => {
-    it('should use fallback cache when primary cache misses and promote to primary', () => {
-      class TestClass1 {
-        method1() {}
-      }
-      class TestClass2 {
-        method1() {}
-      }
-
-      Object.defineProperty(TestClass2, 'name', { value: 'TestClass1' });
-
-      const wrapper1 = { instance: new TestClass1(), metatype: TestClass1 };
-      const wrapper2 = { instance: new TestClass2(), metatype: TestClass2 };
-
-      jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
-
-      // First call with TestClass1 - populates both caches
-      service.processInstanceMethods(wrapper1);
-      const stats1 = service.getCacheStats();
-      expect(stats1.misses).toBe(1);
-      expect(stats1.fallbackHits).toBe(0);
-
-      // Second call with TestClass2 (same name) - should hit fallback cache
-      service.processInstanceMethods(wrapper2);
-      const stats2 = service.getCacheStats();
-      expect(stats2.misses).toBe(1);
-      expect(stats2.fallbackHits).toBe(1);
-
-      // Third call with TestClass2 - should hit primary cache now
-      service.processInstanceMethods(wrapper2);
-      const stats3 = service.getCacheStats();
-      expect(stats3.hits).toBe(1);
-      expect(stats3.fallbackHits).toBe(1);
-    });
-
-    it('should handle classes with no name gracefully', () => {
-      const TestClass = class {};
-      Object.defineProperty(TestClass, 'name', { value: '' });
-
-      const wrapper = { instance: new TestClass(), metatype: TestClass };
-
-      jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
-
-      // Should not throw and should use 'unknown' as fallback key
-      const result = service.processInstanceMethods(wrapper);
-      expect(result).toEqual([]);
-
-      const stats = service.getCacheStats();
-      expect(stats.misses).toBe(1);
-    });
   });
 
   describe('Cache invalidation', () => {
@@ -150,15 +67,12 @@ describe('MethodProcessor - Cache Functionality', () => {
       let stats = service.getCacheStats();
       expect(stats.misses).toBe(1);
       expect(stats.hits).toBe(1);
-      expect(stats.fallbackCacheSize).toBe(1);
 
       service.clearCaches();
 
       stats = service.getCacheStats();
       expect(stats.misses).toBe(0);
       expect(stats.hits).toBe(0);
-      expect(stats.fallbackHits).toBe(0);
-      expect(stats.fallbackCacheSize).toBe(0);
 
       // Next call should be a miss again
       service.processInstanceMethods(wrapper);
@@ -198,32 +112,6 @@ describe('MethodProcessor - Cache Functionality', () => {
       stats = service.getCacheStats();
       expect(stats.misses).toBe(3); // 2 initial + 1 after invalidation
       expect(stats.hits).toBe(3); // 2 before + 1 TestClass2 hit
-    });
-
-    it('should remove from both primary and fallback caches on invalidation', () => {
-      class TestClass {
-        method1() {}
-      }
-
-      const wrapper = { instance: new TestClass(), metatype: TestClass };
-      jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
-
-      // Populate caches
-      service.processInstanceMethods(wrapper);
-
-      // Verify cache populated
-      expect(service.getCacheStats().fallbackCacheSize).toBe(1);
-
-      // Invalidate
-      service.invalidateClassCache(TestClass);
-
-      // Verify fallback cache cleared
-      expect(service.getCacheStats().fallbackCacheSize).toBe(0);
-
-      // Next call should miss both caches
-      service.processInstanceMethods(wrapper);
-      const stats = service.getCacheStats();
-      expect(stats.misses).toBe(2);
     });
   });
 
@@ -489,7 +377,6 @@ describe('MethodProcessor - Cache Functionality', () => {
       let stats = service.getCacheStats();
       expect(stats.misses).toBe(3);
       expect(stats.hits).toBe(0);
-      expect(stats.fallbackCacheSize).toBe(3);
 
       // Second round - all hits
       wrappers.forEach(wrapper => service.processInstanceMethods(wrapper));

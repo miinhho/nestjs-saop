@@ -16,39 +16,25 @@ class AOPTracker {
   static beforeCount = 0;
   static afterReturningCount = 0;
   static afterThrowingCount = 0;
-  static lastMethodName = '';
   static lastArgs: any[] = [];
   static lastResult: any = null;
   static lastError: any = null;
-  static lastOptions: any = null;
   static lastBeforeOptions: any = null;
   static lastAfterReturningOptions: any = null;
   static lastAfterThrowingOptions: any = null;
   static allBeforeOptions: any[] = [];
-  static allAfterReturningOptions: any[] = [];
-  static allAfterThrowingOptions: any[] = [];
-  static executionLog: string[] = [];
 
   static reset() {
     this.beforeCount = 0;
     this.afterReturningCount = 0;
     this.afterThrowingCount = 0;
-    this.lastMethodName = '';
     this.lastArgs = [];
     this.lastResult = null;
     this.lastError = null;
-    this.lastOptions = null;
     this.lastBeforeOptions = null;
     this.lastAfterReturningOptions = null;
     this.lastAfterThrowingOptions = null;
     this.allBeforeOptions = [];
-    this.allAfterReturningOptions = [];
-    this.allAfterThrowingOptions = [];
-    this.executionLog = [];
-  }
-
-  static log(message: string) {
-    this.executionLog.push(message);
   }
 }
 
@@ -58,40 +44,28 @@ type ExampleOptions = {
 
 @Aspect()
 class TestableAOP extends AOPDecorator<ExampleOptions> {
-  before({ method, options }: UnitAOPContext<ExampleOptions>) {
+  before({ options }: UnitAOPContext<ExampleOptions>) {
     return (...args: any[]) => {
       AOPTracker.beforeCount++;
-      AOPTracker.lastMethodName = method.name;
       AOPTracker.lastArgs = args;
       AOPTracker.lastBeforeOptions = options;
       AOPTracker.allBeforeOptions.push(options);
-      AOPTracker.log(`BEFORE: ${method.name} with options: ${JSON.stringify(options)}`);
     };
   }
 
-  afterReturning({ method, result, options }: ResultAOPContext<ExampleOptions>) {
-    return (...args: any[]) => {
+  afterReturning({ result, options }: ResultAOPContext<ExampleOptions>) {
+    return () => {
       AOPTracker.afterReturningCount++;
-      AOPTracker.lastMethodName = method.name;
       AOPTracker.lastResult = result;
       AOPTracker.lastAfterReturningOptions = options;
-      AOPTracker.allAfterReturningOptions.push(options);
-      AOPTracker.log(
-        `AFTER_RETURNING: ${method.name} with result: ${result} and options: ${JSON.stringify(options)}`,
-      );
     };
   }
 
-  afterThrowing({ method, error, options }: ErrorAOPContext<ExampleOptions>) {
-    return (...args: any[]) => {
+  afterThrowing({ error, options }: ErrorAOPContext<ExampleOptions>) {
+    return () => {
       AOPTracker.afterThrowingCount++;
-      AOPTracker.lastMethodName = method.name;
       AOPTracker.lastError = error;
       AOPTracker.lastAfterThrowingOptions = options;
-      AOPTracker.allAfterThrowingOptions.push(options);
-      AOPTracker.log(
-        `AFTER_THROWING: ${method.name} with error: ${(error as Error).message} and options: ${JSON.stringify(options)}`,
-      );
     };
   }
 }
@@ -102,9 +76,7 @@ class NoOrderAOP extends AOPDecorator {
   before({ method }: UnitAOPContext) {
     return (...args: any[]) => {
       AOPTracker.beforeCount++;
-      AOPTracker.lastMethodName = method.name;
       AOPTracker.lastArgs = args;
-      AOPTracker.log(`NO_ORDER_BEFORE: ${method.name}`);
       // For NoOrderAOP, we'll simulate setting the result
       if (method.name === 'getNoOrder') {
         AOPTracker.lastResult = 'No order test';
@@ -119,19 +91,19 @@ class TestService {
     helloPrefix: 'Hello',
   })
   @TestableAOP.afterReturning()
-  getHello(name: string): string {
+  getHello(name: string) {
     return `Hello ${name}!`;
   }
 
   @TestableAOP.before()
   @TestableAOP.afterThrowing()
-  getError(): string {
+  getError() {
     throw new Error('This is a test error');
   }
 
   @TestableAOP.before()
   @TestableAOP.afterReturning()
-  getData(): { message: string; timestamp: number } {
+  getData() {
     return {
       message: 'Test data',
       timestamp: Date.now(),
@@ -142,7 +114,7 @@ class TestService {
   @TestableAOP.afterReturning({
     helloPrefix: 'AfterReturning',
   })
-  getDataWithOptions(): { message: string; timestamp: number } {
+  getDataWithOptions() {
     return {
       message: 'Test data with options',
       timestamp: Date.now(),
@@ -153,7 +125,7 @@ class TestService {
   @TestableAOP.afterThrowing({
     helloPrefix: 'AfterThrowing',
   })
-  getErrorWithOptions(): string {
+  getErrorWithOptions() {
     throw new Error('This is a test error with options');
   }
 
@@ -166,19 +138,19 @@ class TestService {
   @TestableAOP.afterReturning({
     helloPrefix: 'AfterReturning',
   })
-  getMultipleDecorators(): string {
+  getMultipleDecorators() {
     return 'Multiple decorators test';
   }
 
   @NoOrderAOP.before()
-  getNoOrder(): string {
+  getNoOrder() {
     return 'No order test';
   }
 
   @TestableAOP.before({
     helloPrefix: 'Custom',
   })
-  getWithCustomOptions(): string {
+  getWithCustomOptions() {
     return 'Custom options test';
   }
 }
@@ -188,48 +160,49 @@ class TestController {
   constructor(private readonly testService: TestService) {}
 
   @Get()
-  getHello(): string {
+  getHello() {
     return this.testService.getHello('World');
   }
 
   @Get('error')
-  getError(): string {
+  getError() {
     return this.testService.getError();
   }
 
   @Get('data')
-  getData(): { message: string; timestamp: number } {
+  getData() {
     return this.testService.getData();
   }
 
   @Get('data-with-options')
-  getDataWithOptions(): { message: string; timestamp: number } {
+  getDataWithOptions() {
     return this.testService.getDataWithOptions();
   }
 
   @Get('error-with-options')
-  getErrorWithOptions(): string {
+  getErrorWithOptions() {
     return this.testService.getErrorWithOptions();
   }
 
   @Get('multiple-decorators')
-  getMultipleDecorators(): string {
+  getMultipleDecorators() {
     return this.testService.getMultipleDecorators();
   }
 
   @Get('no-order')
-  getNoOrder(): string {
+  getNoOrder() {
     return this.testService.getNoOrder();
   }
 
   @Get('custom-options')
-  getWithCustomOptions(): string {
+  getWithCustomOptions() {
     return this.testService.getWithCustomOptions();
   }
 }
 
 @Module({
-  imports: [AOPModule.forRoot()],
+  // To make test faster, we use default AOPModule without forRoot
+  imports: [AOPModule],
   controllers: [TestController],
   providers: [TestService, TestableAOP, NoOrderAOP],
 })
