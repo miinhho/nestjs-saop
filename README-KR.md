@@ -504,6 +504,16 @@ export class ComplexService {
 }
 ```
 
+#### Importing AOPModule 
+
+`AOPModule.forRoot` 는 `AOPModule` 을 전역 모듈로 설정합니다. 하지만 필요에 따라 특정 모듈에서만 `AOPModule` 를 등록할 수도 있습니다.
+```ts
+@Module({
+  imports: [AOPModule],
+})
+export class SpecificModule {}
+```
+
 ### Testing AOP Decorators
 
 NestJS의 TestingModule을 사용하여 테스트할 때, AOP 시스템이 올바르게 초기화되도록 `init()` 메서드를 호출해야 합니다.
