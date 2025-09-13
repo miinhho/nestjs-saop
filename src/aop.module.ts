@@ -10,6 +10,7 @@ import { logger } from './utils';
  * It automatically discovers AOP decorators and applies them to target methods at runtime.
  */
 @Module({
+  imports: [DiscoveryModule],
   providers: [InstanceCollector, MethodProcessor, DecoratorApplier],
 })
 export class AOPModule implements OnModuleInit {
@@ -29,7 +30,6 @@ export class AOPModule implements OnModuleInit {
   static forRoot(): DynamicModule {
     return {
       module: AOPModule,
-      imports: [DiscoveryModule],
       global: true,
     };
   }

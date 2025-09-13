@@ -1,4 +1,3 @@
-import { DiscoveryModule } from '@nestjs/core';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { AOPModule } from './aop.module';
@@ -49,7 +48,6 @@ describe('AOPModule', () => {
 
       expect(dynamicModule).toEqual({
         module: AOPModule,
-        imports: [DiscoveryModule],
         global: true,
       });
     });
