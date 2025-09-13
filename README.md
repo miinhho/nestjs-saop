@@ -490,6 +490,7 @@ ErrorAOPContext<Options, ErrorType> = {
 ```
 
 #### Multiple Decorators on Single Method
+
 ```ts
 @Injectable()
 export class ComplexService {
@@ -506,6 +507,16 @@ export class ComplexService {
     return await this.processComplexData(data);
   }
 }
+```
+
+#### Importing AOPModule
+
+The `AOPModule.forRoot` method configures the `AOPModule` as a global module. However, you can also import the `AOPModule` into specific modules if needed.
+```ts
+@Module({
+  imports: [AOPModule],
+})
+export class SpecificModule {}
 ```
 
 ### Testing AOP Decorators
