@@ -5,9 +5,11 @@
 ![Github Workflow](https://github.com/miinhho/nestjs-saop/actions/workflows/ci.yml/badge.svg?branch=main)
 [![package license](https://img.shields.io/npm/l/nestjs-saop.svg)](https://www.npmjs.com/package/nestjs-saop)
 
-Nest.js 에서의 Spring 스타일의 AOP (Aspect Oriented Programming)
+[English](https://github.com/miinhho/nestjs-saop/blob/main/README-KR.md) | 한국어
 
-## 특징
+Nest.js 에서의 Spring 스타일 AOP (Aspect Oriented Programming)
+
+## Features
 
 - ✅ **완벽한 AOP Advice Type 지원**: Spring 스타일의 5가지 AOP 어드바이스 타입 모두 지원
   - **Around**: 메서드 실행 전, 중, 후에 완벽한 제어
@@ -34,7 +36,7 @@ Nest.js 에서의 Spring 스타일의 AOP (Aspect Oriented Programming)
   - 선택적 실행 순서 제어가 가능한 AOP 클래스 `@Aspect({ order?: number })` 데코레이터
   - 손쉬운 적용을 위한 정적 메서드 데코레이터
 
-## 설치
+## Installation
 
 ```bash
 npm install nestjs-saop
@@ -245,7 +247,7 @@ export class UserService {
 }
 ```
 
-#### Before 어드바이스
+#### Before
 **사용 사례**: 메서드 호출 로그 기록, 검증, 인증 검사 등
 
 ```ts
@@ -268,7 +270,7 @@ export class PaymentService {
 }
 ```
 
-#### After 어드바이스
+#### After
 **사용 사례**: 자원 정리, 리소스 관리 등 메서드 실행 성공 여부와 관계없이 실행이 필요할 때
 
 ```ts
@@ -297,7 +299,7 @@ export class FileService {
 }
 ```
 
-#### AfterReturning 어드바이스
+#### AfterReturning
 **사용 사례**: 성공적으로 완료된 결과 후 처리, 응답 형식 변환, 메트릭 수집 등
 
 ```ts
@@ -328,7 +330,7 @@ export class ApiService {
 }
 ```
 
-#### AfterThrowing 어드바이스
+#### AfterThrowing
 **사용 사례**: 에러 로그 기록, 에러 복구, 대체 동작 구현 등.
 
 ```ts
