@@ -1,4 +1,4 @@
-# nestjs-saop v0.3.2
+# nestjs-saop v0.3.3
 
 ## Classes
 

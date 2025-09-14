@@ -7,10 +7,10 @@ Provides the foundation for creating custom AOP decorators.
 ```typescript
 ＠Aspect()
 export class LoggingAOP extends AOPDecorator {
-  around({ method, options }: UnitAOPContext) {
+  around({ process, method, options }: AroundAOPContext) {
    return (...args: any[]) => {
-     console.log('Around: Before method call', ...args, options);
-     const result = method.apply(this, args);
+     console.log('Around: Before method call', ...args, options, method);
+     const result = proceed(...args);
      console.log('Around: After method call', result);
      return result;
    };
@@ -220,7 +220,7 @@ it succeeded or threw an exception.
 
 ##### this
 
-`AOPDecoratorConstructor`\<`Options`\> & [`AfterAOP`](../interfaces/AfterAOP.md)\<`Options`\>
+`AOPDecoratorConstructor`\<`Options`, `any`[]\> & [`AfterAOP`](../interfaces/AfterAOP.md)\<`Options`\>
 
 ##### options
 
@@ -268,7 +268,7 @@ and provides access to the return value for post-processing.
 
 ##### this
 
-`AOPDecoratorConstructor`\<`Options`\> & [`AfterReturningAOP`](../interfaces/AfterReturningAOP.md)\<`Options`, `any`\>
+`AOPDecoratorConstructor`\<`Options`, `any`[]\> & [`AfterReturningAOP`](../interfaces/AfterReturningAOP.md)\<`Options`, `any`\>
 
 ##### options
 
@@ -316,7 +316,7 @@ and provides access to the error for logging, recovery, or re-throwing.
 
 ##### this
 
-`AOPDecoratorConstructor`\<`Options`\> & [`AfterThrowingAOP`](../interfaces/AfterThrowingAOP.md)\<`Options`, `unknown`\>
+`AOPDecoratorConstructor`\<`Options`, `any`[]\> & [`AfterThrowingAOP`](../interfaces/AfterThrowingAOP.md)\<`Options`, `unknown`\>
 
 ##### options
 
@@ -364,7 +364,7 @@ parameters, conditionally execute the method, or return a different result.
 
 ##### this
 
-`AOPDecoratorConstructor`\<`Options`\> & [`AroundAOP`](../interfaces/AroundAOP.md)\<`Options`, `any`\>
+`AOPDecoratorConstructor`\<`Options`, `any`[]\> & [`AroundAOP`](../interfaces/AroundAOP.md)\<`Options`, `any`\>
 
 ##### options
 
@@ -411,7 +411,7 @@ The before advice executes before the method runs.
 
 ##### this
 
-`AOPDecoratorConstructor`\<`Options`\> & [`BeforeAOP`](../interfaces/BeforeAOP.md)\<`Options`\>
+`AOPDecoratorConstructor`\<`Options`, `any`[]\> & [`BeforeAOP`](../interfaces/BeforeAOP.md)\<`Options`\>
 
 ##### options
 
