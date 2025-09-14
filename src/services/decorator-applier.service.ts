@@ -127,7 +127,7 @@ export class DecoratorApplier {
     // so that lower order decorators are applied first (outermost in the chain).
     const sortedDecorators = decorators.sort((a, b) => a.order - b.order);
 
-    const decoratorsByType: Record<string, typeof sortedDecorators> = {};
+    const decoratorsByType: Record<string, AOPDecoratorMetadataWithOrder[]> = {};
     for (const decorator of sortedDecorators) {
       const type = decorator.type;
       if (!decoratorsByType[type]) {

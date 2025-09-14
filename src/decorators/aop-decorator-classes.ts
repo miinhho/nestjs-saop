@@ -32,10 +32,10 @@ export type AOPDecoratorConstructor<Options extends AOPOptions = AOPOptions> =
  * ```typescript
  * ＠Aspect()
  * export class LoggingAOP extends AOPDecorator {
- *   around({ method, options }: UnitAOPContext) {
+ *   around({ process, method, options }: AroundAOPContext) {
  *    return (...args: any[]) => {
- *      console.log('Around: Before method call', ...args, options);
- *      const result = method.apply(this, args);
+ *      console.log('Around: Before method call', ...args, options, method);
+ *      const result = proceed(...args);
  *      console.log('Around: After method call', result);
  *      return result;
  *    };
