@@ -4,8 +4,8 @@ permissions:
 
 on:
   push:
-    tags: 
-      - 'v*'
+    branches: 
+      - test/api-docs
 
 jobs:
   generate-api-docs:
@@ -39,3 +39,4 @@ jobs:
           commit_message: "chore(docs): update API documentation"
           branch: main
           file_pattern: "docs/api/**/*.md"
+          skip_dirty_check: true
