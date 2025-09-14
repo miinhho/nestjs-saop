@@ -22,8 +22,10 @@ import { addMetadata } from '../utils';
  *
  * @internal
  */
-export type AOPDecoratorConstructor<Options extends AOPOptions = AOPOptions> =
-  new () => AOPDecorator<Options>;
+export type AOPDecoratorConstructor<
+  Options extends AOPOptions = AOPOptions,
+  Args extends any[] = any[],
+> = new (...args: Args) => AOPDecorator<Options>;
 
 /**
  * Provides the foundation for creating custom AOP decorators.
