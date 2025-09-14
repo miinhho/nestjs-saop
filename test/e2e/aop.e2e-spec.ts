@@ -86,6 +86,28 @@ class NoOrderAOP extends AOPDecorator {
 }
 
 @Injectable()
+class CheckTypeErrorService {
+  emptyMethod() {
+    return 'This method does nothing';
+  }
+}
+
+// This AOP is to check if there are any type errors when injecting something into AOP classes
+@Aspect()
+class CheckTypeErrorAOP extends AOPDecorator {
+  constructor(private readonly typeErrorService: CheckTypeErrorService) {
+    super();
+  }
+
+  before({ method }: UnitAOPContext) {
+    return () => {
+      // Empty implementation
+      this.typeErrorService.emptyMethod();
+    };
+  }
+}
+
+@Injectable()
 class TestService {
   @TestableAOP.before({
     helloPrefix: 'Hello',
@@ -153,6 +175,11 @@ class TestService {
   getWithCustomOptions() {
     return 'Custom options test';
   }
+
+  @CheckTypeErrorAOP.before()
+  checkTypeError() {
+    return 'This method is to check type errors in AOP';
+  }
 }
 
 @Controller()
@@ -204,7 +231,7 @@ class TestController {
   // To make test faster, we use default AOPModule without forRoot
   imports: [AOPModule],
   controllers: [TestController],
-  providers: [TestService, TestableAOP, NoOrderAOP],
+  providers: [TestService, TestableAOP, NoOrderAOP, CheckTypeErrorAOP, CheckTypeErrorService],
 })
 class TestModule {}
 
