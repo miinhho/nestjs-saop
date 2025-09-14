@@ -7,3 +7,5 @@ coverage/
 **.json
 
 eslint.config.mjs
+
+node_modules/**/*
