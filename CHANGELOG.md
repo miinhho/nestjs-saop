@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.3] - 2025.09.14
+
+### What's Changed
+- modify JSDoc comments in `AOPDecorator`
+- fix type error in `AOPDecorator` DI 
+
+**Full Changelog**: https://github.com/miinhho/nestjs-saop/compare/v0.3.2...v0.3.3
+
 ## [0.3.2] - 2025.09.14
 
 ### What's Changed
