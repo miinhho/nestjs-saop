@@ -201,16 +201,6 @@ export class MethodProcessor {
   }
 
   /**
-   * Invalidates cache for a specific class.
-   * This is useful when metadata for a class changes at runtime.
-   *
-   * @param classConstructor - The class constructor to invalidate cache for
-   */
-  invalidateClassCache(classConstructor: Function): void {
-    this.classCache.delete(classConstructor);
-  }
-
-  /**
    * Gets cache statistics for monitoring and debugging.
    *
    * Returns empty stats if monitoring is disabled.

@@ -103,7 +103,7 @@ describe('MethodProcessor - Cache Functionality', () => {
       expect(stats.hits).toBe(2);
 
       // Invalidate only TestClass1
-      service.invalidateClassCache(TestClass1);
+      (service as any).classCache.delete(TestClass1);
 
       // TestClass1 should miss, TestClass2 should hit
       service.processInstanceMethods(wrapper1); // Miss
