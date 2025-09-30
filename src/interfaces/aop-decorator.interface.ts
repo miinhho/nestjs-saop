@@ -1,4 +1,4 @@
-import { AOPDecoratorConstructor } from 'src/decorators';
+import { AOPDecoratorConstructor } from '../decorators';
 import type {
   AfterAOP,
   AfterReturningAOP,
