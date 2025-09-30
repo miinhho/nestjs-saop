@@ -76,11 +76,11 @@ export class AOPModule implements OnModuleInit {
         return;
       }
 
-      const { methods, actualMetatype } = this.methodProcessor.processInstanceMethods(wrapper);
-      if (actualMetatype === null || methods.length === 0) return;
+      const { methods, metatype } = this.methodProcessor.processInstanceMethods(wrapper);
+      if (metatype === null || methods.length === 0) return;
 
       for (const { methodName, decorators } of methods) {
-        const prototype = actualMetatype.prototype;
+        const prototype = metatype.prototype;
         const originalMethod = prototype[methodName];
         this.processMethod({ wrapper, methodName, decorators, aopDecorators, originalMethod });
       }

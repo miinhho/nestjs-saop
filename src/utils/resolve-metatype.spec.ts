@@ -1,6 +1,6 @@
-import { resolveActualMetatype } from './resolve-actual-metatype';
+import { resolveMetatype } from './resolve-metatype';
 
-describe('resolveActualMetatype', () => {
+describe('resolveMetatype', () => {
   describe('regular class-based providers', () => {
     it('should return metatype for valid class constructor', () => {
       class TestClass {
@@ -12,7 +12,7 @@ describe('resolveActualMetatype', () => {
         instance: new TestClass(),
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBe(TestClass);
     });
 
@@ -22,7 +22,7 @@ describe('resolveActualMetatype', () => {
         instance: {},
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBeNull();
     });
 
@@ -35,7 +35,7 @@ describe('resolveActualMetatype', () => {
         instance: {},
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBeNull();
     });
 
@@ -45,7 +45,7 @@ describe('resolveActualMetatype', () => {
         instance: {},
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBeNull();
     });
   });
@@ -66,7 +66,7 @@ describe('resolveActualMetatype', () => {
         instance,
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBe(FactoryCreatedClass);
     });
 
@@ -85,7 +85,7 @@ describe('resolveActualMetatype', () => {
         instance,
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBe(DerivedClass);
     });
 
@@ -96,7 +96,7 @@ describe('resolveActualMetatype', () => {
         instance: plainObject,
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBeNull();
     });
 
@@ -107,14 +107,14 @@ describe('resolveActualMetatype', () => {
         instance: primitiveObject,
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBeNull();
     });
   });
 
   describe('edge cases', () => {
     it('should handle null wrapper', () => {
-      const result = resolveActualMetatype(null);
+      const result = resolveMetatype(null);
       expect(result).toBeNull();
     });
 
@@ -125,7 +125,7 @@ describe('resolveActualMetatype', () => {
         // no instance property
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBe(TestClass);
     });
 
@@ -136,7 +136,7 @@ describe('resolveActualMetatype', () => {
         instance: null,
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBe(TestClass);
     });
 
@@ -147,7 +147,7 @@ describe('resolveActualMetatype', () => {
         instance: plainObject,
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBeNull();
     });
 
@@ -158,7 +158,7 @@ describe('resolveActualMetatype', () => {
         instance: funcObject,
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBeNull();
     });
   });
@@ -186,7 +186,7 @@ describe('resolveActualMetatype', () => {
         scope: 'DEFAULT',
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBe(DatabaseService);
       expect(result?.name).toBe('DatabaseService');
     });
@@ -209,7 +209,7 @@ describe('resolveActualMetatype', () => {
         instance,
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBe(ApiClient);
     });
 
@@ -229,7 +229,7 @@ describe('resolveActualMetatype', () => {
         instance, // Instance of different class
       };
 
-      const result = resolveActualMetatype(wrapper);
+      const result = resolveMetatype(wrapper);
       expect(result).toBe(ValidClass); // Should prioritize metatype
     });
   });
