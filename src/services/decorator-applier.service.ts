@@ -141,6 +141,7 @@ export class DecoratorApplier {
       aopDecorators,
       originalMethod,
       methodName,
+      instance,
     });
 
     // Create a named function for better debugging and duplicate detection
@@ -192,6 +193,7 @@ export class DecoratorApplier {
    * @param params.aopDecorators - The list of available AOP decorator instances
    * @param params.originalMethod - The original method function
    * @param params.methodName - The name of the method being processed
+   * @param params.instance - The target instance
    *
    * @returns An object mapping each AOP type to its corresponding chain function
    */
@@ -200,8 +202,10 @@ export class DecoratorApplier {
     aopDecorators,
     originalMethod,
     methodName,
+    instance,
   }: {
     decoratorsByType: Record<string, AOPDecoratorMetadataWithOrder[]>;
+    instance: any;
   } & Omit<ChainCreationParams, 'decorators'>): ChainFunctions {
     // Create core execution method that includes Before/After advice around the original method
     const coreExecution = this.createCoreExecution({
@@ -209,6 +213,7 @@ export class DecoratorApplier {
       aopDecorators,
       originalMethod,
       methodName,
+      instance,
     });
 
     // If Around decorators exist, wrap the core execution
@@ -255,8 +260,10 @@ export class DecoratorApplier {
     aopDecorators,
     originalMethod,
     methodName,
+    instance,
   }: {
     decoratorsByType: Record<string, AOPDecoratorMetadataWithOrder[]>;
+    instance: any;
   } & Omit<ChainCreationParams, 'decorators'>): Function {
     const beforeDecorators = decoratorsByType[AOP_TYPES.BEFORE] ?? [];
     const afterDecorators = decoratorsByType[AOP_TYPES.AFTER] ?? [];
@@ -278,7 +285,7 @@ export class DecoratorApplier {
       let result: any;
       try {
         // Execute original method
-        result = originalMethod.apply(this, args);
+        result = originalMethod.apply(instance, args);
 
         // Execute AfterReturning advice
         for (const decorator of afterReturningDecorators) {

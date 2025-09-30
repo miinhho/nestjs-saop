@@ -76,11 +76,13 @@ export class AOPModule implements OnModuleInit {
         return;
       }
 
-      const methods = this.methodProcessor.processInstanceMethods(wrapper);
-      if (methods.length === 0) return;
+      const { methods, metatype } = this.methodProcessor.processInstanceMethods(wrapper);
+      if (metatype === null || methods.length === 0) return;
 
       for (const { methodName, decorators } of methods) {
-        this.processMethod({ wrapper, methodName, decorators, aopDecorators });
+        const prototype = metatype.prototype;
+        const originalMethod = prototype[methodName];
+        this.processMethod({ wrapper, methodName, decorators, aopDecorators, originalMethod });
       }
     } catch (error) {
       const wrapperName = wrapper?.name || 'unknown';
@@ -104,14 +106,13 @@ export class AOPModule implements OnModuleInit {
     methodName,
     decorators,
     aopDecorators,
+    originalMethod,
   }: {
     wrapper: any;
     aopDecorators: IAOPDecorator[];
+    originalMethod: Function;
   } & AOPMethodWithDecorators): void {
     try {
-      const prototype = wrapper.metatype?.prototype;
-      const originalMethod = prototype ? prototype[methodName] : undefined;
-
       this.decoratorApplier.applyDecorators({
         instance: wrapper.instance,
         methodName,
