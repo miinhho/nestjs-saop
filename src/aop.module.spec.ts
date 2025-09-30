@@ -6,6 +6,11 @@ import { DecoratorApplier } from './services/decorator-applier.service';
 import { InstanceCollector } from './services/instance-collector.service';
 import { MethodProcessor } from './services/method-processor.service';
 
+// Mock the resolveActualMetatype utility
+jest.mock('./utils/resolve-actual-metatype', () => ({
+  resolveActualMetatype: jest.fn(wrapper => wrapper.metatype),
+}));
+
 describe('AOPModule', () => {
   let module: TestingModule;
   let aopModule: AOPModule;
@@ -70,7 +75,7 @@ describe('AOPModule', () => {
       const mockInstances = [mockWrapper1, mockWrapper2];
 
       instanceCollector.collectAllInstances.mockReturnValue(mockInstances);
-      methodProcessor.processInstanceMethods.mockReturnValue([]);
+      methodProcessor.processInstanceMethods.mockReturnValue({ methods: [], actualMetatype: null });
       instanceCollector.collectAOPDecorators.mockReturnValue([]);
 
       (aopModule as any).initializeAOP();
@@ -92,7 +97,7 @@ describe('AOPModule', () => {
       class TestDecorator {
         testMethod() {}
       }
-      const mockWrapper = { instance: {}, metatype: class Test {} } as any;
+      const mockWrapper = { instance: {}, metatype: TestDecorator } as any;
       const mockMethods: AOPMethodWithDecorators[] = [
         {
           methodName: 'testMethod',
@@ -103,7 +108,10 @@ describe('AOPModule', () => {
       ];
       const mockAOPDecorators = [{ name: TestDecorator.name }] as any;
 
-      methodProcessor.processInstanceMethods.mockReturnValue(mockMethods);
+      methodProcessor.processInstanceMethods.mockReturnValue({
+        methods: mockMethods,
+        actualMetatype: TestDecorator,
+      });
       instanceCollector.collectAOPDecorators.mockReturnValue(mockAOPDecorators);
 
       (aopModule as any).processInstance(mockWrapper, mockAOPDecorators);
@@ -121,7 +129,7 @@ describe('AOPModule', () => {
     it('should return early if no methods found', () => {
       const mockWrapper = { instance: {}, metatype: class Test {} };
 
-      methodProcessor.processInstanceMethods.mockReturnValue([]);
+      methodProcessor.processInstanceMethods.mockReturnValue({ methods: [], actualMetatype: null });
 
       (aopModule as any).processInstance(mockWrapper, []);
 
@@ -156,7 +164,10 @@ describe('AOPModule', () => {
         { name: TestDecorator2.name },
       ] as any;
 
-      methodProcessor.processInstanceMethods.mockReturnValue(mockMethods);
+      methodProcessor.processInstanceMethods.mockReturnValue({
+        methods: mockMethods,
+        actualMetatype: TestDecorator,
+      });
       instanceCollector.collectAOPDecorators.mockReturnValue(mockAOPDecorators);
 
       (aopModule as any).processInstance(mockWrapper, mockAOPDecorators);
@@ -171,7 +182,7 @@ describe('AOPModule', () => {
     it('should handle wrapper without metatype', () => {
       const mockWrapper = { instance: {} };
 
-      methodProcessor.processInstanceMethods.mockReturnValue([]);
+      methodProcessor.processInstanceMethods.mockReturnValue({ methods: [], actualMetatype: null });
 
       (aopModule as any).processInstance(mockWrapper, []);
 
@@ -181,8 +192,10 @@ describe('AOPModule', () => {
 
   describe('processMethod', () => {
     it('should apply decorators to the method', () => {
-      class TestDecorator {}
-      const mockWrapper = { instance: {}, metatype: class Test {} } as any;
+      class TestDecorator {
+        testMethod() {}
+      }
+      const mockWrapper = { instance: {}, metatype: TestDecorator } as any;
       const mockDecorators: AOPDecoratorMetadataWithOrder[] = [
         { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 0 },
       ];
@@ -196,6 +209,7 @@ describe('AOPModule', () => {
         methodName: 'testMethod',
         decorators: mockDecorators,
         aopDecorators: mockAOPDecorators,
+        originalMethod,
       });
 
       expect(decoratorApplier.applyDecorators).toHaveBeenCalledWith({
@@ -232,8 +246,10 @@ describe('AOPModule', () => {
     });
 
     it('should handle empty decorators array', () => {
-      class TestDecorator {}
-      const mockWrapper = { instance: {}, metatype: class Test {} };
+      class TestDecorator {
+        testMethod() {}
+      }
+      const mockWrapper = { instance: {}, metatype: TestDecorator };
       const mockAOPDecorators = [{ name: TestDecorator.name }];
       const originalMethod = jest.fn();
 
@@ -244,6 +260,7 @@ describe('AOPModule', () => {
         methodName: 'testMethod',
         decorators: [],
         aopDecorators: mockAOPDecorators,
+        originalMethod,
       });
 
       expect(decoratorApplier.applyDecorators).toHaveBeenCalledWith({
@@ -259,7 +276,7 @@ describe('AOPModule', () => {
       class TestDecorator {
         testMethod() {}
       }
-      const mockWrapper = { instance: {}, metatype: class Test {} };
+      const mockWrapper = { instance: {}, metatype: TestDecorator };
       const mockDecorators: AOPDecoratorMetadataWithOrder[] = [
         { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 0 },
       ];
@@ -272,6 +289,7 @@ describe('AOPModule', () => {
         methodName: 'testMethod',
         decorators: mockDecorators,
         aopDecorators: null as any,
+        originalMethod,
       });
 
       expect(decoratorApplier.applyDecorators).toHaveBeenCalledWith({
@@ -290,7 +308,7 @@ describe('AOPModule', () => {
       class TestDecorator {
         [symbolMethod]() {}
       }
-      const mockWrapper = { instance: {}, metatype: class Test {} };
+      const mockWrapper = { instance: {}, metatype: TestDecorator };
       const mockDecorators: AOPDecoratorMetadataWithOrder[] = [
         { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 0 },
       ];
@@ -304,6 +322,7 @@ describe('AOPModule', () => {
         methodName: symbolMethod,
         decorators: mockDecorators,
         aopDecorators: mockAOPDecorators,
+        originalMethod,
       });
 
       expect(decoratorApplier.applyDecorators).toHaveBeenCalledWith({
@@ -346,7 +365,7 @@ describe('AOPModule', () => {
       })) as any;
 
       instanceCollector.collectAllInstances.mockReturnValue(mockInstances);
-      methodProcessor.processInstanceMethods.mockReturnValue([]);
+      methodProcessor.processInstanceMethods.mockReturnValue({ methods: [], actualMetatype: null });
       instanceCollector.collectAOPDecorators.mockReturnValue([]);
 
       (aopModule as any).initializeAOP();

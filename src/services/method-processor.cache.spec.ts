@@ -38,7 +38,8 @@ describe('MethodProcessor - Cache Functionality', () => {
 
       expect(stats1.misses).toBe(1);
       expect(stats1.hits).toBe(0);
-      expect(result1).toHaveLength(1);
+      expect(result1.methods).toHaveLength(1);
+      expect(result1.actualMetatype).toBe(TestClass);
 
       // Second call - should use cache
       const result2 = service.processInstanceMethods(wrapper);
@@ -216,11 +217,11 @@ describe('MethodProcessor - Cache Functionality', () => {
       const result4 = service.processInstanceMethods({ instance: null });
       const result5 = service.processInstanceMethods({ metatype: null });
 
-      expect(result1).toEqual([]);
-      expect(result2).toEqual([]);
-      expect(result3).toEqual([]);
-      expect(result4).toEqual([]);
-      expect(result5).toEqual([]);
+      expect(result1).toEqual({ methods: [], actualMetatype: null });
+      expect(result2).toEqual({ methods: [], actualMetatype: null });
+      expect(result3).toEqual({ methods: [], actualMetatype: null });
+      expect(result4).toEqual({ methods: [], actualMetatype: null });
+      expect(result5).toEqual({ methods: [], actualMetatype: null });
 
       // Should not affect cache statistics for invalid inputs
       const stats = service.getCacheStats();
@@ -240,7 +241,8 @@ describe('MethodProcessor - Cache Functionality', () => {
 
       // Should not include polluted methods and not crash
       const result = service.processInstanceMethods(wrapper);
-      expect(result).toEqual([]);
+      expect(result.methods).toEqual([]);
+      expect(result.actualMetatype).toBe(TestClass);
 
       // Should still cache safely
       const result2 = service.processInstanceMethods(wrapper);

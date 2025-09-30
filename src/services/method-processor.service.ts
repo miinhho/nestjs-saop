@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { AOP_ORDER_METADATA_KEY } from '../decorators';
 import { AOPError } from '../error';
 import type { AOPDecoratorMetadata, AOPMethodWithDecorators } from '../interfaces';
-import { AOP_METADATA_KEY } from '../utils';
+import { AOP_METADATA_KEY, resolveActualMetatype } from '../utils';
 
 interface MethodCache {
   methods: AOPMethodWithDecorators[];
+  actualMetatype: Function | null;
 }
 
 /**
@@ -37,41 +38,52 @@ export class MethodProcessor {
    *
    * @returns Array of methods with their associated AOP decorators
    */
-  processInstanceMethods(wrapper: any): AOPMethodWithDecorators[] {
-    if (!wrapper?.instance || !wrapper?.metatype) {
-      return [];
+  processInstanceMethods(wrapper: any): {
+    methods: AOPMethodWithDecorators[];
+    actualMetatype: Function | null;
+  } {
+    if (!wrapper?.instance) {
+      return { methods: [], actualMetatype: null };
     }
 
-    const metatype = wrapper.metatype;
-    const cached = this.classCache.get(metatype);
+    // For factory providers, use the instance's constructor instead of metatype
+    const actualMetatype = resolveActualMetatype(wrapper);
+    if (!actualMetatype) {
+      return { methods: [], actualMetatype: null };
+    }
+
+    const cached = this.classCache.get(actualMetatype);
     if (cached) {
       if (this.enableStats) this.cacheStats.hits++;
-      return cached.methods;
+      return cached;
     }
 
     // Cache miss: process methods
     if (this.enableStats) this.cacheStats.misses++;
-    const methods = this.processMethodsInternal(wrapper);
+    const methods = this.processMethodsInternal(actualMetatype);
 
-    this.classCache.set(metatype, {
+    const result = {
       methods,
-    });
+      actualMetatype,
+    };
 
-    return methods;
+    this.classCache.set(actualMetatype, result);
+
+    return result;
   }
 
   /**
    * Internal method processing logic (extracted for caching)
    */
-  private processMethodsInternal(wrapper: any): AOPMethodWithDecorators[] {
-    const prototype = this.getPrototype(wrapper.metatype);
+  private processMethodsInternal(actualMetatype: Function): AOPMethodWithDecorators[] {
+    const prototype = this.getPrototype(actualMetatype);
     if (!prototype) return [];
 
     const methodNames = this.getMethodNames(prototype);
     const methods: AOPMethodWithDecorators[] = [];
 
     for (const methodName of methodNames) {
-      const decorators = this.getDecorators(wrapper.metatype, methodName);
+      const decorators = this.getDecorators(actualMetatype, methodName);
       if (decorators && decorators.length > 0) {
         methods.push({ methodName, decorators });
       }

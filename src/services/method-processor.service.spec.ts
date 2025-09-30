@@ -51,7 +51,8 @@ describe('MethodProcessor', () => {
         },
       ];
 
-      expect(result).toEqual(expectMetadata);
+      expect(result.methods).toEqual(expectMetadata);
+      expect(result.actualMetatype).toBe(TestClass);
       expect(Reflect.getMetadata).toHaveBeenCalledWith(AOP_METADATA_KEY, TestClass, 'method1');
       expect(Reflect.getMetadata).toHaveBeenCalledWith(AOP_METADATA_KEY, TestClass, 'method2');
     });
@@ -70,7 +71,8 @@ describe('MethodProcessor', () => {
 
       const result = service.processInstanceMethods(wrapper);
 
-      expect(result).toEqual([]);
+      expect(result.methods).toEqual([]);
+      expect(result.actualMetatype).toBe(TestClass);
     });
 
     it('should handle invalid wrapper', () => {
@@ -78,7 +80,8 @@ describe('MethodProcessor', () => {
 
       const result = service.processInstanceMethods(wrapper);
 
-      expect(result).toEqual([]);
+      expect(result.methods).toEqual([]);
+      expect(result.actualMetatype).toBeNull();
     });
 
     it('should handle class with no prototype methods', () => {
@@ -91,7 +94,8 @@ describe('MethodProcessor', () => {
 
       const result = service.processInstanceMethods(wrapper);
 
-      expect(result).toEqual([]);
+      expect(result.methods).toEqual([]);
+      expect(result.actualMetatype).toBe(TestClass);
     });
 
     it('should skip constructor and non-function properties', () => {
@@ -119,8 +123,9 @@ describe('MethodProcessor', () => {
 
       const result = service.processInstanceMethods(wrapper);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]!.methodName).toBe('method1');
+      expect(result.methods).toHaveLength(1);
+      expect(result.methods[0]!.methodName).toBe('method1');
+      expect(result.actualMetatype).toBe(TestClass);
     });
   });
 
