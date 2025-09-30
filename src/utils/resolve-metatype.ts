@@ -5,6 +5,7 @@
  * @param wrapper - InstanceWrapper from NestJS discovery
  *
  * @returns The class constructor if found, null otherwise
+ * @internal
  */
 export function resolveMetatype(wrapper: any): Function | null {
   // Handle null or undefined wrapper
