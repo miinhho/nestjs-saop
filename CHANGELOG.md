@@ -1,12 +1,19 @@
 # Changelog
 
+## [0.3.5] - 2025.10.01
+
+### What's Changed
+* fix: useFactory provider support with AOP by @miinhho, @zeldigas in https://github.com/miinhho/nestjs-saop/pull/33
+
+**Full Changelog**: https://github.com/miinhho/nestjs-saop/compare/v0.3.4...v0.3.5
+
 ## [0.3.4] - 2025.09.30
 
-## What's Changed
+### What's Changed
 * feature: remove invalidateClassCache method by @miinhho in https://github.com/miinhho/nestjs-saop/pull/27
 * Fixed absolute import by @zeldigas in https://github.com/miinhho/nestjs-saop/pull/29
 
-## New Contributors
+### New Contributors
 * @zeldigas made their first contribution in https://github.com/miinhho/nestjs-saop/pull/29
 
 **Full Changelog**: https://github.com/miinhho/nestjs-saop/compare/v0.3.3...v0.3.4
