@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { AOP_ORDER_METADATA_KEY } from '../decorators';
 import { AOPError } from '../error';
 import type { AOPDecoratorMetadata, AOPMethodWithDecorators } from '../interfaces';
@@ -6,7 +7,7 @@ import { AOP_METADATA_KEY, resolveMetatype } from '../utils';
 
 interface MethodCache {
   methods: AOPMethodWithDecorators[];
-  metatype: Function | null;
+  metatype: InstanceWrapper['metatype'] | null;
 }
 
 /**
@@ -38,7 +39,7 @@ export class MethodProcessor {
    *
    * @returns Array of methods with their associated AOP decorators
    */
-  processInstanceMethods(wrapper: any): MethodCache {
+  processInstanceMethods(wrapper: InstanceWrapper): MethodCache {
     if (!wrapper?.instance) {
       return { methods: [], metatype: null };
     }
@@ -72,7 +73,7 @@ export class MethodProcessor {
   /**
    * Internal method processing logic (extracted for caching)
    */
-  private processMethodsInternal(metatype: Function): AOPMethodWithDecorators[] {
+  private processMethodsInternal(metatype: InstanceWrapper['metatype']): AOPMethodWithDecorators[] {
     const prototype = this.getPrototype(metatype);
     if (!prototype) return [];
 
@@ -96,13 +97,13 @@ export class MethodProcessor {
    *
    * @returns The class prototype if valid, `null` otherwise
    */
-  private getPrototype(metatype: any): object | null {
-    try {
-      const prototype = metatype.prototype;
-      return prototype && typeof prototype === 'object' ? prototype : null;
-    } catch (error) {
+  private getPrototype(metatype: InstanceWrapper['metatype']): object | null {
+    if (!metatype || !metatype.prototype) {
       return null;
     }
+
+    const prototype = metatype.prototype;
+    return typeof prototype === 'object' ? prototype : null;
   }
 
   /**
@@ -118,20 +119,16 @@ export class MethodProcessor {
       return [];
     }
 
-    try {
-      const propertyNames = Object.getOwnPropertyNames(prototype);
-      return propertyNames.filter(name => {
-        if (name === 'constructor') return false;
+    const propertyNames = Object.getOwnPropertyNames(prototype);
+    return propertyNames.filter(name => {
+      if (name === 'constructor') return false;
 
-        try {
-          return typeof prototype[name] === 'function';
-        } catch {
-          return false;
-        }
-      });
-    } catch {
-      return [];
-    }
+      try {
+        return typeof prototype[name] === 'function';
+      } catch {
+        return false;
+      }
+    });
   }
 
   /**
@@ -142,7 +139,10 @@ export class MethodProcessor {
    *
    * @returns Array of decorator metadata if found, `undefined` otherwise
    */
-  private getDecorators(metatype: any, methodName: string): any[] | undefined {
+  private getDecorators(
+    metatype: InstanceWrapper['metatype'],
+    methodName: string,
+  ): any[] | undefined {
     const decorators = this.getAspectDecorator(metatype, methodName);
     if (!decorators || decorators.length === 0) {
       return undefined;
@@ -165,9 +165,11 @@ export class MethodProcessor {
    * @returns Array of decorator metadata if found, `undefined` otherwise
    */
   private getAspectDecorator(
-    metatype: any,
+    metatype: InstanceWrapper['metatype'],
     methodName: string,
   ): AOPDecoratorMetadata[] | undefined {
+    if (!metatype) return undefined;
+
     return Reflect.getMetadata(AOP_METADATA_KEY, metatype, methodName);
   }
 

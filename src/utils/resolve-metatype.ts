@@ -1,3 +1,5 @@
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+
 /**
  * Resolves the class constructor from a wrapper, supporting both
  * regular class-based providers and factory-created instances.
@@ -7,7 +9,7 @@
  * @returns The class constructor if found, null otherwise
  * @internal
  */
-export function resolveMetatype(wrapper: any): Function | null {
+export function resolveMetatype(wrapper: InstanceWrapper): Function | null {
   // Handle null or undefined wrapper
   if (!wrapper) {
     return null;

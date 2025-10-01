@@ -1,5 +1,6 @@
 import { Module, type DynamicModule, type OnModuleInit } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import type { AOPMethodWithDecorators, IAOPDecorator } from './interfaces';
 import { DecoratorApplier, InstanceCollector, MethodProcessor } from './services';
 import { logger } from './utils';
@@ -69,7 +70,7 @@ export class AOPModule implements OnModuleInit {
    * @param wrapper - InstanceWrapper object containing the instance to process
    * @param aopDecorators - Pre-collected AOP decorator instances for better performance
    */
-  private processInstance(wrapper: any, aopDecorators: IAOPDecorator[]): void {
+  private processInstance(wrapper: InstanceWrapper, aopDecorators: IAOPDecorator[]): void {
     try {
       if (!wrapper) {
         logger.warn('Null or undefined wrapper provided, skipping');
@@ -108,7 +109,7 @@ export class AOPModule implements OnModuleInit {
     aopDecorators,
     originalMethod,
   }: {
-    wrapper: any;
+    wrapper: InstanceWrapper;
     aopDecorators: IAOPDecorator[];
     originalMethod: Function;
   } & AOPMethodWithDecorators): void {
