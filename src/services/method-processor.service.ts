@@ -98,7 +98,7 @@ export class MethodProcessor {
    * @returns The class prototype if valid, `null` otherwise
    */
   private getPrototype(metatype: InstanceWrapper['metatype']): object | null {
-    if (!metatype || !metatype.prototype) {
+    if (!metatype || typeof metatype !== 'function' || !metatype.prototype) {
       return null;
     }
 
@@ -168,6 +168,7 @@ export class MethodProcessor {
     metatype: InstanceWrapper['metatype'],
     methodName: string,
   ): AOPDecoratorMetadata[] | undefined {
+    // InstanceWrapper['metatype'] can be null, so we check here to avoid errors.
     if (!metatype) return undefined;
 
     return Reflect.getMetadata(AOP_METADATA_KEY, metatype, methodName);
