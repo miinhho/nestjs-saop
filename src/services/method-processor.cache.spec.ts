@@ -20,7 +20,7 @@ describe('MethodProcessor - Cache Functionality', () => {
       const wrapper = {
         instance: new TestClass(),
         metatype: TestClass,
-      };
+      } as any;
 
       jest.spyOn(Reflect, 'getMetadata').mockImplementation((key, target, propertyKey) => {
         if (key === AOP_METADATA_KEY && propertyKey === 'method1') {
@@ -58,7 +58,7 @@ describe('MethodProcessor - Cache Functionality', () => {
         method1() {}
       }
 
-      const wrapper = { instance: new TestClass(), metatype: TestClass };
+      const wrapper = { instance: new TestClass(), metatype: TestClass } as any;
       jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 
       // Populate caches
@@ -89,8 +89,8 @@ describe('MethodProcessor - Cache Functionality', () => {
         method1() {}
       }
 
-      const wrapper1 = { instance: new TestClass1(), metatype: TestClass1 };
-      const wrapper2 = { instance: new TestClass2(), metatype: TestClass2 };
+      const wrapper1 = { instance: new TestClass1(), metatype: TestClass1 } as any;
+      const wrapper2 = { instance: new TestClass2(), metatype: TestClass2 } as any;
 
       jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 
@@ -125,7 +125,7 @@ describe('MethodProcessor - Cache Functionality', () => {
       }
       class TestDecorator {}
 
-      const wrapper = { instance: new TestClass(), metatype: TestClass };
+      const wrapper = { instance: new TestClass(), metatype: TestClass } as any;
 
       // Mock complex metadata processing
       let processCallCount = 0;
@@ -169,7 +169,7 @@ describe('MethodProcessor - Cache Functionality', () => {
 
     it('should handle high-frequency cache operations efficiently', () => {
       const classes = [];
-      const wrappers = [];
+      const wrappers = [] as any[];
 
       for (let i = 0; i < 50; i++) {
         const TestClass = class {
@@ -211,11 +211,11 @@ describe('MethodProcessor - Cache Functionality', () => {
 
   describe('Edge cases', () => {
     it('should handle invalid wrapper gracefully', () => {
-      const result1 = service.processInstanceMethods(null);
-      const result2 = service.processInstanceMethods(undefined);
-      const result3 = service.processInstanceMethods({});
-      const result4 = service.processInstanceMethods({ instance: null });
-      const result5 = service.processInstanceMethods({ metatype: null });
+      const result1 = service.processInstanceMethods(null as any);
+      const result2 = service.processInstanceMethods(undefined as any);
+      const result3 = service.processInstanceMethods({} as any);
+      const result4 = service.processInstanceMethods({ instance: null } as any);
+      const result5 = service.processInstanceMethods({ metatype: null } as any);
 
       expect(result1).toEqual({ methods: [], metatype: null });
       expect(result2).toEqual({ methods: [], metatype: null });
@@ -236,7 +236,7 @@ describe('MethodProcessor - Cache Functionality', () => {
 
       (TestClass.prototype as any).__proto__ = { maliciousMethod: () => {} };
 
-      const wrapper = { instance: new TestClass(), metatype: TestClass };
+      const wrapper = { instance: new TestClass(), metatype: TestClass } as any;
       jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 
       // Should not include polluted methods and not crash
@@ -257,7 +257,7 @@ describe('MethodProcessor - Cache Functionality', () => {
         method1() {}
       }
 
-      const wrapper = { instance: new TestClass(), metatype: TestClass };
+      const wrapper = { instance: new TestClass(), metatype: TestClass } as any;
       jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 
       // Simulate concurrent access
@@ -287,7 +287,7 @@ describe('MethodProcessor - Cache Functionality', () => {
 
       const service1 = new MethodProcessor();
       const service2 = new MethodProcessor();
-      const wrapper = { instance: new TestClass(), metatype: TestClass };
+      const wrapper = { instance: new TestClass(), metatype: TestClass } as any;
 
       jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 
@@ -310,7 +310,7 @@ describe('MethodProcessor - Cache Functionality', () => {
         method1() {}
       }
 
-      const wrapper = { instance: new TestClass(), metatype: TestClass };
+      const wrapper = { instance: new TestClass(), metatype: TestClass } as any;
       jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 
       // First call - cache miss
@@ -336,7 +336,7 @@ describe('MethodProcessor - Cache Functionality', () => {
         method1() {}
       }
 
-      const wrapper = { instance: new TestClass(), metatype: TestClass };
+      const wrapper = { instance: new TestClass(), metatype: TestClass } as any;
       jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 
       // Initial state - no operations
@@ -370,7 +370,7 @@ describe('MethodProcessor - Cache Functionality', () => {
         { instance: new TestClass1(), metatype: TestClass1 },
         { instance: new TestClass2(), metatype: TestClass2 },
         { instance: new TestClass3(), metatype: TestClass3 },
-      ];
+      ] as any[];
 
       jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 

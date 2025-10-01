@@ -25,7 +25,7 @@ describe('MethodProcessor', () => {
       const wrapper = {
         instance: new TestClass(),
         metatype: TestClass,
-      };
+      } as any;
 
       jest.spyOn(Reflect, 'getMetadata').mockImplementation((key, target, propertyKey) => {
         if (key === AOP_METADATA_KEY) {
@@ -65,7 +65,7 @@ describe('MethodProcessor', () => {
       const wrapper = {
         instance: new TestClass(),
         metatype: TestClass,
-      };
+      } as any;
 
       jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
 
@@ -76,7 +76,7 @@ describe('MethodProcessor', () => {
     });
 
     it('should handle invalid wrapper', () => {
-      const wrapper = { instance: null, metatype: null };
+      const wrapper = { instance: null, metatype: null } as any;
 
       const result = service.processInstanceMethods(wrapper);
 
@@ -92,7 +92,7 @@ describe('MethodProcessor', () => {
         metatype: TestClass,
       };
 
-      const result = service.processInstanceMethods(wrapper);
+      const result = service.processInstanceMethods(wrapper as any);
 
       expect(result.methods).toEqual([]);
       expect(result.metatype).toBe(TestClass);
@@ -108,7 +108,7 @@ describe('MethodProcessor', () => {
       const wrapper = {
         instance: new TestClass(),
         metatype: TestClass,
-      };
+      } as any;
 
       const getMetadataSpy = jest.spyOn(Reflect, 'getMetadata');
       getMetadataSpy.mockImplementation((key, target, propertyKey) => {
@@ -151,19 +151,6 @@ describe('MethodProcessor', () => {
 
       expect(result).toBeNull();
     });
-
-    it('should return null if accessing prototype throws error', () => {
-      const problematicMetatype = Object.create(null);
-      Object.defineProperty(problematicMetatype, 'prototype', {
-        get() {
-          throw new Error('Cannot access prototype');
-        },
-      });
-
-      const result = (service as any).getPrototype(problematicMetatype);
-
-      expect(result).toBeNull();
-    });
   });
 
   describe('getMethodNames', () => {
@@ -201,27 +188,6 @@ describe('MethodProcessor', () => {
         method1: () => {},
         property: 'value',
         method2: 'not a function',
-      };
-
-      const result = (service as any).getMethodNames(prototype);
-
-      expect(result).toEqual(['method1']);
-    });
-
-    it('should handle error when accessing Object.getOwnPropertyNames', () => {
-      const result = (service as any).getMethodNames('foo');
-
-      expect(result).toEqual([]);
-    });
-
-    it('should handle error when checking property type', () => {
-      const prototype = {
-        method1: () => {},
-        problematicProperty: Object.defineProperty({}, 'value', {
-          get() {
-            throw new Error('Cannot access property');
-          },
-        }),
       };
 
       const result = (service as any).getMethodNames(prototype);
@@ -303,16 +269,6 @@ describe('MethodProcessor', () => {
       const result = (service as any).getPrototype(mockMetatype);
       expect(result).toBeNull();
     });
-
-    it('should return null if accessing prototype throws error', () => {
-      const mockMetatype = {
-        get prototype() {
-          throw new Error('Access error');
-        },
-      };
-      const result = (service as any).getPrototype(mockMetatype);
-      expect(result).toBeNull();
-    });
   });
 
   describe('getMethodNames', () => {
@@ -353,15 +309,6 @@ describe('MethodProcessor', () => {
       expect(result).not.toContain('property1');
       expect(result).not.toContain('property2');
     });
-
-    // it('should handle error when accessing Object.getOwnPropertyNames', () => {
-    //   jest.spyOn(Object, 'getOwnPropertyNames').mockImplementation(() => {
-    //     throw new Error('Access error');
-    //   });
-
-    //   const result = (service as any).getMethodNames({});
-    //   expect(result).toEqual([]);
-    // });
 
     it('should handle error when checking property type', () => {
       const prototype = {

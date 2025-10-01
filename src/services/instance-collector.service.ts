@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { AOP_CLASS_METADATA_KEY } from '../decorators';
 import type { IAOPDecorator } from '../interfaces';
 
@@ -61,7 +62,7 @@ export class InstanceCollector {
    *
    * @returns `true` if the wrapper contains an AOP decorator instance
    */
-  private isAOPDecorator(wrapper: any): boolean {
+  private isAOPDecorator(wrapper: InstanceWrapper): boolean {
     if (!wrapper.instance || typeof wrapper.instance !== 'object') {
       return false;
     }
