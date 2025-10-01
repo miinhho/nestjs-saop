@@ -14,6 +14,10 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "author": "miinhho",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
