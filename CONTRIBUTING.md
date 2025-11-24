@@ -82,7 +82,6 @@ By contributing to this project, you agree that your contributions will be licen
 If you have questions about contributing, feel free to:
 
 - Open a GitHub Discussion
-- Join our community chat (if available)
 - Contact the maintainers
 
 Thank you for contributing to nestjs-saop! 🎉
