@@ -66,7 +66,6 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    *
    * @internal
    */
-  // TODO : Add test code to test if the target is class
   private static addDecoratorMetadata({
     decoratorClass,
     options,
