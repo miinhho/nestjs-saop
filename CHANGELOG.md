@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0] - 2025.12.03
+
+### What's Changed
+
+* feature: added class-level AOP decorator, applied to all public methods of the class automatically by @miinhho
+
+**Full Changelog**: https://github.com/miinhho/nestjs-saop/compare/v0.3.4...v0.4.0
+
 ## [0.3.5] - 2025.10.01
 
 ### What's Changed
