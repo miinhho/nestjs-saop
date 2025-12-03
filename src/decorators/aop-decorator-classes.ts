@@ -81,6 +81,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
       propertyKey?: string | symbol,
       descriptor?: PropertyDescriptor,
     ): void | any => {
+      // If the decorated target doesn't have propertyKey, descriptor and type is function, the target is class
       const isClassDecorator = !propertyKey && !descriptor && typeof target === 'function';
 
       if (isClassDecorator) {
