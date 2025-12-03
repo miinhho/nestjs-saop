@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.1] - 2025.12.03
+
+### What's Changed
+
+* Add repository url in package.json for npm release by @miinhho
+
+**Full Changelog**: https://github.com/miinhho/nestjs-saop/compare/v0.4.0...v0.4.1
+
 ## [0.4.0] - 2025.12.03
 
 ### What's Changed
