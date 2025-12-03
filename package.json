@@ -23,7 +23,7 @@
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
-    "prepare": "husky install",
+    "prepare": "husky",
     "test": "jest",
     "test:unit": "jest --testPathPatterns=.*\\.spec\\.ts$",
     "test:e2e": "jest --config ./test/jest-e2e.json",
