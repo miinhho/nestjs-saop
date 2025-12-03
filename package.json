@@ -9,6 +9,9 @@
     "nestjs-aop",
     "nest-aop"
   ],
+  "repository": {
+    "url": "https://github.com/miinhho/nestjs-saop"
+  },
   "files": [
     "dist",
     "README.md",
