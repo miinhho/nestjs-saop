@@ -504,6 +504,24 @@ export class ComplexService {
 }
 ```
 
+#### 클래스 레벨 AOP 데코레이터
+
+클래스 레벨에서 AOP 데코레이터를 적용하면, 해당 클래스의 모든 공개 메서드에 해당 데코레이터가 적용됩니다.
+
+> [!WARNING]
+> 클래스 레벨 AOP 데코레이터는 비공개 메서드, getter, setter, 정적 메서드, 화살표 함수에는 적용되지 않습니다.
+> 상속된 클래스라면, 부모 클래스로부터 상속된 메서드에도 적용되지 않습니다. 이것은 의도된 동작입니다.
+
+```ts
+@Injectable()
+@LoggingDecorator.around()
+class HelloService {
+  getHello(name: string) {
+    return `Hello ${name}!`;
+  }
+}
+```
+
 #### Importing AOPModule 
 
 `AOPModule.forRoot` 는 `AOPModule` 을 전역 모듈로 설정합니다. 하지만 필요에 따라 특정 모듈에서만 `AOPModule` 를 등록할 수도 있습니다.
@@ -514,7 +532,7 @@ export class ComplexService {
 export class SpecificModule {}
 ```
 
-### Testing AOP Decorators
+### AOP 데코레이터 테스트
 
 NestJS의 TestingModule을 사용하여 테스트할 때, AOP 시스템이 올바르게 초기화되도록 `init()` 메서드를 호출해야 합니다.
 
