@@ -16,6 +16,7 @@ import type {
 } from '../interfaces';
 import { AOP_TYPES } from '../interfaces';
 import { addMetadata } from '../utils';
+import { getAllMethods } from '../utils/get-all-methods';
 
 /**
  * Constructor signature for AOP decorator classes.
@@ -56,12 +57,12 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * Internal helper to add metadata for the decorator.
    *
    * This method is used by static decorator methods (e.g. before, after)
-   * to attach metadata to the target method.
+   * to attach metadata to the target.
    *
    * @param decoratorClass - The AOP decorator class being applied
    * @param options - Configuration options for the decorator
    * @param type - The type of AOP advice (before, after, etc.)
-   * @returns A method decorator function
+   * @returns A method or class decorator function
    *
    * @internal
    */
@@ -73,26 +74,49 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
     decoratorClass: AOPDecoratorConstructor & IAOPDecorator;
     options: AOPOptions;
     type: AOPType;
-  }): MethodDecorator {
-    return (target: object, propertyKey: string | symbol, _descriptor: PropertyDescriptor) => {
-      addMetadata({
-        target,
-        propertyKey,
-        decoratorClass,
-        options,
-        type,
-      });
+  }): ClassDecorator & MethodDecorator {
+    return (
+      target: object,
+      propertyKey?: string | symbol,
+      descriptor?: PropertyDescriptor,
+    ): void | any => {
+      // If the decorated target doesn't have propertyKey, descriptor and type is function, the target is class
+      const isClassDecorator = !propertyKey && !descriptor && typeof target === 'function';
+
+      if (isClassDecorator) {
+        // If the target is a class, add metadata to all its methods
+        const prototype = target.prototype;
+        const allMethodNames = getAllMethods(prototype);
+        allMethodNames.forEach(name => {
+          addMetadata({
+            target: prototype,
+            propertyKey: name,
+            decoratorClass,
+            options,
+            type,
+          });
+        });
+      } else {
+        // If the target is method, add metadata to the target
+        addMetadata({
+          target,
+          propertyKey: propertyKey!,
+          decoratorClass,
+          options,
+          type,
+        });
+      }
     };
   }
 
   /**
-   * Creates a method decorator that applies around advice to the target method.
+   * Creates a decorator that applies around advice to the target.
    *
    * The around advice has full control over method execution and can modify
    * parameters, conditionally execute the method, or return a different result.
    *
    * @param options - Configuration options for the decorator
-   * @returns A method decorator function
+   * @returns A decorator function
    *
    * @example
    * ```typescript
@@ -107,7 +131,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
   static around<Options extends AOPOptions = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AroundAOP<Options>,
     options: Options = {} as Options,
-  ): MethodDecorator {
+  ) {
     return AOPDecorator.addDecoratorMetadata({
       decoratorClass: this,
       options,
@@ -116,12 +140,12 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
   }
 
   /**
-   * Creates a method decorator that applies before advice to the target method.
+   * Creates a decorator that applies before advice to the target.
    *
    * The before advice executes before the method runs.
    *
    * @param options - Configuration options for the decorator
-   * @returns A method decorator function
+   * @returns A decorator function
    *
    * @example
    * ```typescript
@@ -136,7 +160,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
   static before<Options extends AOPOptions = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & BeforeAOP<Options>,
     options: Options = {} as Options,
-  ): MethodDecorator {
+  ) {
     return AOPDecorator.addDecoratorMetadata({
       decoratorClass: this,
       options,
@@ -145,13 +169,13 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
   }
 
   /**
-   * Creates a method decorator that applies after advice to the target method.
+   * Creates a decorator that applies after advice to the target.
    *
    * The after advice executes after the method completes, regardless of whether
    * it succeeded or threw an exception.
    *
    * @param options - Configuration options for the decorator
-   * @returns A method decorator function
+   * @returns A decorator function
    *
    * @example
    * ```typescript
@@ -166,7 +190,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
   static after<Options extends AOPOptions = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AfterAOP<Options>,
     options: Options = {} as Options,
-  ): MethodDecorator {
+  ) {
     return AOPDecorator.addDecoratorMetadata({
       decoratorClass: this,
       options,
@@ -175,13 +199,13 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
   }
 
   /**
-   * Creates a method decorator that applies after-returning advice to the target method.
+   * Creates a decorator that applies after-returning advice to the target.
    *
    * The after-returning advice executes only when the method completes successfully
    * and provides access to the return value for post-processing.
    *
    * @param options - Configuration options for the decorator
-   * @returns A method decorator function
+   * @returns A decorator function
    *
    * @example
    * ```typescript
@@ -196,7 +220,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
   static afterReturning<Options extends AOPOptions = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AfterReturningAOP<Options, any>,
     options: Options = {} as Options,
-  ): MethodDecorator {
+  ) {
     return AOPDecorator.addDecoratorMetadata({
       decoratorClass: this,
       options,
@@ -205,13 +229,13 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
   }
 
   /**
-   * Creates a method decorator that applies after-throwing advice to the target method.
+   * Creates a decorator that applies after-throwing advice to the target.
    *
    * The after-throwing advice executes only when the method throws an exception
    * and provides access to the error for logging, recovery, or re-throwing.
    *
    * @param options - Configuration options for the decorator
-   * @returns A method decorator function
+   * @returns A decorator function
    *
    * @example
    * ```typescript
@@ -226,7 +250,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
   static afterThrowing<Options extends AOPOptions = AOPOptions>(
     this: AOPDecoratorConstructor<Options> & AfterThrowingAOP<Options, unknown>,
     options: Options = {} as Options,
-  ): MethodDecorator {
+  ) {
     return AOPDecorator.addDecoratorMetadata({
       decoratorClass: this,
       options,

@@ -202,10 +202,10 @@ A callback function executed before the method
 ### after()
 
 ```ts
-static after<Options>(this, options): MethodDecorator;
+static after<Options>(this, options): ClassDecorator & MethodDecorator;
 ```
 
-Creates a method decorator that applies after advice to the target method.
+Creates a decorator that applies after advice to the target.
 
 The after advice executes after the method completes, regardless of whether
 it succeeded or threw an exception.
@@ -230,9 +230,9 @@ Configuration options for the decorator
 
 #### Returns
 
-`MethodDecorator`
+`ClassDecorator` & `MethodDecorator`
 
-A method decorator function
+A decorator function
 
 #### Example
 
@@ -250,10 +250,10 @@ getHello(name: string): string {
 ### afterReturning()
 
 ```ts
-static afterReturning<Options>(this, options): MethodDecorator;
+static afterReturning<Options>(this, options): ClassDecorator & MethodDecorator;
 ```
 
-Creates a method decorator that applies after-returning advice to the target method.
+Creates a decorator that applies after-returning advice to the target.
 
 The after-returning advice executes only when the method completes successfully
 and provides access to the return value for post-processing.
@@ -278,9 +278,9 @@ Configuration options for the decorator
 
 #### Returns
 
-`MethodDecorator`
+`ClassDecorator` & `MethodDecorator`
 
-A method decorator function
+A decorator function
 
 #### Example
 
@@ -298,10 +298,10 @@ getHello(name: string): string {
 ### afterThrowing()
 
 ```ts
-static afterThrowing<Options>(this, options): MethodDecorator;
+static afterThrowing<Options>(this, options): ClassDecorator & MethodDecorator;
 ```
 
-Creates a method decorator that applies after-throwing advice to the target method.
+Creates a decorator that applies after-throwing advice to the target.
 
 The after-throwing advice executes only when the method throws an exception
 and provides access to the error for logging, recovery, or re-throwing.
@@ -326,9 +326,9 @@ Configuration options for the decorator
 
 #### Returns
 
-`MethodDecorator`
+`ClassDecorator` & `MethodDecorator`
 
-A method decorator function
+A decorator function
 
 #### Example
 
@@ -346,10 +346,10 @@ getError(): string {
 ### around()
 
 ```ts
-static around<Options>(this, options): MethodDecorator;
+static around<Options>(this, options): ClassDecorator & MethodDecorator;
 ```
 
-Creates a method decorator that applies around advice to the target method.
+Creates a decorator that applies around advice to the target.
 
 The around advice has full control over method execution and can modify
 parameters, conditionally execute the method, or return a different result.
@@ -374,9 +374,9 @@ Configuration options for the decorator
 
 #### Returns
 
-`MethodDecorator`
+`ClassDecorator` & `MethodDecorator`
 
-A method decorator function
+A decorator function
 
 #### Example
 
@@ -394,10 +394,10 @@ getHello(name: string): string {
 ### before()
 
 ```ts
-static before<Options>(this, options): MethodDecorator;
+static before<Options>(this, options): ClassDecorator & MethodDecorator;
 ```
 
-Creates a method decorator that applies before advice to the target method.
+Creates a decorator that applies before advice to the target.
 
 The before advice executes before the method runs.
 
@@ -421,9 +421,9 @@ Configuration options for the decorator
 
 #### Returns
 
-`MethodDecorator`
+`ClassDecorator` & `MethodDecorator`
 
-A method decorator function
+A decorator function
 
 #### Example
 

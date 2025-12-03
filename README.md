@@ -509,6 +509,24 @@ export class ComplexService {
 }
 ```
 
+#### Class-level AOP Decorator
+
+When you declare an AOP decorator at the class level, it applies to all public methods of the class.
+
+> [!WARNING]
+> Class-level AOP decorators cannot be applied to private methods, getters, setters, static methods, or arrow functions.
+> They also do not apply to inherited methods. This is intentional behavior.
+
+```ts
+@Injectable()
+@LoggingDecorator.around()
+class HelloService {
+  getHello(name: string) {
+    return `Hello ${name}!`;
+  }
+}
+```
+
 #### Importing AOPModule
 
 The `AOPModule.forRoot` method configures the `AOPModule` as a global module. However, you can also import the `AOPModule` into specific modules if needed.
