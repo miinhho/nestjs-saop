@@ -3,10 +3,10 @@ import { LoggingAOP } from './logging.aop';
 import { PrimaryLoggingAOP } from './primary-logging.aop';
 
 @Injectable()
+@PrimaryLoggingAOP.around({
+  logLevel: 'debug',
+})
 export class AppService {
-  @PrimaryLoggingAOP.around({
-    logLevel: 'debug',
-  })
   @LoggingAOP.around({
     logLevel: 'info',
   })
