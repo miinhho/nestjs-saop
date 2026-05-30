@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { AOP_ORDER_METADATA_KEY } from '../decorators';
 import { AOPError } from '../error';
-import type { AOPDecoratorMetadata, AOPMethodWithDecorators } from '../interfaces';
+import type {
+  AOPDecoratorMetadata,
+  AOPDecoratorMetadataWithOrder,
+  AOPMethodWithDecorators,
+} from '../interfaces';
 import { AOP_METADATA_KEY, getAllMethods, resolveMetatype } from '../utils';
 
 interface MethodCache {
@@ -98,18 +102,16 @@ export class MethodProcessor {
   private getDecorators(
     metatype: InstanceWrapper['metatype'],
     methodName: string,
-  ): any[] | undefined {
+  ): AOPDecoratorMetadataWithOrder[] | undefined {
     const decorators = this.getAspectDecorator(metatype, methodName);
     if (!decorators || decorators.length === 0) {
       return undefined;
     }
 
-    const decoratorsWithOrder = decorators.map(decorator => {
+    return decorators.map(decorator => {
       const order = this.getAspectOrderDecorator(decorator);
       return { ...decorator, order };
     });
-
-    return decoratorsWithOrder;
   }
 
   /**
