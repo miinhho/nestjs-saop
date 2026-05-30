@@ -270,6 +270,38 @@ export class DecoratorApplier {
     const afterReturningDecorators = decoratorsByType[AOP_TYPES.AFTER_RETURNING] ?? [];
     const afterThrowingDecorators = decoratorsByType[AOP_TYPES.AFTER_THROWING] ?? [];
 
+    const runAfterReturning = (result: any, args: any[]) => {
+      for (const decorator of afterReturningDecorators) {
+        const targetDecorator = this.findTargetDecorator({ decorator, aopDecorators, methodName });
+        targetDecorator?.afterReturning?.({
+          method: originalMethod,
+          options: decorator.options,
+          result,
+        })(...args);
+      }
+    };
+
+    const runAfterThrowing = (error: unknown, args: any[]) => {
+      for (const decorator of afterThrowingDecorators) {
+        const targetDecorator = this.findTargetDecorator({ decorator, aopDecorators, methodName });
+        targetDecorator?.afterThrowing?.({
+          method: originalMethod,
+          options: decorator.options,
+          error,
+        })(...args);
+      }
+    };
+
+    const runAfter = (args: any[]) => {
+      for (const decorator of afterDecorators) {
+        const targetDecorator = this.findTargetDecorator({ decorator, aopDecorators, methodName });
+        targetDecorator?.after?.({
+          method: originalMethod,
+          options: decorator.options,
+        })(...args);
+      }
+    };
+
     return (...args: any[]) => {
       // Execute Before advice
       for (const decorator of beforeDecorators) {
@@ -286,57 +318,34 @@ export class DecoratorApplier {
       try {
         // Execute original method
         result = originalMethod.apply(instance, args);
-
-        // Execute AfterReturning advice
-        for (const decorator of afterReturningDecorators) {
-          const targetDecorator = this.findTargetDecorator({
-            decorator,
-            aopDecorators,
-            methodName,
-          });
-          if (targetDecorator?.afterReturning) {
-            targetDecorator.afterReturning({
-              method: originalMethod,
-              options: decorator.options,
-              result,
-            })(...args);
-          }
-        }
-
-        return result;
       } catch (error) {
-        // Execute AfterThrowing advice
-        for (const decorator of afterThrowingDecorators) {
-          const targetDecorator = this.findTargetDecorator({
-            decorator,
-            aopDecorators,
-            methodName,
-          });
-          if (targetDecorator?.afterThrowing) {
-            targetDecorator.afterThrowing({
-              method: originalMethod,
-              options: decorator.options,
-              error,
-            })(...args);
-          }
-        }
+        // Synchronous throw
+        runAfterThrowing(error, args);
+        runAfter(args);
         throw error;
-      } finally {
-        // Execute After advice
-        for (const decorator of afterDecorators) {
-          const targetDecorator = this.findTargetDecorator({
-            decorator,
-            aopDecorators,
-            methodName,
-          });
-          if (targetDecorator?.after) {
-            targetDecorator.after({
-              method: originalMethod,
-              options: decorator.options,
-            })(...args);
-          }
-        }
       }
+
+      // Asynchronous path: defer after-advice until the promise settles so that
+      // AfterReturning receives the resolved value and AfterThrowing catches rejections.
+      if (result !== null && typeof result?.then === 'function') {
+        return result.then(
+          (resolved: any) => {
+            runAfterReturning(resolved, args);
+            runAfter(args);
+            return resolved;
+          },
+          (error: unknown) => {
+            runAfterThrowing(error, args);
+            runAfter(args);
+            throw error;
+          },
+        );
+      }
+
+      // Synchronous path
+      runAfterReturning(result, args);
+      runAfter(args);
+      return result;
     };
   }
 
