@@ -1,6 +1,57 @@
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 /**
+ * Whether `metatype` is a real class constructor rather than a factory
+ * function. Arrow/async factory functions have no class-style prototype, and
+ * the native `Function` constructor is explicitly excluded.
+ */
+function isClassConstructor(metatype: Function): boolean {
+  const prototype = metatype.prototype;
+  return (
+    !!prototype &&
+    typeof prototype === 'object' &&
+    metatype !== Function &&
+    prototype.constructor === metatype
+  );
+}
+
+/**
+ * Whether a class `metatype` can be used as the resolved type for `instance`.
+ *
+ * It qualifies when it actually declares methods, when it is the constructor
+ * of the given instance, or when there is no instance to cross-check against.
+ */
+function metatypeMatchesInstance(metatype: Function, instance: unknown): boolean {
+  const prototypeKeys = Object.getOwnPropertyNames(metatype.prototype);
+  const hasClassMethods =
+    prototypeKeys.length > 1 || (prototypeKeys.length === 1 && prototypeKeys[0] !== 'constructor');
+  const instanceMatchesMetatype = !!instance && (instance as any).constructor === metatype;
+  const hasNoInstance = !instance;
+
+  return hasClassMethods || instanceMatchesMetatype || hasNoInstance;
+}
+
+/**
+ * Recovers the constructor from a (factory-created) instance via its
+ * prototype, ignoring plain `Object`/`Function` constructors.
+ */
+function resolveConstructorFromInstance(instance: object): Function | null {
+  const instancePrototype = Object.getPrototypeOf(instance);
+  const constructor = instancePrototype?.constructor;
+
+  if (
+    typeof constructor === 'function' &&
+    constructor !== Object &&
+    constructor !== Function &&
+    constructor.name !== 'Object'
+  ) {
+    return constructor;
+  }
+
+  return null;
+}
+
+/**
  * Resolves the class constructor from a wrapper, supporting both
  * regular class-based providers and factory-created instances.
  *
@@ -10,59 +61,24 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
  * @internal
  */
 export function resolveMetatype(wrapper: InstanceWrapper): Function | null {
-  // Handle null or undefined wrapper
   if (!wrapper) {
     return null;
   }
 
-  // First, try the standard metatype (for regular class-based providers)
-  if (wrapper.metatype && typeof wrapper.metatype === 'function') {
-    // Check if metatype is a real class constructor (not a factory function)
-    if (
-      wrapper.metatype.prototype &&
-      typeof wrapper.metatype.prototype === 'object' &&
-      wrapper.metatype !== Function &&
-      wrapper.metatype.prototype.constructor === wrapper.metatype
-    ) {
-      // Additional check: typically have more than just constructor on prototype
-      const prototypeKeys = Object.getOwnPropertyNames(wrapper.metatype.prototype);
-      const hasClassMethods =
-        prototypeKeys.length > 1 || // More than just 'constructor'
-        (prototypeKeys.length === 1 && prototypeKeys[0] !== 'constructor'); // Or has methods but not constructor
+  const { metatype, instance } = wrapper;
 
-      // Or check if it looks like a class by checking if instance matches the metatype
-      const instanceMatchesMetatype =
-        wrapper.instance && wrapper.instance.constructor === wrapper.metatype;
-
-      const hasNoInstance = !wrapper.instance;
-
-      if (hasClassMethods || instanceMatchesMetatype || hasNoInstance) {
-        return wrapper.metatype;
-      }
+  // Regular class-based providers: prefer the metatype when it is a real class.
+  if (typeof metatype === 'function' && isClassConstructor(metatype)) {
+    if (metatypeMatchesInstance(metatype, instance)) {
+      return metatype;
     }
   }
 
-  if (!wrapper.instance) {
+  // Factory providers: the metatype is the factory, so recover the class from
+  // the instance it produced.
+  if (!instance) {
     return null;
   }
 
-  // For factory providers, use Object.getPrototypeOf to get the actual prototype
-  // then get the constructor from that prototype
-  const instancePrototype = Object.getPrototypeOf(wrapper.instance);
-  if (instancePrototype && instancePrototype.constructor) {
-    const constructor = instancePrototype.constructor;
-
-    // Make sure it's a valid constructor and not Object or Function
-    if (
-      constructor &&
-      typeof constructor === 'function' &&
-      constructor !== Object &&
-      constructor !== Function &&
-      constructor.name !== 'Object'
-    ) {
-      return constructor;
-    }
-  }
-
-  return null;
+  return resolveConstructorFromInstance(instance);
 }
