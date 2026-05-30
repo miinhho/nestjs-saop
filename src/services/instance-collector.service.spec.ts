@@ -65,6 +65,18 @@ describe('InstanceCollector', () => {
         mockAOPDecorator.constructor,
       );
     });
+
+    it('should cache the result and not re-scan providers on subsequent calls', () => {
+      Reflect.hasMetadata = jest.fn().mockReturnValue(false);
+      mockDiscoveryService.getProviders.mockReturnValue([{ instance: {} } as any]);
+
+      const first = service.collectAOPDecorators();
+      const second = service.collectAOPDecorators();
+
+      // Same cached array reference, and providers scanned only once.
+      expect(second).toBe(first);
+      expect(mockDiscoveryService.getProviders).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('isAOPDecorator', () => {

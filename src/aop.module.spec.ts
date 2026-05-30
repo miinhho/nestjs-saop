@@ -5,6 +5,7 @@ import { AOP_TYPES, AOPDecoratorMetadataWithOrder, AOPMethodWithDecorators } fro
 import { DecoratorApplier } from './services/decorator-applier.service';
 import { InstanceCollector } from './services/instance-collector.service';
 import { MethodProcessor } from './services/method-processor.service';
+import { logger } from './utils';
 
 // Mock the resolveMetatype utility
 jest.mock('./utils/resolve-metatype', () => ({
@@ -85,10 +86,14 @@ describe('AOPModule', () => {
       expect(methodProcessor.processInstanceMethods).toHaveBeenCalledWith(mockWrapper2);
     });
 
-    it('should handle null instances array', () => {
+    it('should log and rethrow when initialization fails', () => {
+      const errorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
       instanceCollector.collectAllInstances.mockReturnValue(null as any);
 
       expect(() => (aopModule as any).initializeAOP()).toThrow();
+      expect(errorSpy).toHaveBeenCalled();
+
+      errorSpy.mockRestore();
     });
   });
 
@@ -187,6 +192,20 @@ describe('AOPModule', () => {
       (aopModule as any).processInstance(mockWrapper, []);
 
       expect(methodProcessor.processInstanceMethods).toHaveBeenCalledWith(mockWrapper);
+    });
+
+    it('should log and not rethrow when processing one instance fails', () => {
+      const errorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+      const mockWrapper = { instance: {}, metatype: class Test {}, name: 'FailWrapper' } as any;
+      methodProcessor.processInstanceMethods.mockImplementation(() => {
+        throw new Error('processing failed');
+      });
+
+      // A single failing instance must not abort the whole AOP initialization.
+      expect(() => (aopModule as any).processInstance(mockWrapper, [])).not.toThrow();
+      expect(errorSpy).toHaveBeenCalled();
+
+      errorSpy.mockRestore();
     });
   });
 
@@ -299,6 +318,35 @@ describe('AOPModule', () => {
         aopDecorators: null,
         originalMethod,
       });
+    });
+
+    it('should log and not rethrow when applying decorators fails', () => {
+      const errorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+      class TestDecorator {
+        testMethod() {}
+      }
+      const mockWrapper = { instance: {}, metatype: TestDecorator, name: 'FailWrapper' } as any;
+      const originalMethod = jest.fn();
+      (mockWrapper.metatype.prototype as any).testMethod = originalMethod;
+      decoratorApplier.applyDecorators.mockImplementation(() => {
+        throw new Error('apply failed');
+      });
+
+      // A single failing method must not abort processing of the rest.
+      expect(() =>
+        (aopModule as any).processMethod({
+          wrapper: mockWrapper,
+          methodName: 'testMethod',
+          decorators: [
+            { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator, order: 0 },
+          ],
+          aopDecorators: [],
+          originalMethod,
+        }),
+      ).not.toThrow();
+      expect(errorSpy).toHaveBeenCalled();
+
+      errorSpy.mockRestore();
     });
   });
 

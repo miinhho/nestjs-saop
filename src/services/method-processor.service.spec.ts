@@ -239,4 +239,16 @@ describe('MethodProcessor', () => {
       }).toThrow(AOPError);
     });
   });
+
+  describe('getAspectDecorator', () => {
+    it('should return undefined when metatype is null', () => {
+      expect((service as any).getAspectDecorator(null, 'testMethod')).toBeUndefined();
+    });
+  });
+
+  describe('processMethodsInternal', () => {
+    it('should return an empty array when the prototype is unavailable', () => {
+      expect((service as any).processMethodsInternal({ prototype: null })).toEqual([]);
+    });
+  });
 });
