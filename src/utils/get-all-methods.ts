@@ -5,6 +5,10 @@
  * @returns An array of a method name found on the prototype.
  */
 export const getAllMethods = (prototype: any): string[] => {
+  if (!prototype || typeof prototype !== 'object') {
+    return [];
+  }
+
   const propertyKeys = Object.getOwnPropertyNames(prototype);
 
   const methodNames: string[] = [];

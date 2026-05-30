@@ -125,7 +125,9 @@ export class DecoratorApplier {
 
     // To handle decorator order correctly, we sort in ascending order
     // so that lower order decorators are applied first (outermost in the chain).
-    const sortedDecorators = decorators.sort((a, b) => a.order - b.order);
+    // Copy first: `decorators` is shared from MethodProcessor's cache, so sorting
+    // in place would mutate cached state.
+    const sortedDecorators = [...decorators].sort((a, b) => a.order - b.order);
 
     const decoratorsByType: Record<string, AOPDecoratorMetadataWithOrder[]> = {};
     for (const decorator of sortedDecorators) {

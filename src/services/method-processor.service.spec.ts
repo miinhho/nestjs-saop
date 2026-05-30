@@ -153,49 +153,6 @@ describe('MethodProcessor', () => {
     });
   });
 
-  describe('getMethodNames', () => {
-    it('should return method names from prototype', () => {
-      class TestClass {
-        method1() {}
-        method2() {}
-        property = 'value';
-      }
-
-      const result = (service as any).getMethodNames(TestClass.prototype);
-
-      expect(result).toEqual(['method1', 'method2']);
-    });
-
-    it('should exclude constructor', () => {
-      class TestClass {
-        constructor() {}
-        method1() {}
-      }
-
-      const result = (service as any).getMethodNames(TestClass.prototype);
-
-      expect(result).toEqual(['method1']);
-    });
-
-    it('should handle invalid prototype', () => {
-      const result = (service as any).getMethodNames(null);
-
-      expect(result).toEqual([]);
-    });
-
-    it('should handle prototype with non-function properties', () => {
-      const prototype = {
-        method1: () => {},
-        property: 'value',
-        method2: 'not a function',
-      };
-
-      const result = (service as any).getMethodNames(prototype);
-
-      expect(result).toEqual(['method1']);
-    });
-  });
-
   describe('getDecorators', () => {
     it('should return decorators with order when decorators exist and have order', () => {
       class TestDecorator {
@@ -268,59 +225,6 @@ describe('MethodProcessor', () => {
       const mockMetatype = { prototype: null };
       const result = (service as any).getPrototype(mockMetatype);
       expect(result).toBeNull();
-    });
-  });
-
-  describe('getMethodNames', () => {
-    it('should return method names from prototype', () => {
-      class TestClass {
-        method1() {}
-        method2() {}
-      }
-      const result = (service as any).getMethodNames(TestClass.prototype);
-      expect(result).toContain('method1');
-      expect(result).toContain('method2');
-      expect(result).not.toContain('constructor');
-    });
-
-    it('should exclude constructor', () => {
-      class TestClass {
-        constructor() {}
-        method1() {}
-      }
-      const result = (service as any).getMethodNames(TestClass.prototype);
-      expect(result).not.toContain('constructor');
-      expect(result).toContain('method1');
-    });
-
-    it('should handle invalid prototype', () => {
-      const result = (service as any).getMethodNames(null);
-      expect(result).toEqual([]);
-    });
-
-    it('should handle prototype with non-function properties', () => {
-      const prototype = {
-        method1() {},
-        property1: 'value',
-        property2: 123,
-      };
-      const result = (service as any).getMethodNames(prototype);
-      expect(result).toContain('method1');
-      expect(result).not.toContain('property1');
-      expect(result).not.toContain('property2');
-    });
-
-    it('should handle error when checking property type', () => {
-      const prototype = {
-        get problematicProperty() {
-          throw new Error('Access error');
-        },
-        normalMethod() {},
-      };
-
-      const result = (service as any).getMethodNames(prototype);
-      expect(result).toContain('normalMethod');
-      expect(result).not.toContain('problematicProperty');
     });
   });
 
