@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import type {
-  AfterAOP,
-  AfterReturningAOP,
-  AfterThrowingAOP,
   AOPMethod,
   AOPOptions,
   AOPType,
-  AroundAOP,
   AroundAOPContext,
-  BeforeAOP,
   ErrorAOPContext,
   IAOPDecorator,
   ResultAOPContext,
@@ -50,9 +45,9 @@ export type AOPDecoratorConstructor<
  * ```
  */
 @Injectable()
-export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
-  implements IAOPDecorator<Options>
-{
+export abstract class AOPDecorator<
+  Options extends AOPOptions = AOPOptions,
+> implements IAOPDecorator<Options> {
   /**
    * Internal helper to add metadata for the decorator.
    *
@@ -129,7 +124,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * ```
    */
   static around<Options extends AOPOptions = AOPOptions>(
-    this: AOPDecoratorConstructor<Options> & AroundAOP<Options>,
+    this: AOPDecoratorConstructor<Options>,
     options: Options = {} as Options,
   ) {
     return AOPDecorator.addDecoratorMetadata({
@@ -158,7 +153,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * ```
    */
   static before<Options extends AOPOptions = AOPOptions>(
-    this: AOPDecoratorConstructor<Options> & BeforeAOP<Options>,
+    this: AOPDecoratorConstructor<Options>,
     options: Options = {} as Options,
   ) {
     return AOPDecorator.addDecoratorMetadata({
@@ -188,7 +183,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * ```
    */
   static after<Options extends AOPOptions = AOPOptions>(
-    this: AOPDecoratorConstructor<Options> & AfterAOP<Options>,
+    this: AOPDecoratorConstructor<Options>,
     options: Options = {} as Options,
   ) {
     return AOPDecorator.addDecoratorMetadata({
@@ -218,7 +213,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * ```
    */
   static afterReturning<Options extends AOPOptions = AOPOptions>(
-    this: AOPDecoratorConstructor<Options> & AfterReturningAOP<Options, any>,
+    this: AOPDecoratorConstructor<Options>,
     options: Options = {} as Options,
   ) {
     return AOPDecorator.addDecoratorMetadata({
@@ -248,7 +243,7 @@ export abstract class AOPDecorator<Options extends AOPOptions = AOPOptions>
    * ```
    */
   static afterThrowing<Options extends AOPOptions = AOPOptions>(
-    this: AOPDecoratorConstructor<Options> & AfterThrowingAOP<Options, unknown>,
+    this: AOPDecoratorConstructor<Options>,
     options: Options = {} as Options,
   ) {
     return AOPDecorator.addDecoratorMetadata({
