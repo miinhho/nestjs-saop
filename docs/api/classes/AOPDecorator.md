@@ -202,7 +202,7 @@ A callback function executed before the method
 ### after()
 
 ```ts
-static after<Options>(this, options): ClassDecorator & MethodDecorator;
+static after<Options>(this, options?): ClassDecorator & MethodDecorator;
 ```
 
 Creates a decorator that applies after advice to the target.
@@ -220,9 +220,9 @@ it succeeded or threw an exception.
 
 ##### this
 
-`AOPDecoratorConstructor`\<`Options`, `any`[]\> & [`AfterAOP`](../interfaces/AfterAOP.md)\<`Options`\>
+`AOPDecoratorConstructor`\<`Options`\>
 
-##### options
+##### options?
 
 `Options` = `...`
 
@@ -250,7 +250,7 @@ getHello(name: string): string {
 ### afterReturning()
 
 ```ts
-static afterReturning<Options>(this, options): ClassDecorator & MethodDecorator;
+static afterReturning<Options>(this, options?): ClassDecorator & MethodDecorator;
 ```
 
 Creates a decorator that applies after-returning advice to the target.
@@ -268,9 +268,9 @@ and provides access to the return value for post-processing.
 
 ##### this
 
-`AOPDecoratorConstructor`\<`Options`, `any`[]\> & [`AfterReturningAOP`](../interfaces/AfterReturningAOP.md)\<`Options`, `any`\>
+`AOPDecoratorConstructor`\<`Options`\>
 
-##### options
+##### options?
 
 `Options` = `...`
 
@@ -298,7 +298,7 @@ getHello(name: string): string {
 ### afterThrowing()
 
 ```ts
-static afterThrowing<Options>(this, options): ClassDecorator & MethodDecorator;
+static afterThrowing<Options>(this, options?): ClassDecorator & MethodDecorator;
 ```
 
 Creates a decorator that applies after-throwing advice to the target.
@@ -316,9 +316,9 @@ and provides access to the error for logging, recovery, or re-throwing.
 
 ##### this
 
-`AOPDecoratorConstructor`\<`Options`, `any`[]\> & [`AfterThrowingAOP`](../interfaces/AfterThrowingAOP.md)\<`Options`, `unknown`\>
+`AOPDecoratorConstructor`\<`Options`\>
 
-##### options
+##### options?
 
 `Options` = `...`
 
@@ -346,7 +346,7 @@ getError(): string {
 ### around()
 
 ```ts
-static around<Options>(this, options): ClassDecorator & MethodDecorator;
+static around<Options>(this, options?): ClassDecorator & MethodDecorator;
 ```
 
 Creates a decorator that applies around advice to the target.
@@ -364,9 +364,9 @@ parameters, conditionally execute the method, or return a different result.
 
 ##### this
 
-`AOPDecoratorConstructor`\<`Options`, `any`[]\> & [`AroundAOP`](../interfaces/AroundAOP.md)\<`Options`, `any`\>
+`AOPDecoratorConstructor`\<`Options`\>
 
-##### options
+##### options?
 
 `Options` = `...`
 
@@ -394,7 +394,7 @@ getHello(name: string): string {
 ### before()
 
 ```ts
-static before<Options>(this, options): ClassDecorator & MethodDecorator;
+static before<Options>(this, options?): ClassDecorator & MethodDecorator;
 ```
 
 Creates a decorator that applies before advice to the target.
@@ -411,9 +411,9 @@ The before advice executes before the method runs.
 
 ##### this
 
-`AOPDecoratorConstructor`\<`Options`, `any`[]\> & [`BeforeAOP`](../interfaces/BeforeAOP.md)\<`Options`\>
+`AOPDecoratorConstructor`\<`Options`\>
 
-##### options
+##### options?
 
 `Options` = `...`
 

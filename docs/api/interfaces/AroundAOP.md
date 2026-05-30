@@ -25,7 +25,7 @@ around(context): AOPMethod<ReturnType>;
 
 Around decorator method
 
-See [AOPDecorator.around](../classes/AOPDecorator.md#around-2) for details.
+See [AOPDecorator.around](../classes/AOPDecorator.md#around-1) for details.
 
 #### Parameters
 

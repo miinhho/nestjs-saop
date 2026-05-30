@@ -63,7 +63,7 @@ Error.name
 ### stack?
 
 ```ts
-optional stack: string;
+optional stack?: string;
 ```
 
 #### Inherited from

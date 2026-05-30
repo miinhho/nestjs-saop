@@ -18,7 +18,7 @@ before(context): AOPMethod<void>;
 
 Before decorator method
 
-See [AOPDecorator.before](../classes/AOPDecorator.md#before-2) for details.
+See [AOPDecorator.before](../classes/AOPDecorator.md#before-1) for details.
 
 #### Parameters
 

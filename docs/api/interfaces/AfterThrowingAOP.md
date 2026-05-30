@@ -23,7 +23,7 @@ afterThrowing(context): AOPMethod<void>;
 
 AfterThrowing decorator method
 
-See [AOPDecorator.afterThrowing](../classes/AOPDecorator.md#afterthrowing-2) for details.
+See [AOPDecorator.afterThrowing](../classes/AOPDecorator.md#afterthrowing-1) for details.
 
 #### Parameters
 
