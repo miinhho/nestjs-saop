@@ -73,14 +73,10 @@ class TestableAOP extends AOPDecorator<ExampleOptions> {
 // AOP without order (should use default order)
 @Aspect()
 class NoOrderAOP extends AOPDecorator {
-  before({ method }: UnitAOPContext) {
+  before(_: UnitAOPContext) {
     return (...args: any[]) => {
       AOPTracker.beforeCount++;
       AOPTracker.lastArgs = args;
-      // For NoOrderAOP, we'll simulate setting the result
-      if (method.name === 'getNoOrder') {
-        AOPTracker.lastResult = 'No order test';
-      }
     };
   }
 }
@@ -399,10 +395,10 @@ describe('AOP in Nest.js (e2e test)', () => {
     return request
       .default(app.getHttpServer())
       .get('/no-order')
-      .then(() => {
-        // Check if AOP without explicit order works
+      .then(response => {
+        // The before advice ran, and the method returned its real value.
         expect(AOPTracker.beforeCount).toBeGreaterThan(0);
-        expect(AOPTracker.lastResult).toBe('No order test');
+        expect(response.text).toBe('No order test');
       });
   });
 
