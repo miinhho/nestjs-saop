@@ -3,7 +3,7 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { AOP_ORDER_METADATA_KEY } from '../decorators';
 import { AOPError } from '../error';
 import type { AOPDecoratorMetadata, AOPMethodWithDecorators } from '../interfaces';
-import { AOP_METADATA_KEY, resolveMetatype } from '../utils';
+import { AOP_METADATA_KEY, getAllMethods, resolveMetatype } from '../utils';
 
 interface MethodCache {
   methods: AOPMethodWithDecorators[];
@@ -77,7 +77,7 @@ export class MethodProcessor {
     const prototype = this.getPrototype(metatype);
     if (!prototype) return [];
 
-    const methodNames = this.getMethodNames(prototype);
+    const methodNames = getAllMethods(prototype);
     const methods: AOPMethodWithDecorators[] = [];
 
     for (const methodName of methodNames) {
@@ -104,31 +104,6 @@ export class MethodProcessor {
 
     const prototype = metatype.prototype;
     return typeof prototype === 'object' ? prototype : null;
-  }
-
-  /**
-   * Extracts all method names from a class prototype, filtering out
-   * the constructor and non-function properties.
-   *
-   * @param prototype - The class prototype to analyze
-   *
-   * @returns Array of method names found in the prototype
-   */
-  private getMethodNames(prototype: any): string[] {
-    if (!prototype || typeof prototype !== 'object') {
-      return [];
-    }
-
-    const propertyNames = Object.getOwnPropertyNames(prototype);
-    return propertyNames.filter(name => {
-      if (name === 'constructor') return false;
-
-      try {
-        return typeof prototype[name] === 'function';
-      } catch {
-        return false;
-      }
-    });
   }
 
   /**

@@ -51,6 +51,34 @@ describe('getAllMethods', () => {
     expect(methods).toEqual([]);
   });
 
+  it('should return an empty array for a null or non-object prototype', () => {
+    expect(getAllMethods(null)).toEqual([]);
+    expect(getAllMethods(undefined)).toEqual([]);
+    expect(getAllMethods('not an object')).toEqual([]);
+  });
+
+  it('should not invoke getters while collecting method names', () => {
+    let getterInvoked = false;
+    const prototype = {
+      realMethod() {},
+    };
+    Object.defineProperty(prototype, 'computed', {
+      get() {
+        getterInvoked = true;
+        return () => {};
+      },
+      enumerable: true,
+      configurable: true,
+    });
+
+    const methods = getAllMethods(prototype);
+
+    // The getter must never be executed during discovery...
+    expect(getterInvoked).toBe(false);
+    // ...and a getter (even one returning a function) is not treated as a method.
+    expect(methods).toEqual(['realMethod']);
+  });
+
   it('should handle inherited methods', () => {
     class ParentClass {
       parentMethod() {}
