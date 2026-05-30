@@ -207,69 +207,6 @@ describe('MethodProcessor', () => {
         (service as any).getDecorators(TestDecorator, 'testMethod');
       }).toThrow(AOPError);
     });
-  });
-
-  describe('getPrototype', () => {
-    it('should return prototype for valid metatype', () => {
-      class TestClass {}
-      const result = (service as any).getPrototype(TestClass);
-      expect(result).toBe(TestClass.prototype);
-    });
-
-    it('should return null for invalid metatype', () => {
-      const result = (service as any).getPrototype(null);
-      expect(result).toBeNull();
-    });
-
-    it('should return null if prototype is invalid', () => {
-      const mockMetatype = { prototype: null };
-      const result = (service as any).getPrototype(mockMetatype);
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('getDecorators', () => {
-    it('should return decorators with order when decorators exist and have order', () => {
-      class TestDecorator {}
-      const mockDecorators = [
-        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
-      ];
-
-      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
-      jest.spyOn(Reflect, 'getMetadata').mockReturnValue(5);
-
-      const result = (service as any).getDecorators(TestDecorator, 'testMethod');
-
-      expect(result).toEqual([{ ...mockDecorators[0], order: 5 }]);
-    });
-
-    it('should throw AOPError decorators with order when decorators exist and have non-number order', () => {
-      class TestDecorator {}
-      const mockDecorators = [
-        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
-      ];
-
-      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
-      jest.spyOn(Reflect, 'getMetadata').mockReturnValue('invalid-order');
-
-      expect(() => {
-        (service as any).getDecorators(TestDecorator, 'testMethod');
-      }).toThrow(AOPError);
-    });
-
-    it('should throw AOPError when decorator has no order metadata', () => {
-      class TestDecorator {}
-      const mockDecorators = [
-        { type: AOP_TYPES.BEFORE, options: {}, decoratorClass: TestDecorator },
-      ];
-
-      jest.spyOn(service as any, 'getAspectDecorator').mockReturnValue(mockDecorators);
-      jest.spyOn(Reflect, 'getMetadata').mockReturnValue(undefined);
-
-      expect(() => {
-        (service as any).getDecorators(TestDecorator, 'testMethod');
-      }).toThrow(AOPError);
-    });
 
     it('should return undefined when no decorators exist', () => {
       const methodName = 'testMethod';

@@ -601,78 +601,30 @@ describe('DecoratorApplier', () => {
   });
 
   describe('combineChains', () => {
-    it('should execute Spring AOP style execution flow', () => {
+    it('should execute the final execution function with the given args', () => {
       const instance = {};
-      const originalMethod = jest.fn().mockReturnValue('result');
+      const execution = jest.fn().mockReturnValue('result');
 
-      const chains = {
-        [AOP_TYPES.AROUND]: originalMethod, // Final execution in AOP
-        [AOP_TYPES.BEFORE]: undefined,
-        [AOP_TYPES.AFTER]: undefined,
-        [AOP_TYPES.AFTER_RETURNING]: undefined,
-        [AOP_TYPES.AFTER_THROWING]: undefined,
-      };
-
-      const combinedMethod = (service as any).combineChains({
-        chains,
-        originalMethod,
-        instance,
-      });
+      const combinedMethod = (service as any).combineChains({ execution, instance });
 
       const result = combinedMethod('arg1', 'arg2');
 
       expect(result).toBe('result');
-      expect(originalMethod).toHaveBeenCalledWith('arg1', 'arg2');
+      expect(execution).toHaveBeenCalledWith('arg1', 'arg2');
     });
 
-    it('should handle around chain execution', () => {
-      const aroundSpy = jest.fn().mockReturnValue('around-result');
-      const instance = {};
-      const originalMethod = jest.fn();
-
-      const chains = {
-        [AOP_TYPES.AROUND]: aroundSpy,
-        [AOP_TYPES.BEFORE]: undefined,
-        [AOP_TYPES.AFTER]: undefined,
-        [AOP_TYPES.AFTER_RETURNING]: undefined,
-        [AOP_TYPES.AFTER_THROWING]: undefined,
+    it('should bind the instance as `this` when invoking the execution', () => {
+      const instance = { tag: 'inst' };
+      let boundToInstance = false;
+      const execution = function (this: any) {
+        boundToInstance = this === instance;
+        return 'ok';
       };
 
-      const combinedMethod = (service as any).combineChains({
-        chains,
-        originalMethod,
-        instance,
-      });
+      const combinedMethod = (service as any).combineChains({ execution, instance });
 
-      const result = combinedMethod('arg1', 'arg2');
-
-      expect(result).toBe('around-result');
-      expect(aroundSpy).toHaveBeenCalledWith('arg1', 'arg2');
-      expect(originalMethod).not.toHaveBeenCalled(); // Around wraps everything
-    });
-
-    it('should fallback to original method when no Around chain exists', () => {
-      const instance = {};
-      const originalMethod = jest.fn().mockReturnValue('result');
-
-      const chains = {
-        [AOP_TYPES.AROUND]: undefined, // No Around chain
-        [AOP_TYPES.BEFORE]: undefined,
-        [AOP_TYPES.AFTER]: undefined,
-        [AOP_TYPES.AFTER_RETURNING]: undefined,
-        [AOP_TYPES.AFTER_THROWING]: undefined,
-      };
-
-      const combinedMethod = (service as any).combineChains({
-        chains,
-        originalMethod,
-        instance,
-      });
-
-      const result = combinedMethod('arg1', 'arg2');
-
-      expect(result).toBe('result');
-      expect(originalMethod).toHaveBeenCalledWith('arg1', 'arg2');
+      expect(combinedMethod()).toBe('ok');
+      expect(boundToInstance).toBe(true);
     });
   });
 });
