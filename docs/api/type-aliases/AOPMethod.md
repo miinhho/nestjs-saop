@@ -1,4 +1,4 @@
-# Type Alias: AOPMethod()\<ReturnType\>
+# Type Alias: AOPMethod\<ReturnType\>
 
 ```ts
 type AOPMethod<ReturnType> = (...args) => ReturnType;

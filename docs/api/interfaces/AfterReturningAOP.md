@@ -25,7 +25,7 @@ afterReturning(context): AOPMethod<void>;
 
 AfterReturning decorator method
 
-See [AOPDecorator.afterReturning](../classes/AOPDecorator.md#afterreturning-2) for details.
+See [AOPDecorator.afterReturning](../classes/AOPDecorator.md#afterreturning-1) for details.
 
 #### Parameters
 

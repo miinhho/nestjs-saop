@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.5.0] - 2026.05.31
+
+### Fixed
+
+* Async methods now run `afterReturning` / `afterThrowing` / `after` correctly: the advice waits for the returned promise to settle, so `afterReturning` receives the resolved value and `afterThrowing` catches rejections by @miinhho in https://github.com/miinhho/nestjs-saop/pull/53
+* Method discovery no longer invokes getters while scanning a class, and the decorator metadata cache is no longer mutated while sorting by order by @miinhho in https://github.com/miinhho/nestjs-saop/pull/54
+
+### Changed
+
+* Resolve each advice instance once at startup instead of on every method call, removing the per-invocation lookup from the hot path by @miinhho in https://github.com/miinhho/nestjs-saop/pull/55
+* Remove the unused internal cache-statistics API (`getCacheStats` / `getCacheHitRate` / `clearCaches`) from `MethodProcessor` by @miinhho in https://github.com/miinhho/nestjs-saop/pull/56
+* Simplify the static decorator factory type signatures; option type-checking is unchanged by @miinhho in https://github.com/miinhho/nestjs-saop/pull/57
+
+### Chore
+
+* Update dependencies to clear all security advisories by @miinhho in https://github.com/miinhho/nestjs-saop/pull/58
+* Remove low-value tests, add e2e coverage for the full advice lifecycle, and close coverage gaps by @miinhho in https://github.com/miinhho/nestjs-saop/pull/59
+
+**Full Changelog**: https://github.com/miinhho/nestjs-saop/compare/v0.4.1...v0.5.0
+
 ## [0.4.1] - 2025.12.03
 
 ### What's Changed

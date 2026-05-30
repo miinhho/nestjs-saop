@@ -19,7 +19,7 @@ after(context): AOPMethod<void>;
 
 After decorator method
 
-See [AOPDecorator.after](../classes/AOPDecorator.md#after-2) for details.
+See [AOPDecorator.after](../classes/AOPDecorator.md#after-1) for details.
 
 #### Parameters
 

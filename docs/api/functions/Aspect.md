@@ -1,7 +1,7 @@
 # Function: Aspect()
 
 ```ts
-function Aspect(order): ClassDecorator;
+function Aspect(order?): ClassDecorator;
 ```
 
 Class decorator to mark a class as AOP decorator
@@ -11,7 +11,7 @@ services and can be used to apply cross-cutting concerns to methods.
 
 ## Parameters
 
-### order
+### order?
 
 `AspectOptions` = `{}`
 

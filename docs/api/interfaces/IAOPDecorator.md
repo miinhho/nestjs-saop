@@ -23,15 +23,15 @@ for various AOP advice types (around, before, after, etc.).
 
 ## Properties
 
-### after()?
+### after?
 
 ```ts
-optional after: (context) => AOPMethod<void>;
+optional after?: (context) => AOPMethod<void>;
 ```
 
 After decorator method
 
-See [AOPDecorator.after](../classes/AOPDecorator.md#after-2) for details.
+See [AOPDecorator.after](../classes/AOPDecorator.md#after-1) for details.
 
 #### Parameters
 
@@ -45,19 +45,21 @@ See [AOPDecorator.after](../classes/AOPDecorator.md#after-2) for details.
 
 #### Inherited from
 
-[`after`](#after).`__type`
+```ts
+Partial.after
+```
 
 ***
 
-### afterReturning()?
+### afterReturning?
 
 ```ts
-optional afterReturning: (context) => AOPMethod<void>;
+optional afterReturning?: (context) => AOPMethod<void>;
 ```
 
 AfterReturning decorator method
 
-See [AOPDecorator.afterReturning](../classes/AOPDecorator.md#afterreturning-2) for details.
+See [AOPDecorator.afterReturning](../classes/AOPDecorator.md#afterreturning-1) for details.
 
 #### Parameters
 
@@ -71,19 +73,21 @@ See [AOPDecorator.afterReturning](../classes/AOPDecorator.md#afterreturning-2) f
 
 #### Inherited from
 
-[`afterReturning`](#afterreturning).`__type`
+```ts
+Partial.afterReturning
+```
 
 ***
 
-### afterThrowing()?
+### afterThrowing?
 
 ```ts
-optional afterThrowing: (context) => AOPMethod<void>;
+optional afterThrowing?: (context) => AOPMethod<void>;
 ```
 
 AfterThrowing decorator method
 
-See [AOPDecorator.afterThrowing](../classes/AOPDecorator.md#afterthrowing-2) for details.
+See [AOPDecorator.afterThrowing](../classes/AOPDecorator.md#afterthrowing-1) for details.
 
 #### Parameters
 
@@ -97,19 +101,21 @@ See [AOPDecorator.afterThrowing](../classes/AOPDecorator.md#afterthrowing-2) for
 
 #### Inherited from
 
-[`afterThrowing`](#afterthrowing).`__type`
+```ts
+Partial.afterThrowing
+```
 
 ***
 
-### around()?
+### around?
 
 ```ts
-optional around: (context) => AOPMethod<ReturnType>;
+optional around?: (context) => AOPMethod<ReturnType>;
 ```
 
 Around decorator method
 
-See [AOPDecorator.around](../classes/AOPDecorator.md#around-2) for details.
+See [AOPDecorator.around](../classes/AOPDecorator.md#around-1) for details.
 
 #### Parameters
 
@@ -123,19 +129,21 @@ See [AOPDecorator.around](../classes/AOPDecorator.md#around-2) for details.
 
 #### Inherited from
 
-[`around`](#around).`__type`
+```ts
+Partial.around
+```
 
 ***
 
-### before()?
+### before?
 
 ```ts
-optional before: (context) => AOPMethod<void>;
+optional before?: (context) => AOPMethod<void>;
 ```
 
 Before decorator method
 
-See [AOPDecorator.before](../classes/AOPDecorator.md#before-2) for details.
+See [AOPDecorator.before](../classes/AOPDecorator.md#before-1) for details.
 
 #### Parameters
 
@@ -149,4 +157,6 @@ See [AOPDecorator.before](../classes/AOPDecorator.md#before-2) for details.
 
 #### Inherited from
 
-[`before`](#before).`__type`
+```ts
+Partial.before
+```
