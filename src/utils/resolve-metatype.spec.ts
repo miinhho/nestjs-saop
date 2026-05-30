@@ -161,6 +161,14 @@ describe('resolveMetatype', () => {
       const result = resolveMetatype(wrapper);
       expect(result).toBeNull();
     });
+
+    it('should return null for a factory metatype that produced no instance', () => {
+      // Factory function (no class prototype) and nothing to recover from.
+      const wrapper = { metatype: () => undefined, instance: null } as any;
+
+      const result = resolveMetatype(wrapper);
+      expect(result).toBeNull();
+    });
   });
 
   describe('real-world scenarios', () => {

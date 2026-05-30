@@ -73,8 +73,6 @@ describe('AOP advice timing on async methods', () => {
     const result = await service.getAsyncValue();
     expect(result).toBe('async-result');
 
-    console.log('[fulfilled case execution order]', trace);
-
     // Expectation: afterReturning is called with the actual resolved value
     // only after the method has fully completed
     const arIndex = trace.findIndex(t => t.startsWith('afterReturning'));
@@ -85,8 +83,6 @@ describe('AOP advice timing on async methods', () => {
 
   it('afterThrowing should be called when an async method rejects', async () => {
     await expect(service.throwAsync()).rejects.toThrow('async error');
-
-    console.log('[rejected case execution order]', trace);
 
     expect(trace.some(t => t.startsWith('afterThrowing'))).toBe(true);
   });

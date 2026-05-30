@@ -42,8 +42,6 @@ class SimpleService {
 
   @LoggingAspect.before()
   getName(): string {
-    console.log('[getName] this:', this);
-    console.log('[getName] this.name:', this.name);
     return `Hello ${this.name}`;
   }
 
@@ -182,14 +180,7 @@ describe('Factory Provider AOP Integration (e2e)', () => {
           LoggingAspect,
           {
             provide: SimpleService,
-            useFactory: () => {
-              console.log('[Factory] Creating instance with "factory-created"');
-              const instance = new SimpleService('factory-created');
-              console.log('[Factory] Instance created:', instance);
-              console.log('[Factory] Instance constructor name:', instance.constructor.name);
-              console.log('[Factory] Instance getName method:', typeof instance.getName);
-              return instance;
-            },
+            useFactory: () => new SimpleService('factory-created'),
           },
         ],
       })
@@ -202,14 +193,7 @@ describe('Factory Provider AOP Integration (e2e)', () => {
       await app.init();
 
       const service = app.get<SimpleService>(SimpleService);
-      console.log('[Factory] Retrieved service:', service);
-      console.log('[Factory] Service constructor name:', service.constructor.name);
-      console.log('[Factory] Service getName method:', typeof service.getName);
-
       const result = service.getName();
-
-      console.log('[Factory] Result:', result);
-      console.log('[Factory] CallLog:', callLog);
 
       expect(result).toBe('Hello factory-created');
       expect(callLog).toContain('BEFORE:getName:[]');
@@ -236,9 +220,6 @@ describe('Factory Provider AOP Integration (e2e)', () => {
 
       const service = app.get<SimpleService>(SimpleService);
       const result = service.getPlainName();
-
-      console.log('[Plain] Result:', result);
-      console.log('[Plain] CallLog:', callLog);
 
       expect(result).toBe('Plain factory-test');
       expect(callLog).toEqual([]); // No AOP interception
@@ -385,11 +366,7 @@ describe('Factory Provider AOP Integration (e2e)', () => {
           LoggingAspect,
           {
             provide: 'MULTI_SERVICE',
-            useFactory: (): MultiTypeService => {
-              // Factory can have complex logic
-              const condition = Math.random() > -1; // Always true
-              return condition ? new MultiTypeService() : new MultiTypeService();
-            },
+            useFactory: (): MultiTypeService => new MultiTypeService(),
           },
         ],
       }).compile();
