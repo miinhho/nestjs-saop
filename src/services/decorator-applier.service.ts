@@ -60,50 +60,23 @@ type ResolvedAdvice = {
  */
 @Injectable()
 export class DecoratorApplier {
-  private static readonly AOP_PROTOTYPE_APPLIED_SYMBOL = Symbol('aop:prototype:applied');
-
   /**
    * Marker set on the wrapped method so that already-applied methods can be
    * detected without relying on the function name (which minifiers rewrite).
+   *
+   * The marker lives on the method installed on the prototype, so it doubles
+   * as the duplicate-application guard across every instance of the class.
    */
   private static readonly AOP_APPLIED_MARKER = Symbol('aop:applied');
 
   /**
-   * Checks if a method has already been processed to avoid duplicate AOP application.
-   *
-   * Uses both instance-level and prototype-level tracking for comprehensive duplicate prevention.
+   * Checks if a method has already been wrapped with AOP advice, by looking
+   * for the applied-marker on the method currently installed on the prototype.
    */
   private isMethodProcessed(instance: any, methodName: string): boolean {
     const prototype = Object.getPrototypeOf(instance);
-    const prototypeAppliedMethods = prototype[DecoratorApplier.AOP_PROTOTYPE_APPLIED_SYMBOL];
-
-    // Check if we have tracking and this specific method is tracked
-    if (prototypeAppliedMethods?.has(methodName)) {
-      // Double-check by examining the actual method descriptor
-      const descriptor = Object.getOwnPropertyDescriptor(prototype, methodName);
-      if (descriptor?.value?.[DecoratorApplier.AOP_APPLIED_MARKER]) {
-        return true;
-      }
-      // If tracking exists but method isn't actually wrapped, clear the tracking
-      prototypeAppliedMethods.delete(methodName);
-    }
-
-    return false;
-  }
-
-  /**
-   * Marks a method as processed to prevent duplicate AOP application.
-   *
-   * Uses prototype-level tracking for robust duplicate prevention.
-   */
-  private markMethodAsProcessed(instance: any, methodName: string): void {
-    const prototype = Object.getPrototypeOf(instance);
-
-    // Mark at prototype level (primary tracking)
-    if (!prototype[DecoratorApplier.AOP_PROTOTYPE_APPLIED_SYMBOL]) {
-      prototype[DecoratorApplier.AOP_PROTOTYPE_APPLIED_SYMBOL] = new Set<string>();
-    }
-    prototype[DecoratorApplier.AOP_PROTOTYPE_APPLIED_SYMBOL].add(methodName);
+    const descriptor = Object.getOwnPropertyDescriptor(prototype, methodName);
+    return Boolean(descriptor?.value?.[DecoratorApplier.AOP_APPLIED_MARKER]);
   }
 
   /**
@@ -161,11 +134,10 @@ export class DecoratorApplier {
     // Wrap so the instance is bound as `this` and the applied-marker is attached.
     const combinedMethod = this.combineChains({ execution, instance });
 
+    // Installing the marker-tagged method also records that it has been
+    // processed, so isMethodProcessed will short-circuit any future calls.
     descriptor.value = combinedMethod;
     Object.defineProperty(prototype, methodName, descriptor);
-
-    // Mark method as processed to prevent future duplicate processing
-    this.markMethodAsProcessed(instance, methodName);
   }
 
   /**
