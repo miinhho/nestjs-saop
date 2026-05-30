@@ -239,37 +239,4 @@ describe('MethodProcessor', () => {
       }).toThrow(AOPError);
     });
   });
-
-  describe('getCacheStats', () => {
-    it('should return empty stats when monitoring is disabled', () => {
-      // Create service with NODE_ENV=production to disable stats
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
-
-      const productionService = new MethodProcessor();
-      const stats = productionService.getCacheStats();
-
-      expect(stats).toEqual({
-        hits: 0,
-        misses: 0,
-        enabled: false,
-      });
-
-      process.env.NODE_ENV = originalEnv;
-    });
-  });
-
-  describe('getCacheHitRate', () => {
-    it('should return 0 when stats are disabled', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
-
-      const productionService = new MethodProcessor();
-      const hitRate = productionService.getCacheHitRate();
-
-      expect(hitRate).toBe(0);
-
-      process.env.NODE_ENV = originalEnv;
-    });
-  });
 });

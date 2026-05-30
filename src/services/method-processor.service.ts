@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { AOP_ORDER_METADATA_KEY } from '../decorators';
 import { AOPError } from '../error';
-import type { AOPDecoratorMetadata, AOPMethodWithDecorators } from '../interfaces';
+import type {
+  AOPDecoratorMetadata,
+  AOPDecoratorMetadataWithOrder,
+  AOPMethodWithDecorators,
+} from '../interfaces';
 import { AOP_METADATA_KEY, getAllMethods, resolveMetatype } from '../utils';
 
 interface MethodCache {
@@ -20,20 +24,9 @@ interface MethodCache {
 export class MethodProcessor {
   private classCache = new WeakMap<Function, MethodCache>();
 
-  private readonly enableStats: boolean;
-  private cacheStats = {
-    hits: 0,
-    misses: 0,
-  };
-
-  constructor() {
-    // Disable stats in production for performance
-    this.enableStats = process.env.NODE_ENV !== 'production';
-  }
-
   /**
    * Analyzes a class instance to find all methods that have AOP decorators
-   * applied.
+   * applied. Results are cached per class constructor.
    *
    * @param wrapper - InstanceWrapper containing the instance and metatype
    *
@@ -52,19 +45,11 @@ export class MethodProcessor {
 
     const cached = this.classCache.get(metatype);
     if (cached) {
-      if (this.enableStats) this.cacheStats.hits++;
       return cached;
     }
 
-    // Cache miss: process methods
-    if (this.enableStats) this.cacheStats.misses++;
     const methods = this.processMethodsInternal(metatype);
-
-    const result = {
-      methods,
-      metatype,
-    };
-
+    const result = { methods, metatype };
     this.classCache.set(metatype, result);
 
     return result;
@@ -117,18 +102,16 @@ export class MethodProcessor {
   private getDecorators(
     metatype: InstanceWrapper['metatype'],
     methodName: string,
-  ): any[] | undefined {
+  ): AOPDecoratorMetadataWithOrder[] | undefined {
     const decorators = this.getAspectDecorator(metatype, methodName);
     if (!decorators || decorators.length === 0) {
       return undefined;
     }
 
-    const decoratorsWithOrder = decorators.map(decorator => {
+    return decorators.map(decorator => {
       const order = this.getAspectOrderDecorator(decorator);
       return { ...decorator, order };
     });
-
-    return decoratorsWithOrder;
   }
 
   /**
@@ -174,48 +157,5 @@ export class MethodProcessor {
     }
 
     return order;
-  }
-
-  /**
-   * Clears all caches. Useful for testing or when runtime metadata changes are expected.
-   * Note: WeakMap entries will be automatically garbage collected when their keys are no longer referenced.
-   */
-  clearCaches(): void {
-    this.classCache = new WeakMap();
-    if (this.enableStats) {
-      this.cacheStats = { hits: 0, misses: 0 };
-    }
-  }
-
-  /**
-   * Gets cache statistics for monitoring and debugging.
-   *
-   * Returns empty stats if monitoring is disabled.
-   */
-  getCacheStats() {
-    if (!this.enableStats) {
-      return {
-        hits: 0,
-        misses: 0,
-        enabled: false,
-      };
-    }
-
-    return {
-      ...this.cacheStats,
-      enabled: true,
-    };
-  }
-
-  /**
-   * Gets cache hit rate as a percentage.
-   *
-   * @returns Hit rate percentage (0-100) or 0 if stats disabled
-   */
-  getCacheHitRate(): number {
-    if (!this.enableStats) return 0;
-
-    const totalAccess = this.cacheStats.hits + this.cacheStats.misses;
-    return totalAccess > 0 ? (this.cacheStats.hits / totalAccess) * 100 : 0;
   }
 }
