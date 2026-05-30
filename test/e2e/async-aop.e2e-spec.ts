@@ -3,7 +3,7 @@ import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { AOPDecorator, AOPModule, Aspect, ErrorAOPContext, ResultAOPContext } from '../../src';
 
-// 어드바이스 실행 순서를 기록하는 트래커
+// Tracks the execution order of advice
 const trace: string[] = [];
 
 @Aspect()
@@ -53,7 +53,7 @@ class AsyncService {
 })
 class AsyncModule {}
 
-describe('비동기 메서드에서의 AOP 어드바이스 타이밍', () => {
+describe('AOP advice timing on async methods', () => {
   let app: TestingModule;
   let service: AsyncService;
 
@@ -69,23 +69,24 @@ describe('비동기 메서드에서의 AOP 어드바이스 타이밍', () => {
     await app.close();
   });
 
-  it('afterReturning은 Promise가 resolve된 "후"의 실제 값을 받아야 한다', async () => {
+  it('afterReturning should receive the actual value after the Promise resolves', async () => {
     const result = await service.getAsyncValue();
     expect(result).toBe('async-result');
 
-    console.log('[성공 케이스 실행 순서]', trace);
+    console.log('[fulfilled case execution order]', trace);
 
-    // 기대: 메서드가 완전히 끝난 뒤 afterReturning이 실제 결과값으로 호출
+    // Expectation: afterReturning is called with the actual resolved value
+    // only after the method has fully completed
     const arIndex = trace.findIndex(t => t.startsWith('afterReturning'));
     const methodEndIndex = trace.indexOf('method:end');
     expect(arIndex).toBeGreaterThan(methodEndIndex);
     expect(trace).toContain('afterReturning:result="async-result"');
   });
 
-  it('afterThrowing은 비동기 메서드가 reject될 때 호출되어야 한다', async () => {
+  it('afterThrowing should be called when an async method rejects', async () => {
     await expect(service.throwAsync()).rejects.toThrow('async error');
 
-    console.log('[에러 케이스 실행 순서]', trace);
+    console.log('[rejected case execution order]', trace);
 
     expect(trace.some(t => t.startsWith('afterThrowing'))).toBe(true);
   });
