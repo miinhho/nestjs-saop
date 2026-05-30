@@ -2,16 +2,10 @@ import { Injectable } from '@nestjs/common';
 import {
   AOP_TYPES,
   AOPDecoratorMetadataWithOrder,
-  AOPType,
+  AOPOptions,
   type IAOPDecorator,
 } from '../interfaces';
 import { logger } from '../utils';
-
-/**
- * Type definition for chains of AOP advice functions.
- * @internal
- */
-type ChainFunctions = Record<AOPType, Function | undefined>;
 
 /**
  * Parameters for applying AOP decorators to a method.
@@ -43,6 +37,18 @@ type DecoratorSearchParams = {
 };
 
 /**
+ * An AOP decorator instance resolved from its metadata, paired with the
+ * options the advice was registered with. Resolved once at apply-time so the
+ * runtime hot path never has to look the instance up again.
+ *
+ * @internal
+ */
+type ResolvedAdvice = {
+  instance: IAOPDecorator;
+  options: AOPOptions;
+};
+
+/**
  * Service for applying AOP decorators to methods
  *
  * This service is for taking AOP decorator metadata and applying
@@ -57,6 +63,12 @@ export class DecoratorApplier {
   private static readonly AOP_PROTOTYPE_APPLIED_SYMBOL = Symbol('aop:prototype:applied');
 
   /**
+   * Marker set on the wrapped method so that already-applied methods can be
+   * detected without relying on the function name (which minifiers rewrite).
+   */
+  private static readonly AOP_APPLIED_MARKER = Symbol('aop:applied');
+
+  /**
    * Checks if a method has already been processed to avoid duplicate AOP application.
    *
    * Uses both instance-level and prototype-level tracking for comprehensive duplicate prevention.
@@ -69,7 +81,7 @@ export class DecoratorApplier {
     if (prototypeAppliedMethods?.has(methodName)) {
       // Double-check by examining the actual method descriptor
       const descriptor = Object.getOwnPropertyDescriptor(prototype, methodName);
-      if (descriptor?.value?.name === 'combinedAOPMethod') {
+      if (descriptor?.value?.[DecoratorApplier.AOP_APPLIED_MARKER]) {
         return true;
       }
       // If tracking exists but method isn't actually wrapped, clear the tracking
@@ -138,7 +150,7 @@ export class DecoratorApplier {
       decoratorsByType[type].push(decorator);
     }
 
-    const chains = this.createAllChains({
+    const execution = this.createExecution({
       decoratorsByType,
       aopDecorators,
       originalMethod,
@@ -146,8 +158,8 @@ export class DecoratorApplier {
       instance,
     });
 
-    // Create a named function for better debugging and duplicate detection
-    const combinedMethod = this.combineChains({ chains, originalMethod, instance });
+    // Wrap so the instance is bound as `this` and the applied-marker is attached.
+    const combinedMethod = this.combineChains({ execution, instance });
 
     descriptor.value = combinedMethod;
     Object.defineProperty(prototype, methodName, descriptor);
@@ -187,19 +199,40 @@ export class DecoratorApplier {
   }
 
   /**
-   * Creates chains for all decorator types using Spring AOP execution order.
+   * Resolves a list of decorator metadata into advice instances paired with
+   * their options, keeping only those whose instance implements `adviceKey`.
    *
-   * AOP order: Around wraps the entire execution flow including Before/After advice.
+   * This runs once at apply-time, so the runtime advice loops never call
+   * {@link findTargetDecorator} (a linear search) on every invocation.
    *
-   * @param params.decoratorsByType - Record of decorator types to their corresponding metadata arrays
-   * @param params.aopDecorators - The list of available AOP decorator instances
-   * @param params.originalMethod - The original method function
-   * @param params.methodName - The name of the method being processed
-   * @param params.instance - The target instance
-   *
-   * @returns An object mapping each AOP type to its corresponding chain function
+   * @returns Resolved advices in metadata (already order-sorted) order
    */
-  private createAllChains({
+  private resolveAdvices(
+    decorators: AOPDecoratorMetadataWithOrder[],
+    aopDecorators: IAOPDecorator[],
+    methodName: string,
+    adviceKey: keyof IAOPDecorator,
+  ): ResolvedAdvice[] {
+    const resolved: ResolvedAdvice[] = [];
+    for (const decorator of decorators) {
+      const instance = this.findTargetDecorator({ decorator, aopDecorators, methodName });
+      if (instance && typeof instance[adviceKey] === 'function') {
+        resolved.push({ instance, options: decorator.options });
+      }
+    }
+    return resolved;
+  }
+
+  /**
+   * Builds the final execution function for a method using Spring AOP execution order.
+   *
+   * Around advice wraps the core execution (Before -> Method ->
+   * AfterReturning/AfterThrowing -> After). When no Around advice exists, the
+   * core execution itself is the final execution.
+   *
+   * @returns The function that runs the original method wrapped with all advice
+   */
+  private createExecution({
     decoratorsByType,
     aopDecorators,
     originalMethod,
@@ -208,8 +241,8 @@ export class DecoratorApplier {
   }: {
     decoratorsByType: Record<string, AOPDecoratorMetadataWithOrder[]>;
     instance: any;
-  } & Omit<ChainCreationParams, 'decorators'>): ChainFunctions {
-    // Create core execution method that includes Before/After advice around the original method
+  } & Omit<ChainCreationParams, 'decorators'>): Function {
+    // Core execution wraps the original method with Before/After advice.
     const coreExecution = this.createCoreExecution({
       decoratorsByType,
       aopDecorators,
@@ -218,40 +251,31 @@ export class DecoratorApplier {
       instance,
     });
 
-    // If Around decorators exist, wrap the core execution
-    const aroundDecorators = decoratorsByType[AOP_TYPES.AROUND];
-    const finalExecution =
-      (aroundDecorators?.length ?? 0) > 0
-        ? aroundDecorators!.reduceRight((nextMethod, decorator) => {
-            const targetDecorator = this.findTargetDecorator({
-              decorator,
-              aopDecorators,
-              methodName,
-            });
-            if (targetDecorator?.around) {
-              return function (this: any, ...args: any[]) {
-                const context = {
-                  method: originalMethod,
-                  instance: this,
-                  options: decorator.options,
-                  proceed: (...proceedArgs: any[]) => nextMethod.call(this, ...proceedArgs),
-                };
+    // Around advice (resolved once) wraps the core execution from the inside out.
+    const aroundAdvices = this.resolveAdvices(
+      decoratorsByType[AOP_TYPES.AROUND] ?? [],
+      aopDecorators,
+      methodName,
+      'around',
+    );
 
-                const aroundWrapper = targetDecorator.around!(context);
-                return aroundWrapper.call(this, ...args);
-              };
-            }
-            return nextMethod;
-          }, coreExecution)
-        : coreExecution;
+    if (aroundAdvices.length === 0) {
+      return coreExecution;
+    }
 
-    return {
-      [AOP_TYPES.AROUND]: finalExecution,
-      [AOP_TYPES.BEFORE]: undefined,
-      [AOP_TYPES.AFTER]: undefined,
-      [AOP_TYPES.AFTER_RETURNING]: undefined,
-      [AOP_TYPES.AFTER_THROWING]: undefined,
-    };
+    return aroundAdvices.reduceRight((nextMethod, { instance: advice, options }) => {
+      return function (this: any, ...args: any[]) {
+        const context = {
+          method: originalMethod,
+          instance: this,
+          options,
+          proceed: (...proceedArgs: any[]) => nextMethod.call(this, ...proceedArgs),
+        };
+
+        const aroundWrapper = advice.around!(context);
+        return aroundWrapper.call(this, ...args);
+      };
+    }, coreExecution);
   }
 
   /**
@@ -267,54 +291,43 @@ export class DecoratorApplier {
     decoratorsByType: Record<string, AOPDecoratorMetadataWithOrder[]>;
     instance: any;
   } & Omit<ChainCreationParams, 'decorators'>): Function {
-    const beforeDecorators = decoratorsByType[AOP_TYPES.BEFORE] ?? [];
-    const afterDecorators = decoratorsByType[AOP_TYPES.AFTER] ?? [];
-    const afterReturningDecorators = decoratorsByType[AOP_TYPES.AFTER_RETURNING] ?? [];
-    const afterThrowingDecorators = decoratorsByType[AOP_TYPES.AFTER_THROWING] ?? [];
+    // Resolve every advice instance once, up front, so the returned closure
+    // never performs a lookup while the method is being called.
+    const resolve = (type: string, adviceKey: keyof IAOPDecorator) =>
+      this.resolveAdvices(decoratorsByType[type] ?? [], aopDecorators, methodName, adviceKey);
+
+    const beforeAdvices = resolve(AOP_TYPES.BEFORE, 'before');
+    const afterAdvices = resolve(AOP_TYPES.AFTER, 'after');
+    const afterReturningAdvices = resolve(AOP_TYPES.AFTER_RETURNING, 'afterReturning');
+    const afterThrowingAdvices = resolve(AOP_TYPES.AFTER_THROWING, 'afterThrowing');
+
+    const runBefore = (args: any[]) => {
+      for (const { instance: advice, options } of beforeAdvices) {
+        advice.before!({ method: originalMethod, options })(...args);
+      }
+    };
 
     const runAfterReturning = (result: any, args: any[]) => {
-      for (const decorator of afterReturningDecorators) {
-        const targetDecorator = this.findTargetDecorator({ decorator, aopDecorators, methodName });
-        targetDecorator?.afterReturning?.({
-          method: originalMethod,
-          options: decorator.options,
-          result,
-        })(...args);
+      for (const { instance: advice, options } of afterReturningAdvices) {
+        advice.afterReturning!({ method: originalMethod, options, result })(...args);
       }
     };
 
     const runAfterThrowing = (error: unknown, args: any[]) => {
-      for (const decorator of afterThrowingDecorators) {
-        const targetDecorator = this.findTargetDecorator({ decorator, aopDecorators, methodName });
-        targetDecorator?.afterThrowing?.({
-          method: originalMethod,
-          options: decorator.options,
-          error,
-        })(...args);
+      for (const { instance: advice, options } of afterThrowingAdvices) {
+        advice.afterThrowing!({ method: originalMethod, options, error })(...args);
       }
     };
 
     const runAfter = (args: any[]) => {
-      for (const decorator of afterDecorators) {
-        const targetDecorator = this.findTargetDecorator({ decorator, aopDecorators, methodName });
-        targetDecorator?.after?.({
-          method: originalMethod,
-          options: decorator.options,
-        })(...args);
+      for (const { instance: advice, options } of afterAdvices) {
+        advice.after!({ method: originalMethod, options })(...args);
       }
     };
 
     return (...args: any[]) => {
       // Execute Before advice
-      for (const decorator of beforeDecorators) {
-        const targetDecorator = this.findTargetDecorator({ decorator, aopDecorators, methodName });
-        if (targetDecorator?.before) {
-          targetDecorator.before({
-            method: originalMethod,
-            options: decorator.options,
-          })(...args);
-        }
-      }
+      runBefore(args);
 
       let result: any;
       try {
@@ -352,36 +365,26 @@ export class DecoratorApplier {
   }
 
   /**
-   * Combines all chains into a single method using Spring AOP execution order.
+   * Wraps the final execution function into the method placed on the prototype.
    *
-   * The chains object now contains only the final execution function that includes
-   * all advice properly ordered: Around wraps (Before -> Method -> AfterReturning/AfterThrowing -> After).
+   * Binds the instance as `this` (so Around advice sees the right receiver) and
+   * tags the wrapper with the applied-marker for duplicate detection.
    *
-   * @param params.chains - The chains to combine (now simplified)
-   * @param params.originalMethod - The original method function
+   * @param params.execution - The final execution function (with all advice applied)
    * @param params.instance - The instance of the class containing the method
    *
-   * @returns A new function that combines all AOP advice and the original method
+   * @returns The method to install on the prototype
    */
-  private combineChains({
-    chains,
-    originalMethod,
-    instance,
-  }: {
-    chains: ChainFunctions;
-    originalMethod: Function;
-    instance: any;
-  }): Function {
-    return function combinedAOPMethod(...args: any[]) {
-      // Around wraps everything, or execute core if no Around
-      const finalExecution = chains[AOP_TYPES.AROUND];
-      if (finalExecution) {
-        // finalExecution is already a wrapped function that handles the around advice
-        return finalExecution.call(instance, ...args);
-      } else {
-        // No around advice, execute the original method directly
-        return originalMethod.apply(instance, args);
-      }
+  private combineChains({ execution, instance }: { execution: Function; instance: any }): Function {
+    const combinedAOPMethod = function (this: any, ...args: any[]) {
+      return execution.call(instance, ...args);
     };
+
+    Object.defineProperty(combinedAOPMethod, DecoratorApplier.AOP_APPLIED_MARKER, {
+      value: true,
+      enumerable: false,
+    });
+
+    return combinedAOPMethod;
   }
 }
