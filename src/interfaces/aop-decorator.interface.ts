@@ -16,7 +16,9 @@ export interface IAOPDecorator<
   Options extends AOPOptions = AOPOptions,
   ReturnType = any,
   ErrorType = unknown,
-> extends Partial<AroundAOP<Options, ReturnType>>,
+>
+  extends
+    Partial<AroundAOP<Options, ReturnType>>,
     Partial<BeforeAOP<Options>>,
     Partial<AfterAOP<Options>>,
     Partial<AfterReturningAOP<Options, ReturnType>>,
